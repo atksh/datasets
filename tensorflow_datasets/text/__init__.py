@@ -36,3 +36,5 @@ from tensorflow_datasets.text.super_glue import SuperGlue
 from tensorflow_datasets.text.trivia_qa import TriviaQA
 from tensorflow_datasets.text.wikipedia import Wikipedia
 from tensorflow_datasets.text.xnli import Xnli
+from tensorflow_datasets.text.ja_cc100 import JaCc100  # TODO(ja_cc100) Sort alphabetically
+from tensorflow_datasets.text.oscar_ja import OscarJa  # TODO(oscar_ja) Sort alphabetically
