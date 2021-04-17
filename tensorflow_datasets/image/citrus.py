@@ -56,46 +56,49 @@ _LEAVES_LABELS = ["Black spot", "canker", "greening", "healthy"]
 
 
 class CitrusLeaves(tfds.core.GeneratorBasedBuilder):
-  """Subset of the citrus dataset with just leaves."""
+    """Subset of the citrus dataset with just leaves."""
 
-  VERSION = tfds.core.Version("0.1.0")
+    VERSION = tfds.core.Version("0.1.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "image/filename": tfds.features.Text(),
-            "label": tfds.features.ClassLabel(names=_LEAVES_LABELS)
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://data.mendeley.com/datasets/3f83gxmv57/2",
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "image/filename": tfds.features.Text(),
+                    "label": tfds.features.ClassLabel(names=_LEAVES_LABELS),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://data.mendeley.com/datasets/3f83gxmv57/2",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    path = dl_manager.download_and_extract(_URL)
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN, gen_kwargs={"datapath": path})
-    ]
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        path = dl_manager.download_and_extract(_URL)
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, gen_kwargs={"datapath": path}
+            )
+        ]
 
-  def _generate_examples(self, datapath):
-    """Yields examples based on the passed split index."""
-    for label in _LEAVES_LABELS:
-      # The real dataset has spaces in directories (label names), which causes
-      # fake data test to fail due objfs not handling whitespace in paths. The
-      # solution is to replace spaces with underscores in fake data directories
-      # and then not care whether a character is a space or an underscore.
-      fuzzy_label = label.replace(" ", "[_ ]")
-      glob_path = os.path.join(datapath, "Citrus/Leaves", fuzzy_label, "*.png")
-      for fpath in tf.io.gfile.glob(glob_path):
-        fname = os.path.basename(fpath)
-        record = {
-            "image": fpath,
-            "image/filename": fname,
-            "label": label,
-        }
-        yield "{}/{}".format(label, fname), record
+    def _generate_examples(self, datapath):
+        """Yields examples based on the passed split index."""
+        for label in _LEAVES_LABELS:
+            # The real dataset has spaces in directories (label names), which causes
+            # fake data test to fail due objfs not handling whitespace in paths. The
+            # solution is to replace spaces with underscores in fake data directories
+            # and then not care whether a character is a space or an underscore.
+            fuzzy_label = label.replace(" ", "[_ ]")
+            glob_path = os.path.join(datapath, "Citrus/Leaves", fuzzy_label, "*.png")
+            for fpath in tf.io.gfile.glob(glob_path):
+                fname = os.path.basename(fpath)
+                record = {
+                    "image": fpath,
+                    "image/filename": fname,
+                    "label": label,
+                }
+                yield "{}/{}".format(label, fname), record

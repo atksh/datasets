@@ -24,20 +24,20 @@ from tensorflow_datasets.image import so2sat
 
 
 class So2satTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = so2sat.So2sat
-  SPLITS = {
-      "train": 5,  # Number of fake train example
-      "validation": 3,  # Number of fake validation example
-  }
-  DL_EXTRACT_RESULT = {
-      "train": "./training.h5",
-      "val": "./validation.h5",
-  }
+    DATASET_CLASS = so2sat.So2sat
+    SPLITS = {
+        "train": 5,  # Number of fake train example
+        "validation": 3,  # Number of fake validation example
+    }
+    DL_EXTRACT_RESULT = {
+        "train": "./training.h5",
+        "val": "./validation.h5",
+    }
 
 
 class So2satS3Test(So2satTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

@@ -22,7 +22,7 @@ from tensorflow_datasets.core.decode.base import make_decoder
 from tensorflow_datasets.core.decode.base import SkipDecoding
 
 __all__ = [
-    'Decoder',
-    'make_decoder',
-    'SkipDecoding',
+    "Decoder",
+    "make_decoder",
+    "SkipDecoding",
 ]

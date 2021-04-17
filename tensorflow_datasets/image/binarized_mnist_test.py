@@ -27,17 +27,18 @@ from tensorflow_datasets.image import binarized_mnist
 
 
 class MNISTTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = binarized_mnist.BinarizedMNIST
-  SPLITS = {
-      "train": 10,
-      "validation": 2,
-      "test": 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "train_data": binarized_mnist._TRAIN_DATA_FILENAME,
-      "validation_data": binarized_mnist._VALID_DATA_FILENAME,
-      "test_data": binarized_mnist._TEST_DATA_FILENAME,
-  }
+    DATASET_CLASS = binarized_mnist.BinarizedMNIST
+    SPLITS = {
+        "train": 10,
+        "validation": 2,
+        "test": 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "train_data": binarized_mnist._TRAIN_DATA_FILENAME,
+        "validation_data": binarized_mnist._VALID_DATA_FILENAME,
+        "test_data": binarized_mnist._TEST_DATA_FILENAME,
+    }
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

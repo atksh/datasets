@@ -24,13 +24,13 @@ from tensorflow_datasets.text import multi_nli_mismatch
 
 
 class MultiNLIMismatchTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = multi_nli_mismatch.MultiNLIMismatch
+    DATASET_CLASS = multi_nli_mismatch.MultiNLIMismatch
 
-  SPLITS = {
-      "train": 3,
-      "validation": 2,
-  }
+    SPLITS = {
+        "train": 3,
+        "validation": 2,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

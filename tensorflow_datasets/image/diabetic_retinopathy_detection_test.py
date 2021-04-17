@@ -23,19 +23,19 @@ from tensorflow_datasets.image import diabetic_retinopathy_detection
 
 
 class DiabeticRetinopathyDetectionTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = diabetic_retinopathy_detection.DiabeticRetinopathyDetection
-  SPLITS = {  # Expected number of examples on each split.
-      "sample": 4,
-      "train": 12,
-      "validation": 6,
-      "test": 6,
-  }
-  OVERLAPPING_SPLITS = ["sample"]  # contains examples from other examples
+    DATASET_CLASS = diabetic_retinopathy_detection.DiabeticRetinopathyDetection
+    SPLITS = {  # Expected number of examples on each split.
+        "sample": 4,
+        "train": 12,
+        "validation": 6,
+        "test": 6,
+    }
+    OVERLAPPING_SPLITS = ["sample"]  # contains examples from other examples
 
 
 class DiabeticRetinopathyDetectionS3Test(DiabeticRetinopathyDetectionTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

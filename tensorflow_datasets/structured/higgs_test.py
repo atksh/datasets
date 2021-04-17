@@ -24,17 +24,17 @@ from tensorflow_datasets.structured import higgs
 
 
 class HiggsTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = higgs.Higgs
-  SPLITS = {
-      "train": 11,
-  }
+    DATASET_CLASS = higgs.Higgs
+    SPLITS = {
+        "train": 11,
+    }
 
-  DL_EXTRACT_RESULT = "test.csv"
+    DL_EXTRACT_RESULT = "test.csv"
 
 
 class HiggsS3Test(HiggsTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

@@ -67,7 +67,12 @@ This dataset can be downloaded upon requests. Unzip all the contents
 _DOCUMENT = "text"
 _SUMMARY = "summary"
 _ADDITIONAL_TEXT_FEATURES = [
-    "title", "url", "date", "density_bin", "coverage_bin", "compression_bin"
+    "title",
+    "url",
+    "date",
+    "density_bin",
+    "coverage_bin",
+    "compression_bin",
 ]
 _ADDITIONAL_FLOAT_FEATURES = [
     "density",
@@ -77,66 +82,70 @@ _ADDITIONAL_FLOAT_FEATURES = [
 
 
 class Newsroom(tfds.core.GeneratorBasedBuilder):
-  """NEWSROOM Dataset."""
+    """NEWSROOM Dataset."""
 
-  VERSION = tfds.core.Version("1.0.0")
-  MANUAL_DOWNLOAD_INSTRUCTIONS = """\
+    VERSION = tfds.core.Version("1.0.0")
+    MANUAL_DOWNLOAD_INSTRUCTIONS = """\
   You should download the dataset from https://summari.es/download/
   The webpage requires registration.
   After downloading, please put dev.jsonl, test.jsonl and train.jsonl
   files in the manual_dir.
   """
 
-  def _info(self):
-    features = {
-        k: tfds.features.Text()
-        for k in [_DOCUMENT, _SUMMARY] + _ADDITIONAL_TEXT_FEATURES
-    }
-    features.update({
-        k: tfds.features.Tensor(shape=[], dtype=tf.float32)
-        for k in _ADDITIONAL_FLOAT_FEATURES
-    })
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict(features),
-        supervised_keys=(_DOCUMENT, _SUMMARY),
-        homepage="https://summari.es",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={
-                "input_file": os.path.join(dl_manager.manual_dir, "train.jsonl")
-            },
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={
-                "input_file": os.path.join(dl_manager.manual_dir, "dev.jsonl")
-            },
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={
-                "input_file": os.path.join(dl_manager.manual_dir, "test.jsonl")
-            },
-        ),
-    ]
-
-  def _generate_examples(self, input_file=None):
-    """Yields examples."""
-    with tf.io.gfile.GFile(input_file) as f:
-      for i, line in enumerate(f):
-        d = json.loads(line)
-        # fields are "url", "archive", "title", "date", "text",
-        #  "compression_bin", "density_bin", "summary", "density",
-        #  "compression', "coverage", "coverage_bin",
-        yield i, {
-            k: d[k] for k in [_DOCUMENT, _SUMMARY] + _ADDITIONAL_TEXT_FEATURES +
-            _ADDITIONAL_FLOAT_FEATURES
+    def _info(self):
+        features = {
+            k: tfds.features.Text()
+            for k in [_DOCUMENT, _SUMMARY] + _ADDITIONAL_TEXT_FEATURES
         }
+        features.update(
+            {
+                k: tfds.features.Tensor(shape=[], dtype=tf.float32)
+                for k in _ADDITIONAL_FLOAT_FEATURES
+            }
+        )
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(features),
+            supervised_keys=(_DOCUMENT, _SUMMARY),
+            homepage="https://summari.es",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={
+                    "input_file": os.path.join(dl_manager.manual_dir, "train.jsonl")
+                },
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                gen_kwargs={
+                    "input_file": os.path.join(dl_manager.manual_dir, "dev.jsonl")
+                },
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={
+                    "input_file": os.path.join(dl_manager.manual_dir, "test.jsonl")
+                },
+            ),
+        ]
+
+    def _generate_examples(self, input_file=None):
+        """Yields examples."""
+        with tf.io.gfile.GFile(input_file) as f:
+            for i, line in enumerate(f):
+                d = json.loads(line)
+                # fields are "url", "archive", "title", "date", "text",
+                #  "compression_bin", "density_bin", "summary", "density",
+                #  "compression', "coverage", "coverage_bin",
+                yield i, {
+                    k: d[k]
+                    for k in [_DOCUMENT, _SUMMARY]
+                    + _ADDITIONAL_TEXT_FEATURES
+                    + _ADDITIONAL_FLOAT_FEATURES
+                }

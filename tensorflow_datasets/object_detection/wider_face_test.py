@@ -25,19 +25,19 @@ import tensorflow_datasets.public_api as tfds
 
 
 class WiderFaceTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = wider_face.WiderFace
-  SPLITS = {
-      tfds.Split.TRAIN: 3,
-      tfds.Split.VALIDATION: 3,
-      tfds.Split.TEST: 3,
-  }
-  DL_EXTRACT_RESULT = {
-      'wider_train': 'wider_train',
-      'wider_val': 'wider_val',
-      'wider_test': 'wider_test',
-      'wider_annot': 'wider_annot',
-  }
+    DATASET_CLASS = wider_face.WiderFace
+    SPLITS = {
+        tfds.Split.TRAIN: 3,
+        tfds.Split.VALIDATION: 3,
+        tfds.Split.TEST: 3,
+    }
+    DL_EXTRACT_RESULT = {
+        "wider_train": "wider_train",
+        "wider_val": "wider_val",
+        "wider_test": "wider_test",
+        "wider_annot": "wider_annot",
+    }
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

@@ -31,7 +31,7 @@ from tensorflow_datasets.core.utils import py_utils
 
 @six.add_metaclass(abc.ABCMeta)
 class Decoder(object):
-  """Base decoder object.
+    """Base decoder object.
 
   `tfds.decode.Decoder` allows for overriding the default decoding by
   implementing a subclass, or skipping it entirely with
@@ -52,12 +52,12 @@ class Decoder(object):
   `tfds.features.Sequence`.
   """
 
-  def __init__(self):
-    self.feature = None
+    def __init__(self):
+        self.feature = None
 
-  @api_utils.disallow_positional_args
-  def setup(self, feature):
-    """Transformation contructor.
+    @api_utils.disallow_positional_args
+    def setup(self, feature):
+        """Transformation contructor.
 
     The initialization of decode object is deferred because the objects only
     know the builder/features on which it is used after it has been
@@ -68,17 +68,17 @@ class Decoder(object):
         this transformation.
 
     """
-    self.feature = feature
+        self.feature = feature
 
-  @property
-  def dtype(self):
-    """Returns the `dtype` after decoding."""
-    tensor_info = self.feature.get_tensor_info()
-    return py_utils.map_nested(lambda t: t.dtype, tensor_info)
+    @property
+    def dtype(self):
+        """Returns the `dtype` after decoding."""
+        tensor_info = self.feature.get_tensor_info()
+        return py_utils.map_nested(lambda t: t.dtype, tensor_info)
 
-  @abc.abstractmethod
-  def decode_example(self, serialized_example):
-    """Decode the example feature field (eg: image).
+    @abc.abstractmethod
+    def decode_example(self, serialized_example):
+        """Decode the example feature field (eg: image).
 
     Args:
       serialized_example: `tf.Tensor` as decoded, the dtype/shape should be
@@ -87,22 +87,22 @@ class Decoder(object):
     Returns:
       example: Decoded example.
     """
-    raise NotImplementedError('Abstract class')
+        raise NotImplementedError("Abstract class")
 
-  def decode_batch_example(self, serialized_example):
-    """See `FeatureConnector.decode_batch_example` for details."""
-    return tf.map_fn(
-        self.decode_example,
-        serialized_example,
-        dtype=self.dtype,
-        parallel_iterations=10,
-        back_prop=False,
-        name='sequence_decode',
-    )
+    def decode_batch_example(self, serialized_example):
+        """See `FeatureConnector.decode_batch_example` for details."""
+        return tf.map_fn(
+            self.decode_example,
+            serialized_example,
+            dtype=self.dtype,
+            parallel_iterations=10,
+            back_prop=False,
+            name="sequence_decode",
+        )
 
 
 class SkipDecoding(Decoder):
-  """Transformation which skip the decoding entirelly.
+    """Transformation which skip the decoding entirelly.
 
   Example of usage:
 
@@ -120,41 +120,40 @@ class SkipDecoding(Decoder):
   ```
   """
 
-  @property
-  def dtype(self):
-    tensor_info = self.feature.get_serialized_info()
-    return py_utils.map_nested(lambda t: t.dtype, tensor_info)
+    @property
+    def dtype(self):
+        tensor_info = self.feature.get_serialized_info()
+        return py_utils.map_nested(lambda t: t.dtype, tensor_info)
 
-  def decode_example(self, serialized_example):
-    """Forward the serialized feature field."""
-    return serialized_example
+    def decode_example(self, serialized_example):
+        """Forward the serialized feature field."""
+        return serialized_example
 
 
 class DecoderFn(Decoder):
-  """Decoder created by `tfds.decoder.make_decoder` decorator."""
+    """Decoder created by `tfds.decoder.make_decoder` decorator."""
 
-  def __init__(self, fn, output_dtype, *args, **kwargs):
-    super(DecoderFn, self).__init__()
-    self._fn = fn
-    self._output_dtype = output_dtype
-    self._args = args
-    self._kwargs = kwargs
+    def __init__(self, fn, output_dtype, *args, **kwargs):
+        super(DecoderFn, self).__init__()
+        self._fn = fn
+        self._output_dtype = output_dtype
+        self._args = args
+        self._kwargs = kwargs
 
-  @property
-  def dtype(self):
-    if self._output_dtype is None:
-      return super(DecoderFn, self).dtype
-    else:
-      return self._output_dtype
+    @property
+    def dtype(self):
+        if self._output_dtype is None:
+            return super(DecoderFn, self).dtype
+        else:
+            return self._output_dtype
 
-  def decode_example(self, serialized_example):
-    """Decode the example using the function."""
-    return self._fn(
-        serialized_example, self.feature, *self._args, **self._kwargs)
+    def decode_example(self, serialized_example):
+        """Decode the example using the function."""
+        return self._fn(serialized_example, self.feature, *self._args, **self._kwargs)
 
 
 def make_decoder(output_dtype=None):
-  """Decorator to create a decoder.
+    """Decorator to create a decoder.
 
   The decorated function should have the signature `(example, feature, *args,
   **kwargs) -> decoded_example`.
@@ -185,11 +184,11 @@ def make_decoder(output_dtype=None):
     The decoder object
   """  # pylint: disable=g-docstring-has-escape
 
-  def decorator(fn):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def decorated(*args, **kwargs):
+            return DecoderFn(fn, output_dtype, *args, **kwargs)
 
-    @functools.wraps(fn)
-    def decorated(*args, **kwargs):
-      return DecoderFn(fn, output_dtype, *args, **kwargs)
-    return decorated
+        return decorated
 
-  return decorator
+    return decorator

@@ -21,13 +21,13 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class BinaryAlphaDigitsTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = binary_alpha_digits.BinaryAlphaDigits
-  SPLITS = {
-      "train": 2,
-  }
+    DATASET_CLASS = binary_alpha_digits.BinaryAlphaDigits
+    SPLITS = {
+        "train": 2,
+    }
 
-  DL_EXTRACT_RESULT = {"train": "binaryalphadigs.mat"}
+    DL_EXTRACT_RESULT = {"train": "binaryalphadigs.mat"}
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

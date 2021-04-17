@@ -45,51 +45,52 @@ linearly separable from each other.
 
 
 class Iris(tfds.core.GeneratorBasedBuilder):
-  """Iris flower dataset."""
-  NUM_CLASSES = 3
-  VERSION = tfds.core.Version("1.0.0",
-                              experiments={tfds.core.Experiment.S3: False})
+    """Iris flower dataset."""
 
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
+    NUM_CLASSES = 3
+    VERSION = tfds.core.Version("1.0.0", experiments={tfds.core.Experiment.S3: False})
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        # tfds.features.FeatureConnectors
-        features=tfds.features.FeaturesDict({
-            "features":
-                tfds.features.Tensor(shape=(4,), dtype=tf.float32),
-            # Here, labels can be one of 3 classes
-            "label":
-                tfds.features.ClassLabel(
-                    names=["Iris-setosa", "Iris-versicolor", "Iris-virginica"]),
-        }),
-        supervised_keys=("features", "label"),
-        homepage="https://archive.ics.uci.edu/ml/datasets/iris",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    iris_file = dl_manager.download(IRIS_URL)
-    all_lines = tf.io.gfile.GFile(iris_file).read().split("\n")
-    records = [l for l in all_lines if l]  # get rid of empty lines
-
-    # Specify the splits
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=1,
-            gen_kwargs={"records": records}),
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, records):
-    for i, row in enumerate(records):
-      elems = row.split(",")
-      yield i, {
-          "features": [float(e) for e in elems[:-1]],
-          "label": elems[-1],
-      }
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            # tfds.features.FeatureConnectors
+            features=tfds.features.FeaturesDict(
+                {
+                    "features": tfds.features.Tensor(shape=(4,), dtype=tf.float32),
+                    # Here, labels can be one of 3 classes
+                    "label": tfds.features.ClassLabel(
+                        names=["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
+                    ),
+                }
+            ),
+            supervised_keys=("features", "label"),
+            homepage="https://archive.ics.uci.edu/ml/datasets/iris",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        iris_file = dl_manager.download(IRIS_URL)
+        all_lines = tf.io.gfile.GFile(iris_file).read().split("\n")
+        records = [l for l in all_lines if l]  # get rid of empty lines
+
+        # Specify the splits
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, num_shards=1, gen_kwargs={"records": records}
+            ),
+        ]
+
+    def _generate_examples(self, records):
+        for i, row in enumerate(records):
+            elems = row.split(",")
+            yield i, {
+                "features": [float(e) for e in elems[:-1]],
+                "label": elems[-1],
+            }

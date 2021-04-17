@@ -49,107 +49,109 @@ from the corresponding reading passage, or the question might be unanswerable.
 
 
 class SquadConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for SQUAD."""
+    """BuilderConfig for SQUAD."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, **kwargs):
-    """BuilderConfig for SQUAD.
+    @tfds.core.disallow_positional_args
+    def __init__(self, **kwargs):
+        """BuilderConfig for SQUAD.
 
     Args:
       **kwargs: keyword arguments forwarded to super.
     """
-    super(SquadConfig, self).__init__(**kwargs)
+        super(SquadConfig, self).__init__(**kwargs)
 
 
 class Squad(tfds.core.GeneratorBasedBuilder):
-  """SQUAD: The Stanford Question Answering Dataset. Version 1.1."""
-  _URL = "https://rajpurkar.github.io/SQuAD-explorer/dataset/"
-  _DEV_FILE = "dev-v1.1.json"
-  _TRAINING_FILE = "train-v1.1.json"
+    """SQUAD: The Stanford Question Answering Dataset. Version 1.1."""
 
-  BUILDER_CONFIGS = [
-      SquadConfig(
-          name="plain_text",
-          version=tfds.core.Version(
-              "0.1.0", experiments={tfds.core.Experiment.S3: False}),
-          supported_versions=[
-              tfds.core.Version(
-                  "1.0.0",
-                  "New split API (https://tensorflow.org/datasets/splits)"),
-          ],
-          description="Plain text",
-      ),
-  ]
+    _URL = "https://rajpurkar.github.io/SQuAD-explorer/dataset/"
+    _DEV_FILE = "dev-v1.1.json"
+    _TRAINING_FILE = "train-v1.1.json"
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "id":
-                tf.string,
-            "title":
-                tfds.features.Text(),
-            "context":
-                tfds.features.Text(),
-            "question":
-                tfds.features.Text(),
-            "answers":
-                tfds.features.Sequence({
-                    "text": tfds.features.Text(),
-                    "answer_start": tf.int32,
-                }),
-        }),
-        # No default supervised_keys (as we have to pass both question
-        # and context as input).
-        supervised_keys=None,
-        homepage="https://rajpurkar.github.io/SQuAD-explorer/",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    urls_to_download = {
-        "train": os.path.join(self._URL, self._TRAINING_FILE),
-        "dev": os.path.join(self._URL, self._DEV_FILE)
-    }
-    downloaded_files = dl_manager.download_and_extract(urls_to_download)
-
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=10,
-            gen_kwargs={"filepath": downloaded_files["train"]}),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=1,
-            gen_kwargs={"filepath": downloaded_files["dev"]}),
+    BUILDER_CONFIGS = [
+        SquadConfig(
+            name="plain_text",
+            version=tfds.core.Version(
+                "0.1.0", experiments={tfds.core.Experiment.S3: False}
+            ),
+            supported_versions=[
+                tfds.core.Version(
+                    "1.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+                ),
+            ],
+            description="Plain text",
+        ),
     ]
 
-  def _generate_examples(self, filepath):
-    """This function returns the examples in the raw (text) form."""
-    logging.info("generating examples from = %s", filepath)
-    with tf.io.gfile.GFile(filepath) as f:
-      squad = json.load(f)
-      for article in squad["data"]:
-        title = article.get("title", "").strip()
-        for paragraph in article["paragraphs"]:
-          context = paragraph["context"].strip()
-          for qa in paragraph["qas"]:
-            question = qa["question"].strip()
-            id_ = qa["id"]
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "id": tf.string,
+                    "title": tfds.features.Text(),
+                    "context": tfds.features.Text(),
+                    "question": tfds.features.Text(),
+                    "answers": tfds.features.Sequence(
+                        {"text": tfds.features.Text(), "answer_start": tf.int32,}
+                    ),
+                }
+            ),
+            # No default supervised_keys (as we have to pass both question
+            # and context as input).
+            supervised_keys=None,
+            homepage="https://rajpurkar.github.io/SQuAD-explorer/",
+            citation=_CITATION,
+        )
 
-            answer_starts = [answer["answer_start"] for answer in qa["answers"]]
-            answers = [answer["text"].strip() for answer in qa["answers"]]
+    def _split_generators(self, dl_manager):
+        urls_to_download = {
+            "train": os.path.join(self._URL, self._TRAINING_FILE),
+            "dev": os.path.join(self._URL, self._DEV_FILE),
+        }
+        downloaded_files = dl_manager.download_and_extract(urls_to_download)
 
-            # Features currently used are "context", "question", and "answers".
-            # Others are extracted here for the ease of future expansions.
-            yield id_, {
-                "title": title,
-                "context": context,
-                "question": question,
-                "id": id_,
-                "answers": {
-                    "answer_start": answer_starts,
-                    "text": answers,
-                },
-            }
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=10,
+                gen_kwargs={"filepath": downloaded_files["train"]},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=1,
+                gen_kwargs={"filepath": downloaded_files["dev"]},
+            ),
+        ]
+
+    def _generate_examples(self, filepath):
+        """This function returns the examples in the raw (text) form."""
+        logging.info("generating examples from = %s", filepath)
+        with tf.io.gfile.GFile(filepath) as f:
+            squad = json.load(f)
+            for article in squad["data"]:
+                title = article.get("title", "").strip()
+                for paragraph in article["paragraphs"]:
+                    context = paragraph["context"].strip()
+                    for qa in paragraph["qas"]:
+                        question = qa["question"].strip()
+                        id_ = qa["id"]
+
+                        answer_starts = [
+                            answer["answer_start"] for answer in qa["answers"]
+                        ]
+                        answers = [answer["text"].strip() for answer in qa["answers"]]
+
+                        # Features currently used are "context", "question", and "answers".
+                        # Others are extracted here for the ease of future expansions.
+                        yield id_, {
+                            "title": title,
+                            "context": context,
+                            "question": question,
+                            "id": id_,
+                            "answers": {
+                                "answer_start": answer_starts,
+                                "text": answers,
+                            },
+                        }

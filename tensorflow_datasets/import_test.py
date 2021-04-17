@@ -24,10 +24,9 @@ from tensorflow_datasets import testing
 
 
 class ImportTest(testing.TestCase):
+    def test_import(self):
+        pass
 
-  def test_import(self):
-    pass
 
-
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

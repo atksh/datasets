@@ -28,5 +28,3 @@ GCS_DATA_DIR = "gs://tfds-data/datasets"
 
 # Suffix of files / directories which aren't finished downloading / extracting.
 INCOMPLETE_SUFFIX = ".incomplete"
-
-

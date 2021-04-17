@@ -62,25 +62,22 @@ _TRAIN_LABELS_FNAME = os.path.join(_DATA_DIR, "train.csv")
 _VALIDATION_LABELS_FNAME = os.path.join(_DATA_DIR, "valid.csv")
 
 # Labels per category
-_LABELS = collections.OrderedDict({
-    "-1.0": "uncertain",
-    "1.0": "positive",
-    "0.0": "negative",
-    "": "unmentioned",
-})
+_LABELS = collections.OrderedDict(
+    {"-1.0": "uncertain", "1.0": "positive", "0.0": "negative", "": "unmentioned",}
+)
 
 
 class Chexpert(tfds.core.GeneratorBasedBuilder):
-  """CheXpert 2019."""
+    """CheXpert 2019."""
 
-  VERSION = tfds.core.Version("1.0.0",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
+    VERSION = tfds.core.Version("1.0.0", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
+    ]
 
-  MANUAL_DOWNLOAD_INSTRUCTIONS = """\
+    MANUAL_DOWNLOAD_INSTRUCTIONS = """\
   You must register and agree to user agreement on the dataset page:
   https://stanfordmlgroup.github.io/competitions/chexpert/
   Afterwards, you have to put the CheXpert-v1.0-small directory in the
@@ -88,68 +85,73 @@ class Chexpert(tfds.core.GeneratorBasedBuilder):
   and also train.csv and valid.csv files.
   """
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "name": tfds.features.Text(),  # patient info
-            "image": tfds.features.Image(),
-            "label": tfds.features.Sequence(
-                tfds.features.ClassLabel(names=_LABELS.values())),
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://stanfordmlgroup.github.io/competitions/chexpert/",
-        citation=_CITATION
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "name": tfds.features.Text(),  # patient info
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.Sequence(
+                        tfds.features.ClassLabel(names=_LABELS.values())
+                    ),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://stanfordmlgroup.github.io/competitions/chexpert/",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    path = dl_manager.manual_dir
-    train_path = os.path.join(path, _TRAIN_DIR)
-    val_path = os.path.join(path, _VALIDATION_DIR)
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        path = dl_manager.manual_dir
+        train_path = os.path.join(path, _TRAIN_DIR)
+        val_path = os.path.join(path, _VALIDATION_DIR)
 
-    if not tf.io.gfile.exists(train_path) or not tf.io.gfile.exists(val_path):
-      msg = ("You must download the dataset folder from CheXpert"
-             "website manually and place it into %s." % path)
-      raise AssertionError(msg)
+        if not tf.io.gfile.exists(train_path) or not tf.io.gfile.exists(val_path):
+            msg = (
+                "You must download the dataset folder from CheXpert"
+                "website manually and place it into %s." % path
+            )
+            raise AssertionError(msg)
 
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=100,
-            gen_kwargs={
-                "imgs_path": path,  # Relative img path is provided in csv
-                "csv_path": os.path.join(path, _TRAIN_LABELS_FNAME)
-            },
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=10,
-            gen_kwargs={
-                "imgs_path": path,
-                "csv_path": os.path.join(path, _VALIDATION_LABELS_FNAME)
-            },
-        ),
-    ]
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=100,
+                gen_kwargs={
+                    "imgs_path": path,  # Relative img path is provided in csv
+                    "csv_path": os.path.join(path, _TRAIN_LABELS_FNAME),
+                },
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=10,
+                gen_kwargs={
+                    "imgs_path": path,
+                    "csv_path": os.path.join(path, _VALIDATION_LABELS_FNAME),
+                },
+            ),
+        ]
 
-  def _generate_examples(self, imgs_path, csv_path):
-    """Yields examples."""
-    with tf.io.gfile.GFile(csv_path) as csv_f:
-      reader = csv.DictReader(csv_f)
-      # Get keys for each label from csv
-      label_keys = reader.fieldnames[5:]
-      data = []
-      for row in reader:
-        # Get image based on indicated path in csv
-        name = row["Path"]
-        labels = [_LABELS[row[key]] for key in label_keys]
-        data.append((name, labels))
+    def _generate_examples(self, imgs_path, csv_path):
+        """Yields examples."""
+        with tf.io.gfile.GFile(csv_path) as csv_f:
+            reader = csv.DictReader(csv_f)
+            # Get keys for each label from csv
+            label_keys = reader.fieldnames[5:]
+            data = []
+            for row in reader:
+                # Get image based on indicated path in csv
+                name = row["Path"]
+                labels = [_LABELS[row[key]] for key in label_keys]
+                data.append((name, labels))
 
-    for name, labels in data:
-      record = {
-          "name": name,
-          "image": os.path.join(imgs_path, name),
-          "label": labels
-      }
-      yield name, record
+        for name, labels in data:
+            record = {
+                "name": name,
+                "image": os.path.join(imgs_path, name),
+                "label": labels,
+            }
+            yield name, record

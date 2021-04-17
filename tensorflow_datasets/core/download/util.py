@@ -28,7 +28,7 @@ from six.moves import urllib
 
 
 class GenerateMode(enum.Enum):
-  """`Enum` for how to treat pre-existing downloads and data.
+    """`Enum` for how to treat pre-existing downloads and data.
 
   The default mode is `REUSE_DATASET_IF_EXISTS`, which will reuse both
   raw downloads and the prepared dataset if they exist.
@@ -42,13 +42,13 @@ class GenerateMode(enum.Enum):
   | `FORCE_REDOWNLOAD`                 | Fresh     | Fresh   |
   """
 
-  REUSE_DATASET_IF_EXISTS = 'reuse_dataset_if_exists'
-  REUSE_CACHE_IF_EXISTS = 'reuse_cache_if_exists'
-  FORCE_REDOWNLOAD = 'force_redownload'
+    REUSE_DATASET_IF_EXISTS = "reuse_dataset_if_exists"
+    REUSE_CACHE_IF_EXISTS = "reuse_cache_if_exists"
+    FORCE_REDOWNLOAD = "force_redownload"
 
 
 class ComputeStatsMode(enum.Enum):
-  """Mode to decide if dynamic dataset info fields should be computed or not.
+    """Mode to decide if dynamic dataset info fields should be computed or not.
 
   Mode can be:
 
@@ -61,16 +61,16 @@ class ComputeStatsMode(enum.Enum):
 
   """
 
-  AUTO = 'auto'
-  FORCE = 'force'
-  SKIP = 'skip'
+    AUTO = "auto"
+    FORCE = "force"
+    SKIP = "skip"
 
 
 # TODO(epot): Move some of those functions into core.py_utils
 
 
 def build_synchronize_decorator():
-  """Returns a decorator which prevents concurrent calls to functions.
+    """Returns a decorator which prevents concurrent calls to functions.
 
   Usage:
     synchronized = build_synchronize_decorator()
@@ -87,20 +87,19 @@ def build_synchronize_decorator():
     make_threadsafe (fct): The decorator which lock all functions to which it
       is applied under a same lock
   """
-  lock = threading.Lock()
+    lock = threading.Lock()
 
-  def lock_decorator(fn):
+    def lock_decorator(fn):
+        @functools.wraps(fn)
+        def lock_decorated(*args, **kwargs):
+            with lock:
+                return fn(*args, **kwargs)
 
-    @functools.wraps(fn)
-    def lock_decorated(*args, **kwargs):
-      with lock:
-        return fn(*args, **kwargs)
+        return lock_decorated
 
-    return lock_decorated
-
-  return lock_decorator
+    return lock_decorator
 
 
 def get_file_name(url):
-  """Returns file name of file at given url."""
-  return os.path.basename(urllib.parse.urlparse(url).path) or 'unknown_name'
+    """Returns file name of file at given url."""
+    return os.path.basename(urllib.parse.urlparse(url).path) or "unknown_name"

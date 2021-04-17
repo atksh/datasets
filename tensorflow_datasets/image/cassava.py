@@ -50,63 +50,57 @@ _LABELS = ["cbb", "cbsd", "cgm", "cmd", "healthy"]
 
 
 class Cassava(tfds.core.GeneratorBasedBuilder):
-  """Cassava leaf image dataset."""
+    """Cassava leaf image dataset."""
 
-  VERSION = tfds.core.Version("0.1.0")
+    VERSION = tfds.core.Version("0.1.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "image/filename": tfds.features.Text(),  # test-cbb-0.jpg
-            "label": tfds.features.ClassLabel(names=_LABELS)
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://www.kaggle.com/c/cassava-disease/overview",
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "image/filename": tfds.features.Text(),  # test-cbb-0.jpg
+                    "label": tfds.features.ClassLabel(names=_LABELS),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://www.kaggle.com/c/cassava-disease/overview",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    path = dl_manager.download_and_extract(_BASE_URL)
-    train_path = os.path.join(path, "cassavaleafdata/train")
-    test_path = os.path.join(path, "cassavaleafdata/test")
-    validation_path = os.path.join(path, "cassavaleafdata/validation")
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        path = dl_manager.download_and_extract(_BASE_URL)
+        train_path = os.path.join(path, "cassavaleafdata/train")
+        test_path = os.path.join(path, "cassavaleafdata/test")
+        validation_path = os.path.join(path, "cassavaleafdata/validation")
 
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=5,
-            gen_kwargs={
-                "datapath": train_path},
-        ),
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=5,
+                gen_kwargs={"datapath": train_path},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST, num_shards=1, gen_kwargs={"datapath": test_path},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=1,
+                gen_kwargs={"datapath": validation_path},
+            ),
+        ]
 
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=1,
-            gen_kwargs={
-                "datapath": test_path},
-        ),
-
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=1,
-            gen_kwargs={
-                "datapath": validation_path},
-        ),
-    ]
-
-  def _generate_examples(self, datapath):
-    """Yields examples of cassava leaf images and labels."""
-    for label in tf.io.gfile.listdir(datapath):
-      for fpath in tf.io.gfile.glob(os.path.join(datapath, label, "*.jpg")):
-        fname = os.path.basename(fpath)
-        record = {
-            "image": fpath,
-            "image/filename": fname,
-            "label": label,
-        }
-        yield fname, record
-
+    def _generate_examples(self, datapath):
+        """Yields examples of cassava leaf images and labels."""
+        for label in tf.io.gfile.listdir(datapath):
+            for fpath in tf.io.gfile.glob(os.path.join(datapath, label, "*.jpg")):
+                fname = os.path.basename(fpath)
+                record = {
+                    "image": fpath,
+                    "image/filename": fname,
+                    "label": label,
+                }
+                yield fname, record

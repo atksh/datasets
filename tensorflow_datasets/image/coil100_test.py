@@ -24,11 +24,11 @@ from tensorflow_datasets.image import coil100
 
 
 class Coil100Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = coil100.Coil100
-  SPLITS = {
-      "train": 5,
-  }
+    DATASET_CLASS = coil100.Coil100
+    SPLITS = {
+        "train": 5,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

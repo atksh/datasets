@@ -33,36 +33,36 @@ CHANNELS_NB = 3
 
 
 def get_random_picture(height=None, width=None, channels=CHANNELS_NB):
-  """Returns random picture as np.ndarray (int)."""
-  height = height or random.randrange(MIN_HEIGHT_WIDTH, MAX_HEIGHT_WIDTH)
-  width = width or random.randrange(MIN_HEIGHT_WIDTH, MAX_HEIGHT_WIDTH)
-  return np.random.randint(
-      256, size=(height, width, channels), dtype=np.uint8)
+    """Returns random picture as np.ndarray (int)."""
+    height = height or random.randrange(MIN_HEIGHT_WIDTH, MAX_HEIGHT_WIDTH)
+    width = width or random.randrange(MIN_HEIGHT_WIDTH, MAX_HEIGHT_WIDTH)
+    return np.random.randint(256, size=(height, width, channels), dtype=np.uint8)
 
 
 def get_random_jpeg(height=None, width=None, channels=CHANNELS_NB):
-  """Returns path to JPEG picture."""
-  image = get_random_picture(height, width, channels)
-  jpeg = tf.image.encode_jpeg(image)
-  with utils.nogpu_session() as sess:
-    res = sess.run(jpeg)
-  fobj = tempfile.NamedTemporaryFile(delete=False, mode='wb', suffix='.JPEG')
-  fobj.write(res)
-  fobj.close()
-  return fobj.name
+    """Returns path to JPEG picture."""
+    image = get_random_picture(height, width, channels)
+    jpeg = tf.image.encode_jpeg(image)
+    with utils.nogpu_session() as sess:
+        res = sess.run(jpeg)
+    fobj = tempfile.NamedTemporaryFile(delete=False, mode="wb", suffix=".JPEG")
+    fobj.write(res)
+    fobj.close()
+    return fobj.name
 
 
 def get_random_png(height=None, width=None, channels=CHANNELS_NB):
-  """Returns path to PNG picture."""
-  # Big randomly generated pngs take large amounts of diskspace.
-  # Instead, we resize a 4x4 random image to the png size.
-  image = get_random_picture(4, 4, channels)
-  image = tf.image.resize_nearest_neighbor(
-      tf.expand_dims(image, 0), (height, width))[0]
-  png = tf.image.encode_png(image)
-  with utils.nogpu_session() as sess:
-    res = sess.run(png)
-  fobj = tempfile.NamedTemporaryFile(delete=False, mode='wb', suffix='.PNG')
-  fobj.write(res)
-  fobj.close()
-  return fobj.name
+    """Returns path to PNG picture."""
+    # Big randomly generated pngs take large amounts of diskspace.
+    # Instead, we resize a 4x4 random image to the png size.
+    image = get_random_picture(4, 4, channels)
+    image = tf.image.resize_nearest_neighbor(tf.expand_dims(image, 0), (height, width))[
+        0
+    ]
+    png = tf.image.encode_png(image)
+    with utils.nogpu_session() as sess:
+        res = sess.run(png)
+    fobj = tempfile.NamedTemporaryFile(delete=False, mode="wb", suffix=".PNG")
+    fobj.write(res)
+    fobj.close()
+    return fobj.name

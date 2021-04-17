@@ -33,61 +33,75 @@ from tensorflow_datasets.core.utils import py_utils
 from tensorflow_datasets.testing import fake_data_utils
 
 
-flags.DEFINE_string('tfds_dir', py_utils.tfds_dir(),
-                    'Path to tensorflow_datasets directory')
+flags.DEFINE_string(
+    "tfds_dir", py_utils.tfds_dir(), "Path to tensorflow_datasets directory"
+)
 FLAGS = flags.FLAGS
 
-_IMAGE_NUMBERS = {'train': 5, 'val': 5, 'test': 5}
+_IMAGE_NUMBERS = {"train": 5, "val": 5, "test": 5}
 _NUM_OBJECTS = 7
 
 
 def _output_dir():
-  return os.path.join(FLAGS.tfds_dir, 'testing', 'test_data',
-                      'fake_examples', 'clevr', 'CLEVR_v1.0')
+    return os.path.join(
+        FLAGS.tfds_dir, "testing", "test_data", "fake_examples", "clevr", "CLEVR_v1.0"
+    )
 
 
 def _generate_data(split):
-  """Generate images archive."""
+    """Generate images archive."""
 
-  # Generate images
-  images_dir = os.path.join(_output_dir(), 'images', split)
-  if not tf.io.gfile.exists(images_dir):
-    tf.io.gfile.makedirs(images_dir)
-  for i in range(_IMAGE_NUMBERS[split]):
-    image_name = 'CLEVR_{}_{:06d}.png'.format(split, i)
-    tf.io.gfile.copy(fake_data_utils.get_random_png(),
-                     os.path.join(images_dir, image_name),
-                     overwrite=True)
+    # Generate images
+    images_dir = os.path.join(_output_dir(), "images", split)
+    if not tf.io.gfile.exists(images_dir):
+        tf.io.gfile.makedirs(images_dir)
+    for i in range(_IMAGE_NUMBERS[split]):
+        image_name = "CLEVR_{}_{:06d}.png".format(split, i)
+        tf.io.gfile.copy(
+            fake_data_utils.get_random_png(),
+            os.path.join(images_dir, image_name),
+            overwrite=True,
+        )
 
-  if split in ['train', 'val']:
-    # Generate annotations
-    scenes_dir = os.path.join(_output_dir(), 'scenes')
-    if not tf.io.gfile.exists(scenes_dir):
-      tf.io.gfile.makedirs(scenes_dir)
+    if split in ["train", "val"]:
+        # Generate annotations
+        scenes_dir = os.path.join(_output_dir(), "scenes")
+        if not tf.io.gfile.exists(scenes_dir):
+            tf.io.gfile.makedirs(scenes_dir)
 
-    annotations = {'scenes': [{'objects':
-                                   [{'color': 'red',
-                                     'shape': 'sphere',
-                                     'size': 'small',
-                                     'material': 'rubber',
-                                     '3d_coords': [0.0, 0.0, 0.0],
-                                     'pixel_coords': [0.0, 0.0, 0.0],
-                                     'rotation': 0.0}] * _NUM_OBJECTS
-                              }] * _IMAGE_NUMBERS[split]
-                  }
+        annotations = {
+            "scenes": [
+                {
+                    "objects": [
+                        {
+                            "color": "red",
+                            "shape": "sphere",
+                            "size": "small",
+                            "material": "rubber",
+                            "3d_coords": [0.0, 0.0, 0.0],
+                            "pixel_coords": [0.0, 0.0, 0.0],
+                            "rotation": 0.0,
+                        }
+                    ]
+                    * _NUM_OBJECTS
+                }
+            ]
+            * _IMAGE_NUMBERS[split]
+        }
 
-    annotations_file = os.path.join(scenes_dir,
-                                    'CLEVR_{}_scenes.json'.format(split))
-    with tf.io.gfile.GFile(annotations_file, 'w') as f:
-      json.dump(annotations, f)
+        annotations_file = os.path.join(
+            scenes_dir, "CLEVR_{}_scenes.json".format(split)
+        )
+        with tf.io.gfile.GFile(annotations_file, "w") as f:
+            json.dump(annotations, f)
 
 
 def main(argv):
-  if len(argv) > 1:
-    raise app.UsageError('Too many command-line arguments.')
-  for split in ['train', 'val', 'test']:
-    _generate_data(split)
+    if len(argv) > 1:
+        raise app.UsageError("Too many command-line arguments.")
+    for split in ["train", "val", "test"]:
+        _generate_data(split)
 
 
-if __name__ == '__main__':
-  app.run(main)
+if __name__ == "__main__":
+    app.run(main)

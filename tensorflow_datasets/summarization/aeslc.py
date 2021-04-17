@@ -50,68 +50,61 @@ _SUMMARY = "subject_line"
 
 
 class Aeslc(tfds.core.GeneratorBasedBuilder):
-  """Annotated Enron Subject Line Corpus Dataset."""
+    """Annotated Enron Subject Line Corpus Dataset."""
 
-  VERSION = tfds.core.Version("1.0.0")
+    VERSION = tfds.core.Version("1.0.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            _DOCUMENT: tfds.features.Text(),
-            _SUMMARY: tfds.features.Text()
-        }),
-        supervised_keys=(_DOCUMENT, _SUMMARY),
-        homepage="https://github.com/ryanzhumich/AESLC",
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {_DOCUMENT: tfds.features.Text(), _SUMMARY: tfds.features.Text()}
+            ),
+            supervised_keys=(_DOCUMENT, _SUMMARY),
+            homepage="https://github.com/ryanzhumich/AESLC",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    dl_path = dl_manager.download_and_extract(_URL)
-    input_path = os.path.join(dl_path, "AESLC-master", "enron_subject_line")
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={
-                "pattern": os.path.join(input_path, "train", "*.subject")
-            },
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={
-                "pattern": os.path.join(input_path, "dev", "*.subject")
-            },
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={
-                "pattern": os.path.join(input_path, "test", "*.subject")
-            },
-        ),
-    ]
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        dl_path = dl_manager.download_and_extract(_URL)
+        input_path = os.path.join(dl_path, "AESLC-master", "enron_subject_line")
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={"pattern": os.path.join(input_path, "train", "*.subject")},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                gen_kwargs={"pattern": os.path.join(input_path, "dev", "*.subject")},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={"pattern": os.path.join(input_path, "test", "*.subject")},
+            ),
+        ]
 
-  def _generate_examples(self, pattern=None):
-    """Yields examples."""
-    for filename in tf.io.gfile.glob(pattern):
-      email_body, subject_line = _parse_email_file(filename)
-      key = os.path.basename(filename).rstrip(".subject")
-      yield key, {_DOCUMENT: email_body, _SUMMARY: subject_line}
+    def _generate_examples(self, pattern=None):
+        """Yields examples."""
+        for filename in tf.io.gfile.glob(pattern):
+            email_body, subject_line = _parse_email_file(filename)
+            key = os.path.basename(filename).rstrip(".subject")
+            yield key, {_DOCUMENT: email_body, _SUMMARY: subject_line}
 
 
 def _parse_email_file(filename):
-  """Parse email file text for email body and subject."""
-  with tf.io.gfile.GFile(filename) as f:
-    email_body = ""
-    for line in f:
-      if line == "\n":
-        break
-      email_body += line
-    line = next(f)
-    subject = ""
-    for line in f:
-      if line == "\n":
-        break
-      subject += line
-  return email_body, subject
+    """Parse email file text for email body and subject."""
+    with tf.io.gfile.GFile(filename) as f:
+        email_body = ""
+        for line in f:
+            if line == "\n":
+                break
+            email_body += line
+        line = next(f)
+        subject = ""
+        for line in f:
+            if line == "\n":
+                break
+            subject += line
+    return email_body, subject

@@ -23,16 +23,16 @@ import tensorflow_datasets.testing as tfds_test
 
 class StanfordDogsTest(tfds_test.DatasetBuilderTestCase):
 
-  DATASET_CLASS = stanford_dogs.StanfordDogs
+    DATASET_CLASS = stanford_dogs.StanfordDogs
 
-  SPLITS = {  # No. of train and test samples
-      'train': 8,
-      'test': 3,
-  }
+    SPLITS = {  # No. of train and test samples
+        "train": 8,
+        "test": 3,
+    }
 
-  DL_DOWNLOAD_RESULT = 'Images.tar'
-  DL_EXTRACT_RESULT = ['list.tar', 'Annotation.tar']
+    DL_DOWNLOAD_RESULT = "Images.tar"
+    DL_EXTRACT_RESULT = ["list.tar", "Annotation.tar"]
 
 
-if __name__ == '__main__':
-  tfds_test.test_main()
+if __name__ == "__main__":
+    tfds_test.test_main()

@@ -24,14 +24,14 @@ from tensorflow_datasets.summarization import multi_news
 
 
 class MultiNewsTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = multi_news.MultiNews
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-      "validation": 1,  # Number of fake validation example
-      "test": 1,  # Number of fake test example
-  }
-  DL_EXTRACT_RESULT = ""
+    DATASET_CLASS = multi_news.MultiNews
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+        "validation": 1,  # Number of fake validation example
+        "test": 1,  # Number of fake test example
+    }
+    DL_EXTRACT_RESULT = ""
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

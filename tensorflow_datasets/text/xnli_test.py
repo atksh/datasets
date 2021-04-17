@@ -24,16 +24,17 @@ from tensorflow_datasets.text import xnli
 
 
 class XnliTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = xnli.Xnli
+    DATASET_CLASS = xnli.Xnli
 
-  SPLITS = {
-      "test": 3,
-      "validation": 2,
-  }
+    SPLITS = {
+        "test": 3,
+        "validation": 2,
+    }
 
 
 class XnliS3Test(XnliTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

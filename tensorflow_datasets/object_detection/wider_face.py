@@ -25,19 +25,24 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
 
-_PROJECT_URL = 'http://shuoyang1213.me/WIDERFACE/'
+_PROJECT_URL = "http://shuoyang1213.me/WIDERFACE/"
 
-_WIDER_TRAIN_URL = ('https://drive.google.com/uc?export=download&'
-                    'id=0B6eKvaijfFUDQUUwd21EckhUbWs')
+_WIDER_TRAIN_URL = (
+    "https://drive.google.com/uc?export=download&" "id=0B6eKvaijfFUDQUUwd21EckhUbWs"
+)
 
-_WIDER_VAL_URL = ('https://drive.google.com/uc?export=download&'
-                  'id=0B6eKvaijfFUDd3dIRmpvSk8tLUk')
+_WIDER_VAL_URL = (
+    "https://drive.google.com/uc?export=download&" "id=0B6eKvaijfFUDd3dIRmpvSk8tLUk"
+)
 
-_WIDER_TEST_URL = ('https://drive.google.com/uc?export=download&'
-                   'id=0B6eKvaijfFUDbW4tdGpaYjgzZkU')
+_WIDER_TEST_URL = (
+    "https://drive.google.com/uc?export=download&" "id=0B6eKvaijfFUDbW4tdGpaYjgzZkU"
+)
 
-_WIDER_ANNOT_URL = ('https://drive.google.com/uc?export=download&'
-                    'id=1sAl2oml7hK6aZRdgRjqQJsjV5CEr7nl4')
+_WIDER_ANNOT_URL = (
+    "https://drive.google.com/uc?export=download&"
+    "id=1sAl2oml7hK6aZRdgRjqQJsjV5CEr7nl4"
+)
 
 _CITATION = """
 @inproceedings{yang2016wider,
@@ -61,134 +66,140 @@ required to submit final prediction files, which we shall proceed to evaluate.
 
 
 class WiderFace(tfds.core.GeneratorBasedBuilder):
-  """WIDER FACE Dataset."""
+    """WIDER FACE Dataset."""
 
-  VERSION = tfds.core.Version('0.1.0')
+    VERSION = tfds.core.Version("0.1.0")
 
-  def _info(self):
-    features = {
-        'image':
-            tfds.features.Image(encoding_format='jpeg'),
-        'image/filename':
-            tfds.features.Text(),
-        'faces':
-            tfds.features.Sequence({
-                'bbox': tfds.features.BBoxFeature(),
-                'blur': tf.uint8,
-                'expression': tf.bool,
-                'illumination': tf.bool,
-                'occlusion': tf.uint8,
-                'pose': tf.bool,
-                'invalid': tf.bool,
-            }),
-    }
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict(features),
-        homepage=_PROJECT_URL,
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    extracted_dirs = dl_manager.download_and_extract({
-        'wider_train': _WIDER_TRAIN_URL,
-        'wider_val': _WIDER_VAL_URL,
-        'wider_test': _WIDER_TEST_URL,
-        'wider_annot': _WIDER_ANNOT_URL,
-    })
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={
-                'split': 'train',
-                'extracted_dirs': extracted_dirs
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={
-                'split': 'val',
-                'extracted_dirs': extracted_dirs
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={
-                'split': 'test',
-                'extracted_dirs': extracted_dirs
-            })
-    ]
-
-  def _generate_examples(self, split, extracted_dirs):
-    """Yields examples."""
-    pattern_fname = re.compile(r'(.*.jpg)\n')
-    pattern_annot = re.compile(r'(\d+) (\d+) (\d+) (\d+) (\d+) '
-                               r'(\d+) (\d+) (\d+) (\d+) (\d+) \n')
-    annot_dir = 'wider_face_split'
-    annot_fname = ('wider_face_test_filelist.txt' if split == 'test' else
-                   'wider_face_' + split + '_bbx_gt.txt')
-    annot_file = os.path.join(annot_dir, annot_fname)
-    image_dir = os.path.join(extracted_dirs['wider_' + split], 'WIDER_' + split,
-                             'images')
-    annot_dir = extracted_dirs['wider_annot']
-    annot_path = os.path.join(annot_dir, annot_file)
-    with tf.io.gfile.GFile(annot_path, 'r') as f:
-      while True:
-        # First read the file name.
-        line = f.readline()
-        match = pattern_fname.match(line)
-        if match is None:
-          break
-        fname = match.group(1)
-        image_fullpath = os.path.join(image_dir, fname)
-        faces = []
-        if split != 'test':
-          # Train and val contain also face information.
-          with tf.io.gfile.GFile(image_fullpath, 'rb') as fp:
-            image = tfds.core.lazy_imports.PIL_Image.open(fp)
-            width, height = image.size
-
-          # Read number of bounding boxes.
-          nbbox = int(f.readline())
-          if nbbox == 0:
-            # Cases with 0 bounding boxes, still have one line with all zeros.
-            # So we have to read it and discard it.
-            f.readline()
-          else:
-            for _ in range(nbbox):
-              line = f.readline()
-              match = pattern_annot.match(line)
-              if not match:
-                raise ValueError('Cannot parse: %s' % image_fullpath)
-              (xmin, ymin, wbox, hbox, blur, expression, illumination, invalid,
-               occlusion, pose) = map(int, match.groups())
-              ymax = np.clip(ymin + hbox, a_min=0, a_max=height)
-              xmax = np.clip(xmin + wbox, a_min=0, a_max=width)
-              ymin = np.clip(ymin, a_min=0, a_max=height)
-              xmin = np.clip(xmin, a_min=0, a_max=width)
-              faces.append({
-                  'bbox':
-                      tfds.features.BBox(
-                          ymin=ymin / height,
-                          xmin=xmin / width,
-                          ymax=ymax / height,
-                          xmax=xmax / width),
-                  'blur':
-                      blur,
-                  'expression':
-                      expression,
-                  'illumination':
-                      illumination,
-                  'occlusion':
-                      occlusion,
-                  'pose':
-                      pose,
-                  'invalid':
-                      invalid,
-              })
-        record = {
-            'image': image_fullpath,
-            'image/filename': fname,
-            'faces': faces
+    def _info(self):
+        features = {
+            "image": tfds.features.Image(encoding_format="jpeg"),
+            "image/filename": tfds.features.Text(),
+            "faces": tfds.features.Sequence(
+                {
+                    "bbox": tfds.features.BBoxFeature(),
+                    "blur": tf.uint8,
+                    "expression": tf.bool,
+                    "illumination": tf.bool,
+                    "occlusion": tf.uint8,
+                    "pose": tf.bool,
+                    "invalid": tf.bool,
+                }
+            ),
         }
-        yield fname, record
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(features),
+            homepage=_PROJECT_URL,
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        extracted_dirs = dl_manager.download_and_extract(
+            {
+                "wider_train": _WIDER_TRAIN_URL,
+                "wider_val": _WIDER_VAL_URL,
+                "wider_test": _WIDER_TEST_URL,
+                "wider_annot": _WIDER_ANNOT_URL,
+            }
+        )
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={"split": "train", "extracted_dirs": extracted_dirs},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                gen_kwargs={"split": "val", "extracted_dirs": extracted_dirs},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={"split": "test", "extracted_dirs": extracted_dirs},
+            ),
+        ]
+
+    def _generate_examples(self, split, extracted_dirs):
+        """Yields examples."""
+        pattern_fname = re.compile(r"(.*.jpg)\n")
+        pattern_annot = re.compile(
+            r"(\d+) (\d+) (\d+) (\d+) (\d+) " r"(\d+) (\d+) (\d+) (\d+) (\d+) \n"
+        )
+        annot_dir = "wider_face_split"
+        annot_fname = (
+            "wider_face_test_filelist.txt"
+            if split == "test"
+            else "wider_face_" + split + "_bbx_gt.txt"
+        )
+        annot_file = os.path.join(annot_dir, annot_fname)
+        image_dir = os.path.join(
+            extracted_dirs["wider_" + split], "WIDER_" + split, "images"
+        )
+        annot_dir = extracted_dirs["wider_annot"]
+        annot_path = os.path.join(annot_dir, annot_file)
+        with tf.io.gfile.GFile(annot_path, "r") as f:
+            while True:
+                # First read the file name.
+                line = f.readline()
+                match = pattern_fname.match(line)
+                if match is None:
+                    break
+                fname = match.group(1)
+                image_fullpath = os.path.join(image_dir, fname)
+                faces = []
+                if split != "test":
+                    # Train and val contain also face information.
+                    with tf.io.gfile.GFile(image_fullpath, "rb") as fp:
+                        image = tfds.core.lazy_imports.PIL_Image.open(fp)
+                        width, height = image.size
+
+                    # Read number of bounding boxes.
+                    nbbox = int(f.readline())
+                    if nbbox == 0:
+                        # Cases with 0 bounding boxes, still have one line with all zeros.
+                        # So we have to read it and discard it.
+                        f.readline()
+                    else:
+                        for _ in range(nbbox):
+                            line = f.readline()
+                            match = pattern_annot.match(line)
+                            if not match:
+                                raise ValueError("Cannot parse: %s" % image_fullpath)
+                            (
+                                xmin,
+                                ymin,
+                                wbox,
+                                hbox,
+                                blur,
+                                expression,
+                                illumination,
+                                invalid,
+                                occlusion,
+                                pose,
+                            ) = map(int, match.groups())
+                            ymax = np.clip(ymin + hbox, a_min=0, a_max=height)
+                            xmax = np.clip(xmin + wbox, a_min=0, a_max=width)
+                            ymin = np.clip(ymin, a_min=0, a_max=height)
+                            xmin = np.clip(xmin, a_min=0, a_max=width)
+                            faces.append(
+                                {
+                                    "bbox": tfds.features.BBox(
+                                        ymin=ymin / height,
+                                        xmin=xmin / width,
+                                        ymax=ymax / height,
+                                        xmax=xmax / width,
+                                    ),
+                                    "blur": blur,
+                                    "expression": expression,
+                                    "illumination": illumination,
+                                    "occlusion": occlusion,
+                                    "pose": pose,
+                                    "invalid": invalid,
+                                }
+                            )
+                record = {
+                    "image": image_fullpath,
+                    "image/filename": fname,
+                    "faces": faces,
+                }
+                yield fname, record

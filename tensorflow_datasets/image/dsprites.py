@@ -36,8 +36,10 @@ year = "2017",
 }
 """
 
-_URL = ("https://github.com/deepmind/dsprites-dataset/blob/master/"
-        "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.hdf5?raw=true")
+_URL = (
+    "https://github.com/deepmind/dsprites-dataset/blob/master/"
+    "dsprites_ndarray_co1sh3sc6or40x32y32_64x64.hdf5?raw=true"
+)
 
 _DESCRIPTION = """\
 dSprites is a dataset of 2D shapes procedurally generated from 6 ground truth
@@ -67,60 +69,56 @@ while ensuring that all pixel outputs were different. No noise was added.
 
 
 class Dsprites(tfds.core.GeneratorBasedBuilder):
-  """dSprites data set."""
+    """dSprites data set."""
 
-  VERSION = tfds.core.Version("0.1.0",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image":
-                tfds.features.Image(shape=(64, 64, 1)),
-            "label_shape":
-                tfds.features.ClassLabel(num_classes=3),
-            "label_scale":
-                tfds.features.ClassLabel(num_classes=6),
-            "label_orientation":
-                tfds.features.ClassLabel(num_classes=40),
-            "label_x_position":
-                tfds.features.ClassLabel(num_classes=32),
-            "label_y_position":
-                tfds.features.ClassLabel(num_classes=32),
-            "value_shape":
-                tfds.features.Tensor(shape=[], dtype=tf.float32),
-            "value_scale":
-                tfds.features.Tensor(shape=[], dtype=tf.float32),
-            "value_orientation":
-                tfds.features.Tensor(shape=[], dtype=tf.float32),
-            "value_x_position":
-                tfds.features.Tensor(shape=[], dtype=tf.float32),
-            "value_y_position":
-                tfds.features.Tensor(shape=[], dtype=tf.float32),
-        }),
-        homepage="https://github.com/deepmind/dsprites-dataset",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    filepath = dl_manager.download(_URL)
-
-    # There is no predefined train/val/test split for this dataset.
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=1,
-            gen_kwargs=dict(filepath=filepath)),
+    VERSION = tfds.core.Version("0.1.0", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, filepath):
-    """Generates examples for the dSprites data set.
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(shape=(64, 64, 1)),
+                    "label_shape": tfds.features.ClassLabel(num_classes=3),
+                    "label_scale": tfds.features.ClassLabel(num_classes=6),
+                    "label_orientation": tfds.features.ClassLabel(num_classes=40),
+                    "label_x_position": tfds.features.ClassLabel(num_classes=32),
+                    "label_y_position": tfds.features.ClassLabel(num_classes=32),
+                    "value_shape": tfds.features.Tensor(shape=[], dtype=tf.float32),
+                    "value_scale": tfds.features.Tensor(shape=[], dtype=tf.float32),
+                    "value_orientation": tfds.features.Tensor(
+                        shape=[], dtype=tf.float32
+                    ),
+                    "value_x_position": tfds.features.Tensor(
+                        shape=[], dtype=tf.float32
+                    ),
+                    "value_y_position": tfds.features.Tensor(
+                        shape=[], dtype=tf.float32
+                    ),
+                }
+            ),
+            homepage="https://github.com/deepmind/dsprites-dataset",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        filepath = dl_manager.download(_URL)
+
+        # There is no predefined train/val/test split for this dataset.
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, num_shards=1, gen_kwargs=dict(filepath=filepath)
+            ),
+        ]
+
+    def _generate_examples(self, filepath):
+        """Generates examples for the dSprites data set.
 
     Args:
       filepath: path to the dSprites hdf5 file.
@@ -128,33 +126,33 @@ class Dsprites(tfds.core.GeneratorBasedBuilder):
     Yields:
       Dictionaries with images, latent classes, and latent values.
     """
-    # Simultaneously iterating through the different data sets in the hdf5
-    # file is >100x slower and the data set is small (26.7MB). Hence, we first
-    # load everything into memory before yielding the samples.
-    image_array, class_array, values_array = _load_data(filepath)
-    for i, (image, classes, values) in enumerate(moves.zip(
-        image_array, class_array, values_array)):
-      record = dict(
-          image=np.expand_dims(image, -1),
-          label_shape=classes[1],
-          label_scale=classes[2],
-          label_orientation=classes[3],
-          label_x_position=classes[4],
-          label_y_position=classes[5],
-          value_shape=values[1],
-          value_scale=values[2],
-          value_orientation=values[3],
-          value_x_position=values[4],
-          value_y_position=values[5])
-      yield i, record
+        # Simultaneously iterating through the different data sets in the hdf5
+        # file is >100x slower and the data set is small (26.7MB). Hence, we first
+        # load everything into memory before yielding the samples.
+        image_array, class_array, values_array = _load_data(filepath)
+        for i, (image, classes, values) in enumerate(
+            moves.zip(image_array, class_array, values_array)
+        ):
+            record = dict(
+                image=np.expand_dims(image, -1),
+                label_shape=classes[1],
+                label_scale=classes[2],
+                label_orientation=classes[3],
+                label_x_position=classes[4],
+                label_y_position=classes[5],
+                value_shape=values[1],
+                value_scale=values[2],
+                value_orientation=values[3],
+                value_x_position=values[4],
+                value_y_position=values[5],
+            )
+            yield i, record
 
 
 def _load_data(filepath):
-  """Loads the images, latent classes, and latent values into Numpy arrays."""
-  with h5py.File(filepath, "r") as h5dataset:
-    image_array = np.array(h5dataset["imgs"])
-    class_array = np.array(h5dataset["latents"]["classes"])
-    values_array = np.array(h5dataset["latents"]["values"])
-  return image_array, class_array, values_array
-
-
+    """Loads the images, latent classes, and latent values into Numpy arrays."""
+    with h5py.File(filepath, "r") as h5dataset:
+        image_array = np.array(h5dataset["imgs"])
+        class_array = np.array(h5dataset["latents"]["classes"])
+        values_array = np.array(h5dataset["latents"]["values"])
+    return image_array, class_array, values_array

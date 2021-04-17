@@ -46,61 +46,70 @@ _DATA_URL = "https://www.robots.ox.ac.uk/~vgg/data/dtd/download/dtd-r1.0.1.tar.g
 
 
 class Dtd(tfds.core.GeneratorBasedBuilder):
-  """Describable Textures Dataset (DTD)."""
+    """Describable Textures Dataset (DTD)."""
 
-  VERSION = tfds.core.Version("1.0.0",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
-
-  def _info(self):
-    names_file = tfds.core.get_tfds_path(
-        os.path.join("image", "dtd_key_attributes.txt"))
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "file_name": tfds.features.Text(),
-            "image": tfds.features.Image(),
-            "label": tfds.features.ClassLabel(names_file=names_file),
-        }),
-        homepage=_URL,
-        citation=_CITATION)
-
-  def _split_generators(self, dl_manager):
-    # Note: The file extension is .tar.gz, but it is actually a .tar file.
-    data_path = dl_manager.download_and_extract(
-        tfds.download.Resource(
-            url=_DATA_URL, extract_method=tfds.download.ExtractMethod.TAR))
-    # Note: DTD defines 10-fold CV partitions. Our TRAIN/TEST/VALIDATION are
-    # those of the first fold.
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=1,
-            gen_kwargs=dict(data_path=data_path, split_name="train1")),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=1,
-            gen_kwargs=dict(data_path=data_path, split_name="test1")),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=1,
-            gen_kwargs=dict(data_path=data_path, split_name="val1")),
+    VERSION = tfds.core.Version("1.0.0", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, data_path, split_name):
-    with tf.io.gfile.GFile(
-        os.path.join(data_path, "dtd", "labels", split_name + ".txt"),
-        "r") as split_file:
-      for line in split_file:
-        fname = line.strip()
-        label = fname.split("/")[0]
-        record = {
-            "file_name": fname,
-            "image": os.path.join(data_path, "dtd", "images", fname),
-            "label": label,
-        }
-        yield fname, record
+    def _info(self):
+        names_file = tfds.core.get_tfds_path(
+            os.path.join("image", "dtd_key_attributes.txt")
+        )
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "file_name": tfds.features.Text(),
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(names_file=names_file),
+                }
+            ),
+            homepage=_URL,
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        # Note: The file extension is .tar.gz, but it is actually a .tar file.
+        data_path = dl_manager.download_and_extract(
+            tfds.download.Resource(
+                url=_DATA_URL, extract_method=tfds.download.ExtractMethod.TAR
+            )
+        )
+        # Note: DTD defines 10-fold CV partitions. Our TRAIN/TEST/VALIDATION are
+        # those of the first fold.
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=1,
+                gen_kwargs=dict(data_path=data_path, split_name="train1"),
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                num_shards=1,
+                gen_kwargs=dict(data_path=data_path, split_name="test1"),
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=1,
+                gen_kwargs=dict(data_path=data_path, split_name="val1"),
+            ),
+        ]
+
+    def _generate_examples(self, data_path, split_name):
+        with tf.io.gfile.GFile(
+            os.path.join(data_path, "dtd", "labels", split_name + ".txt"), "r"
+        ) as split_file:
+            for line in split_file:
+                fname = line.strip()
+                label = fname.split("/")[0]
+                record = {
+                    "file_name": fname,
+                    "image": os.path.join(data_path, "dtd", "images", fname),
+                    "label": label,
+                }
+                yield fname, record

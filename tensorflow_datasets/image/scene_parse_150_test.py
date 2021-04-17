@@ -25,19 +25,19 @@ from tensorflow_datasets.image import scene_parse_150
 
 class SceneParse150Test(testing.DatasetBuilderTestCase):
 
-  DATASET_CLASS = scene_parse_150.SceneParse150
+    DATASET_CLASS = scene_parse_150.SceneParse150
 
-  SPLITS = {
-      "train": 3,
-      "test": 3,
-  }
+    SPLITS = {
+        "train": 3,
+        "test": 3,
+    }
 
-  DL_EXTRACT_RESULT = {
-      "images": "images",
-      "annotations": "annotations",
-      "test": "test",
-  }
+    DL_EXTRACT_RESULT = {
+        "images": "images",
+        "annotations": "annotations",
+        "test": "test",
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

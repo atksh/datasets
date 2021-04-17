@@ -24,60 +24,60 @@ from tensorflow_datasets.audio import groove
 
 
 class GrooveFullTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = groove.Groove
-  BUILDER_CONFIG_NAMES_TO_TEST = ["full-16000hz"]
-  SPLITS = {
-      "train": 2,
-      "test": 1,
-  }
-  DL_EXTRACT_RESULT = ".."
+    DATASET_CLASS = groove.Groove
+    BUILDER_CONFIG_NAMES_TO_TEST = ["full-16000hz"]
+    SPLITS = {
+        "train": 2,
+        "test": 1,
+    }
+    DL_EXTRACT_RESULT = ".."
 
 
 class GrooveFullS3Test(GrooveFullTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class GrooveFullMidiOnlyTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = groove.Groove
-  BUILDER_CONFIG_NAMES_TO_TEST = ["full-midionly"]
-  SPLITS = {
-      "train": 3,
-      "test": 1,
-  }
-  DL_EXTRACT_RESULT = ".."
+    DATASET_CLASS = groove.Groove
+    BUILDER_CONFIG_NAMES_TO_TEST = ["full-midionly"]
+    SPLITS = {
+        "train": 3,
+        "test": 1,
+    }
+    DL_EXTRACT_RESULT = ".."
 
 
 class GrooveFullMidiOnlyS3Test(GrooveFullMidiOnlyTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class Groove2BarTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = groove.Groove
-  BUILDER_CONFIG_NAMES_TO_TEST = ["2bar-16000hz"]
-  SPLITS = {
-      "train": 5,  # 3, 2
-      "test": 1,
-  }
-  DL_EXTRACT_RESULT = ".."
+    DATASET_CLASS = groove.Groove
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2bar-16000hz"]
+    SPLITS = {
+        "train": 5,  # 3, 2
+        "test": 1,
+    }
+    DL_EXTRACT_RESULT = ".."
 
 
 class Groove2BarS3Test(Groove2BarTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class Groove2BarMidiOnlyTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = groove.Groove
-  BUILDER_CONFIG_NAMES_TO_TEST = ["2bar-midionly"]
-  SPLITS = {
-      "train": 6,  # 3, 2, 1
-      "test": 1,
-  }
-  DL_EXTRACT_RESULT = ".."
+    DATASET_CLASS = groove.Groove
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2bar-midionly"]
+    SPLITS = {
+        "train": 6,  # 3, 2, 1
+        "test": 1,
+    }
+    DL_EXTRACT_RESULT = ".."
 
 
 class Groove2BarMidiOnlyS3Test(Groove2BarMidiOnlyTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

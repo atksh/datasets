@@ -30,8 +30,8 @@ flags.DEFINE_string("dataset", None, "DatasetBuilder to print num configs for")
 
 
 def main(_):
-  print(len(tfds.builder(FLAGS.dataset).BUILDER_CONFIGS))
+    print(len(tfds.builder(FLAGS.dataset).BUILDER_CONFIGS))
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)

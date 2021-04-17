@@ -24,45 +24,46 @@ from tensorflow_datasets.video import starcraft
 
 
 class StarcraftVideoDatasetTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = starcraft.StarcraftVideo
-  BUILDER_CONFIG_NAMES_TO_TEST = ["brawl_64"]
+    DATASET_CLASS = starcraft.StarcraftVideo
+    BUILDER_CONFIG_NAMES_TO_TEST = ["brawl_64"]
 
-  DL_EXTRACT_RESULT = {
-      "valid": "valid.tfrecords",
-      "test": "test.tfrecords",
-      "train_0": "train_0.tfrecords",
-      "train_1": "train_1.tfrecords"
-  }
+    DL_EXTRACT_RESULT = {
+        "valid": "valid.tfrecords",
+        "test": "test.tfrecords",
+        "train_0": "train_0.tfrecords",
+        "train_1": "train_1.tfrecords",
+    }
 
-  SPLITS = {
-      "train": 2,
-      "test": 1,
-      "validation": 1,
-  }
+    SPLITS = {
+        "train": 2,
+        "test": 1,
+        "validation": 1,
+    }
 
 
 class StarcraftVideoDataset128Test(testing.DatasetBuilderTestCase):
-  """Separate test to cover the 128x128 resolution videos."""
-  DATASET_CLASS = starcraft.StarcraftVideo
-  BUILDER_CONFIG_NAMES_TO_TEST = ["brawl_128"]
+    """Separate test to cover the 128x128 resolution videos."""
 
-  DL_EXTRACT_RESULT = {
-      "valid": "128_valid.tfrecords",
-      "test": "128_test.tfrecords",
-      "train_0": "128_train_0.tfrecords",
-      "train_1": "128_train_1.tfrecords"
-  }
+    DATASET_CLASS = starcraft.StarcraftVideo
+    BUILDER_CONFIG_NAMES_TO_TEST = ["brawl_128"]
 
-  SPLITS = {
-      "train": 2,
-      "test": 1,
-      "validation": 1,
-  }
+    DL_EXTRACT_RESULT = {
+        "valid": "128_valid.tfrecords",
+        "test": "128_test.tfrecords",
+        "train_0": "128_train_0.tfrecords",
+        "train_1": "128_train_1.tfrecords",
+    }
+
+    SPLITS = {
+        "train": 2,
+        "test": 1,
+        "validation": 1,
+    }
 
 
 class StarcraftVideoDataset128S3Test(StarcraftVideoDataset128Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

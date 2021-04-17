@@ -25,17 +25,15 @@ cats_vs_dogs._NUM_CORRUPT_IMAGES = 0  # pylint: disable=protected-access
 
 
 class CatsVsDogsTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cats_vs_dogs.CatsVsDogs
+    DATASET_CLASS = cats_vs_dogs.CatsVsDogs
 
-  SPLITS = {
-      'train': 4
-  }
-  DL_EXTRACT_RESULT = 'cats_vs_dogs.zip'
+    SPLITS = {"train": 4}
+    DL_EXTRACT_RESULT = "cats_vs_dogs.zip"
 
 
 class CatsVsDogsS3Test(CatsVsDogsTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

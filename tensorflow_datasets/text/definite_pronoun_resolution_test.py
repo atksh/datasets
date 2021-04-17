@@ -24,19 +24,20 @@ from tensorflow_datasets.text import definite_pronoun_resolution
 
 
 class DefinitePronounResolutionTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = definite_pronoun_resolution.DefinitePronounResolution
-  DL_EXTRACT_RESULT = {
-      "train": "train.c.txt",
-      "test": "test.c.txt",
-  }
-  SPLITS = {
-      "test": 3,
-      "train": 4,
-  }
+    DATASET_CLASS = definite_pronoun_resolution.DefinitePronounResolution
+    DL_EXTRACT_RESULT = {
+        "train": "train.c.txt",
+        "test": "test.c.txt",
+    }
+    SPLITS = {
+        "test": 3,
+        "train": 4,
+    }
 
 
 class DefinitePronounResolutionS3Test(DefinitePronounResolutionTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

@@ -37,11 +37,11 @@ from tensorflow_datasets.image import the300w_lp
 
 
 class The300wLpTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = the300w_lp.The300wLp
-  SPLITS = {
-      "train": 2,
-  }
+    DATASET_CLASS = the300w_lp.The300wLp
+    SPLITS = {
+        "train": 2,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

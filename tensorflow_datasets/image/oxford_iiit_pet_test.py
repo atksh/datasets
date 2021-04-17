@@ -23,21 +23,21 @@ from tensorflow_datasets.image.oxford_iiit_pet import OxfordIIITPet
 
 
 class OxfordIIITPetTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = OxfordIIITPet
-  SPLITS = {  # Expected number of examples on each split.
-      "train": 5,
-      "test": 5,
-  }
+    DATASET_CLASS = OxfordIIITPet
+    SPLITS = {  # Expected number of examples on each split.
+        "train": 5,
+        "test": 5,
+    }
 
-  DL_EXTRACT_RESULT = {
-      "images": ".",
-      "annotations": ".",
-  }
+    DL_EXTRACT_RESULT = {
+        "images": ".",
+        "annotations": ".",
+    }
 
 
 class OxfordIIITPetS3Test(OxfordIIITPetTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

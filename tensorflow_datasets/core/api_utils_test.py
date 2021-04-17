@@ -23,59 +23,54 @@ from tensorflow_datasets.core import api_utils
 
 
 class ApiUtilsTest(testing.TestCase):
+    def test_disallow_positional_args(self):
+        @api_utils.disallow_positional_args
+        def fn(a, b, c=api_utils.REQUIRED_ARG, d=4):
+            return (a, b, c, d)
 
-  def test_disallow_positional_args(self):
+        self.assertEqual(["a", "b", "c", "d"], api_utils.getargspec(fn).args)
+        self.assertEqual((1, 2, 3, 4), fn(a=1, b=2, c=3))
+        predicate = "use keyword"
+        with self.assertRaisesWithPredicateMatch(ValueError, predicate):
+            fn(1, 2, 3)
+        with self.assertRaisesWithPredicateMatch(ValueError, predicate):
+            fn(1, b=2, c=3)
+        with self.assertRaisesWithPredicateMatch(ValueError, "is required"):
+            fn(a=1, b=2)
 
-    @api_utils.disallow_positional_args
-    def fn(a, b, c=api_utils.REQUIRED_ARG, d=4):
-      return (a, b, c, d)
+    def test_disallow_positional_args_with_exceptions(self):
+        @api_utils.disallow_positional_args(allowed=["a"])
+        def fn(a, b, c=api_utils.REQUIRED_ARG, d=4):
+            return (a, b, c, d)
 
-    self.assertEqual(["a", "b", "c", "d"], api_utils.getargspec(fn).args)
-    self.assertEqual((1, 2, 3, 4), fn(a=1, b=2, c=3))
-    predicate = "use keyword"
-    with self.assertRaisesWithPredicateMatch(ValueError, predicate):
-      fn(1, 2, 3)
-    with self.assertRaisesWithPredicateMatch(ValueError, predicate):
-      fn(1, b=2, c=3)
-    with self.assertRaisesWithPredicateMatch(ValueError, "is required"):
-      fn(a=1, b=2)
+        self.assertEqual(["a", "b", "c", "d"], api_utils.getargspec(fn).args)
+        self.assertEqual((1, 2, 3, 4), fn(a=1, b=2, c=3))
+        predicate = "use keyword"
+        with self.assertRaisesWithPredicateMatch(ValueError, predicate):
+            fn(1, 2, 3)
+        self.assertEqual((1, 2, 3, 4), fn(1, b=2, c=3))
 
-  def test_disallow_positional_args_with_exceptions(self):
+    def test_disallow_positional_args_method(self):
+        class A(object):
+            def __init__(self):
+                self.e = 5
 
-    @api_utils.disallow_positional_args(allowed=["a"])
-    def fn(a, b, c=api_utils.REQUIRED_ARG, d=4):
-      return (a, b, c, d)
+            @api_utils.disallow_positional_args
+            def fn(self, a, b, c=api_utils.REQUIRED_ARG, d=4):
+                return (a, b, c, d, self.e)
 
-    self.assertEqual(["a", "b", "c", "d"], api_utils.getargspec(fn).args)
-    self.assertEqual((1, 2, 3, 4), fn(a=1, b=2, c=3))
-    predicate = "use keyword"
-    with self.assertRaisesWithPredicateMatch(ValueError, predicate):
-      fn(1, 2, 3)
-    self.assertEqual((1, 2, 3, 4), fn(1, b=2, c=3))
+        obj = A()
+        fn = obj.fn
 
-  def test_disallow_positional_args_method(self):
-
-    class A(object):
-
-      def __init__(self):
-        self.e = 5
-
-      @api_utils.disallow_positional_args
-      def fn(self, a, b, c=api_utils.REQUIRED_ARG, d=4):
-        return (a, b, c, d, self.e)
-
-    obj = A()
-    fn = obj.fn
-
-    self.assertEqual((1, 2, 3, 4, 5), fn(a=1, b=2, c=3))
-    predicate = "use keyword"
-    with self.assertRaisesWithPredicateMatch(ValueError, predicate):
-      fn(1, 2, 3)
-    with self.assertRaisesWithPredicateMatch(ValueError, predicate):
-      fn(1, b=2, c=3)
-    with self.assertRaisesWithPredicateMatch(ValueError, "is required"):
-      fn(a=1, b=2)
+        self.assertEqual((1, 2, 3, 4, 5), fn(a=1, b=2, c=3))
+        predicate = "use keyword"
+        with self.assertRaisesWithPredicateMatch(ValueError, predicate):
+            fn(1, 2, 3)
+        with self.assertRaisesWithPredicateMatch(ValueError, predicate):
+            fn(1, b=2, c=3)
+        with self.assertRaisesWithPredicateMatch(ValueError, "is required"):
+            fn(a=1, b=2)
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

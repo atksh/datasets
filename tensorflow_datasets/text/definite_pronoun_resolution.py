@@ -44,75 +44,81 @@ the fourth line contains the correct antecedent. If the target pronoun appears
 more than once in the sentence, its first occurrence is the one to be resolved.
 """
 
-_DATA_URL_PATTERN = 'http://www.hlt.utdallas.edu/~vince/data/emnlp12/{}.c.txt'
+_DATA_URL_PATTERN = "http://www.hlt.utdallas.edu/~vince/data/emnlp12/{}.c.txt"
 
 
 class DefinitePronounResolution(tfds.core.GeneratorBasedBuilder):
-  """The Definite Pronoun Resolution Dataset."""
-  BUILDER_CONFIGS = [
-      tfds.core.BuilderConfig(
-          name='plain_text',
-          version=tfds.core.Version(
-              '0.0.1', experiments={tfds.core.Experiment.S3: False}),
-          supported_versions=[
-              tfds.core.Version(
-                  '1.0.0',
-                  'New split API (https://tensorflow.org/datasets/splits)'),
-          ],
-          description='Plain text import of the Definite Pronoun Resolution Dataset.',  # pylint: disable=line-too-long
-      )
-  ]
+    """The Definite Pronoun Resolution Dataset."""
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            'sentence':
-                tfds.features.Text(),
-            'pronoun':
-                tfds.features.Text(),
-            'candidates':
-                tfds.features.Sequence(tfds.features.Text(), length=2),
-            'label':
-                tfds.features.ClassLabel(num_classes=2),
-        }),
-        supervised_keys=('sentence', 'label'),
-        homepage='http://www.hlt.utdallas.edu/~vince/data/emnlp12/',
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    files = dl_manager.download({
-        'train': _DATA_URL_PATTERN.format('train'),
-        'test': _DATA_URL_PATTERN.format('test'),
-    })
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=1,
-            gen_kwargs={'filepath': files['test']}),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=1,
-            gen_kwargs={'filepath': files['train']}),
+    BUILDER_CONFIGS = [
+        tfds.core.BuilderConfig(
+            name="plain_text",
+            version=tfds.core.Version(
+                "0.0.1", experiments={tfds.core.Experiment.S3: False}
+            ),
+            supported_versions=[
+                tfds.core.Version(
+                    "1.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+                ),
+            ],
+            description="Plain text import of the Definite Pronoun Resolution Dataset.",  # pylint: disable=line-too-long
+        )
     ]
 
-  def _generate_examples(self, filepath):
-    with tf.io.gfile.GFile(filepath) as f:
-      line_num = -1
-      while True:
-        line_num += 1
-        sentence = f.readline().strip()
-        pronoun = f.readline().strip()
-        candidates = [c.strip() for c in f.readline().strip().split(',')]
-        correct = f.readline().strip()
-        f.readline()
-        if not sentence:
-          break
-        yield line_num, {
-            'sentence': sentence,
-            'pronoun': pronoun,
-            'candidates': candidates,
-            'label': candidates.index(correct),
-        }
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "sentence": tfds.features.Text(),
+                    "pronoun": tfds.features.Text(),
+                    "candidates": tfds.features.Sequence(
+                        tfds.features.Text(), length=2
+                    ),
+                    "label": tfds.features.ClassLabel(num_classes=2),
+                }
+            ),
+            supervised_keys=("sentence", "label"),
+            homepage="http://www.hlt.utdallas.edu/~vince/data/emnlp12/",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        files = dl_manager.download(
+            {
+                "train": _DATA_URL_PATTERN.format("train"),
+                "test": _DATA_URL_PATTERN.format("test"),
+            }
+        )
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                num_shards=1,
+                gen_kwargs={"filepath": files["test"]},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=1,
+                gen_kwargs={"filepath": files["train"]},
+            ),
+        ]
+
+    def _generate_examples(self, filepath):
+        with tf.io.gfile.GFile(filepath) as f:
+            line_num = -1
+            while True:
+                line_num += 1
+                sentence = f.readline().strip()
+                pronoun = f.readline().strip()
+                candidates = [c.strip() for c in f.readline().strip().split(",")]
+                correct = f.readline().strip()
+                f.readline()
+                if not sentence:
+                    break
+                yield line_num, {
+                    "sentence": sentence,
+                    "pronoun": pronoun,
+                    "candidates": candidates,
+                    "label": candidates.index(correct),
+                }

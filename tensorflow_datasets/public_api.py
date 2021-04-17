@@ -17,6 +17,7 @@
 
 # pylint: disable=unused-import,g-import-not-at-top,g-bad-import-order,wrong-import-position
 from tensorflow_datasets.core import tf_compat
+
 tf_compat.ensure_tf_install()
 
 from tensorflow_datasets import core
@@ -61,11 +62,12 @@ __all__ = [
 
 
 def _import_testing():
-  try:
-    from tensorflow_datasets import testing  # pylint: disable=redefined-outer-name
-    return testing
-  except:
-    raise   # pylint: disable=unreachable
+    try:
+        from tensorflow_datasets import testing  # pylint: disable=redefined-outer-name
+
+        return testing
+    except:
+        raise  # pylint: disable=unreachable
 
 
 testing = _import_testing()

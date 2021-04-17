@@ -23,20 +23,20 @@ from tensorflow_datasets.image import lsun
 
 
 class LsunTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = lsun.Lsun
-  BUILDER_CONFIG_NAMES_TO_TEST = ["classroom"]
+    DATASET_CLASS = lsun.Lsun
+    BUILDER_CONFIG_NAMES_TO_TEST = ["classroom"]
 
-  SPLITS = {
-      "train": 3,
-      "validation": 1,
-  }
+    SPLITS = {
+        "train": 3,
+        "validation": 1,
+    }
 
-  DL_EXTRACT_RESULT = {"train": "", "val": ""}
+    DL_EXTRACT_RESULT = {"train": "", "val": ""}
 
 
 class LsunS3Test(LsunTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

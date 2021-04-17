@@ -24,9 +24,9 @@ from tensorflow_datasets.image import citrus
 
 
 class CitrusLeavesTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = citrus.CitrusLeaves
-  SPLITS = {"train": 4}
+    DATASET_CLASS = citrus.CitrusLeaves
+    SPLITS = {"train": 4}
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

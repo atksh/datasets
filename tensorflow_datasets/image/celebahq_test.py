@@ -24,17 +24,17 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class CelebAHQTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = celebahq.CelebAHq
-  BUILDER_CONFIG_NAMES_TO_TEST = ["512"]
+    DATASET_CLASS = celebahq.CelebAHq
+    BUILDER_CONFIG_NAMES_TO_TEST = ["512"]
 
-  SPLITS = {
-      "train": 3,
-  }
+    SPLITS = {
+        "train": 3,
+    }
 
 
 class CelebAHQS3Test(CelebAHQTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

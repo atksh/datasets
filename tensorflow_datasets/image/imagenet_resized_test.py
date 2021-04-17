@@ -22,17 +22,17 @@ from tensorflow_datasets.image import imagenet_resized
 
 
 class ImagenetResizedTest(testing.DatasetBuilderTestCase):
-  BUILDER_CONFIG_NAMES_TO_TEST = [
-      "8x8",
-  ]
-  DATASET_CLASS = imagenet_resized.ImagenetResized
-  SPLITS = {
-      "train": 3,
-      "validation": 1,
-  }
+    BUILDER_CONFIG_NAMES_TO_TEST = [
+        "8x8",
+    ]
+    DATASET_CLASS = imagenet_resized.ImagenetResized
+    SPLITS = {
+        "train": 3,
+        "validation": 1,
+    }
 
-  DL_EXTRACT_RESULT = ["Imagenet8_train_npz.zip", "Imagenet8_val_npz.zip"]
+    DL_EXTRACT_RESULT = ["Imagenet8_train_npz.zip", "Imagenet8_val_npz.zip"]
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

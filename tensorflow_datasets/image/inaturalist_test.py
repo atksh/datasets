@@ -24,17 +24,18 @@ from tensorflow_datasets.image import inaturalist
 
 
 class INaturalist2017Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = inaturalist.INaturalist2017
-  SPLITS = {  # Expected number of examples on each split.
-      "train": 4,
-      "validation": 3,
-      "test": 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "test_images": "test2017.tar.gz",
-      "trainval_annos": "train_val2017",
-      "trainval_images": "train_val_images.tar.gz",
-  }
+    DATASET_CLASS = inaturalist.INaturalist2017
+    SPLITS = {  # Expected number of examples on each split.
+        "train": 4,
+        "validation": 3,
+        "test": 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "test_images": "test2017.tar.gz",
+        "trainval_annos": "train_val2017",
+        "trainval_images": "train_val_images.tar.gz",
+    }
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

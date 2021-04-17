@@ -25,10 +25,9 @@ import tensorflow_datasets as tfds  # pylint: disable=unused-import
 
 
 class EagerNotEnabledByDefaultTest(tf.test.TestCase):
+    def test_eager_is_not_enabled_by_default(self):
+        self.assertFalse(tf.executing_eagerly())
 
-  def test_eager_is_not_enabled_by_default(self):
-    self.assertFalse(tf.executing_eagerly())
 
-
-if __name__ == '__main__':
-  tf.test.main()
+if __name__ == "__main__":
+    tf.test.main()

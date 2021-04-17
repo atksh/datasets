@@ -24,13 +24,13 @@ from tensorflow_datasets.summarization import newsroom
 
 
 class NewsroomTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = newsroom.Newsroom
-  SPLITS = {
-      "train": 3,  # Number of fake train example
-      "validation": 2,  # Number of fake validation example
-      "test": 1,  # Number of fake test example
-  }
+    DATASET_CLASS = newsroom.Newsroom
+    SPLITS = {
+        "train": 3,  # Number of fake train example
+        "validation": 2,  # Number of fake validation example
+        "test": 1,  # Number of fake test example
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

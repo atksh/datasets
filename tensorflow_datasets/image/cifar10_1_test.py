@@ -25,18 +25,18 @@ import tensorflow_datasets.public_api as tfds
 
 
 class Cifar10_1Test(testing.DatasetBuilderTestCase):  # pylint: disable=invalid-name
-  DATASET_CLASS = cifar10_1.Cifar10_1
-  BUILDER_CONFIG_NAMES_TO_TEST = ["v4"]
+    DATASET_CLASS = cifar10_1.Cifar10_1
+    BUILDER_CONFIG_NAMES_TO_TEST = ["v4"]
 
-  SPLITS = {
-      tfds.Split.TEST: 10,
-  }
+    SPLITS = {
+        tfds.Split.TEST: 10,
+    }
 
-  DL_EXTRACT_RESULT = [
-      "cifar10.1_v4_data.npy",
-      "cifar10.1_v4_labels.npy",
-  ]
+    DL_EXTRACT_RESULT = [
+        "cifar10.1_v4_data.npy",
+        "cifar10.1_v4_labels.npy",
+    ]
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

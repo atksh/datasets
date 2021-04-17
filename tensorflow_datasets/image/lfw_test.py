@@ -24,13 +24,14 @@ from tensorflow_datasets.image import lfw
 
 
 class LFWTest(testing.DatasetBuilderTestCase):
-  """Test Class."""
-  DATASET_CLASS = lfw.LFW
+    """Test Class."""
 
-  SPLITS = {
-      "train": 8,
-  }
+    DATASET_CLASS = lfw.LFW
+
+    SPLITS = {
+        "train": 8,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

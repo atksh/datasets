@@ -24,11 +24,11 @@ from tensorflow_datasets.image import resisc45
 
 
 class Resisc45Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = resisc45.Resisc45
-  SPLITS = {
-      "train": 3,
-  }
+    DATASET_CLASS = resisc45.Resisc45
+    SPLITS = {
+        "train": 3,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

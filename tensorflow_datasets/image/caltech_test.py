@@ -24,21 +24,21 @@ from tensorflow_datasets.image import caltech
 
 class Caltech101Test(testing.DatasetBuilderTestCase):
 
-  DATASET_CLASS = caltech.Caltech101
+    DATASET_CLASS = caltech.Caltech101
 
-  SPLITS = {
-      'train': 3,
-      'test': 3,
-  }
+    SPLITS = {
+        "train": 3,
+        "test": 3,
+    }
 
-  def setUp(self):
-    super(Caltech101Test, self).setUp()
-    caltech._TRAIN_POINTS_PER_CLASS = 1
+    def setUp(self):
+        super(Caltech101Test, self).setUp()
+        caltech._TRAIN_POINTS_PER_CLASS = 1
 
 
 class Caltech101S3Test(Caltech101Test):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

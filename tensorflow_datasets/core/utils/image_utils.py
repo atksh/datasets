@@ -29,27 +29,27 @@ from tensorflow_datasets.core.utils import tf_utils
 
 @py_utils.memoize()
 def _get_runner():
-  return tf_utils.TFGraphRunner()
+    return tf_utils.TFGraphRunner()
 
 
 def decode_image(image_bytes):
-  """Returns np.array corresponding to encoded image."""
-  runner = _get_runner()
-  return runner.run(tf.image.decode_image, image_bytes)
+    """Returns np.array corresponding to encoded image."""
+    runner = _get_runner()
+    return runner.run(tf.image.decode_image, image_bytes)
 
 
 def png_to_jpeg(image_bytes, quality=100):
-  """Converts PNG image (bytes or str) to JPEG (bytes)."""
-  runner = _get_runner()
-  decode_fn = lambda img: tf.image.decode_png(img, channels=3)
-  image = runner.run(decode_fn, image_bytes)
-  fn = lambda img: tf.image.encode_jpeg(img, format='rgb', quality=quality)
-  return runner.run(fn, image)
+    """Converts PNG image (bytes or str) to JPEG (bytes)."""
+    runner = _get_runner()
+    decode_fn = lambda img: tf.image.decode_png(img, channels=3)
+    image = runner.run(decode_fn, image_bytes)
+    fn = lambda img: tf.image.encode_jpeg(img, format="rgb", quality=quality)
+    return runner.run(fn, image)
 
 
 def jpeg_cmyk_to_rgb(image_bytes, quality=100):
-  """Converts JPEG CMYK image (bytes) to RGB JPEG (bytes)."""
-  runner = _get_runner()
-  image = runner.run(tf.image.decode_jpeg, image_bytes)
-  fn = lambda img: tf.image.encode_jpeg(img, format='rgb', quality=quality)
-  return runner.run(fn, image)
+    """Converts JPEG CMYK image (bytes) to RGB JPEG (bytes)."""
+    runner = _get_runner()
+    image = runner.run(tf.image.decode_jpeg, image_bytes)
+    fn = lambda img: tf.image.encode_jpeg(img, format="rgb", quality=quality)
+    return runner.run(fn, image)

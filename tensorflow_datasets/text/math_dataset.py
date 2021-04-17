@@ -51,7 +51,9 @@ train_examples, val_examples = tfds.load(
     as_supervised=True)
 """
 
-_DATA_URL = "https://storage.googleapis.com/mathematics-dataset/mathematics_dataset-v1.0.tar.gz"
+_DATA_URL = (
+    "https://storage.googleapis.com/mathematics-dataset/mathematics_dataset-v1.0.tar.gz"
+)
 
 _TRAIN_CATEGORY = [
     "train-easy",
@@ -80,7 +82,6 @@ _MODULES = [
     "numbers__round_number_big",
     "probability__swr_p_level_set_more_samples",
     "probability__swr_p_sequence_more_samples",
-
     # interpolate
     "algebra__linear_1d",
     "algebra__linear_1d_composed",
@@ -138,7 +139,6 @@ _MODULES = [
     "polynomials__simplify_power",
     "probability__swr_p_level_set",
     "probability__swr_p_sequence",
-
     # train-easy train-medium train-hard
     "algebra__linear_1d",
     "algebra__linear_1d_composed",
@@ -205,89 +205,91 @@ _DATASET_VERSION = "mathematics_dataset-v1.0"
 
 
 def _generate_builder_configs():
-  """Generate configs with different subsets of mathematics dataset."""
-  configs = []
-  for module in sorted(set(_MODULES)):
-    configs.append(
-        tfds.core.BuilderConfig(
-            name=module,
-            version=tfds.core.Version("1.0.0"),
-            description=_DESCRIPTION,
-        ))
+    """Generate configs with different subsets of mathematics dataset."""
+    configs = []
+    for module in sorted(set(_MODULES)):
+        configs.append(
+            tfds.core.BuilderConfig(
+                name=module,
+                version=tfds.core.Version("1.0.0"),
+                description=_DESCRIPTION,
+            )
+        )
 
-  return configs
+    return configs
 
 
 class MathDataset(tfds.core.GeneratorBasedBuilder):
-  """Math Dataset."""
+    """Math Dataset."""
 
-  BUILDER_CONFIGS = _generate_builder_configs()
+    BUILDER_CONFIGS = _generate_builder_configs()
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            _QUESTION: tfds.features.Text(),
-            _ANSWER: tfds.features.Text(),
-        }),
-        supervised_keys=(_QUESTION, _ANSWER),
-        homepage="https://github.com/deepmind/mathematics_dataset",
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {_QUESTION: tfds.features.Text(), _ANSWER: tfds.features.Text(),}
+            ),
+            supervised_keys=(_QUESTION, _ANSWER),
+            homepage="https://github.com/deepmind/mathematics_dataset",
+            citation=_CITATION,
+        )
 
-  def _read_data_from_all_categories(self, directory, config, categories):
-    lines = []
-    for category in categories:
-      data_file = os.path.join(directory, _DATASET_VERSION, category, config)
-      if tf.io.gfile.exists(data_file):
-        with tf.io.gfile.GFile(data_file) as f:
-          ls = f.read().split("\n")
+    def _read_data_from_all_categories(self, directory, config, categories):
+        lines = []
+        for category in categories:
+            data_file = os.path.join(directory, _DATASET_VERSION, category, config)
+            if tf.io.gfile.exists(data_file):
+                with tf.io.gfile.GFile(data_file) as f:
+                    ls = f.read().split("\n")
 
-          for l in ls[::-1]:
-            if not l:
-              ls.remove(l)
+                    for l in ls[::-1]:
+                        if not l:
+                            ls.remove(l)
 
-          lines.extend(ls)
+                    lines.extend(ls)
 
-    return lines
+        return lines
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
 
-    directory = dl_manager.download_and_extract(_DATA_URL)
-    config = self.builder_config.name + ".txt"
+        directory = dl_manager.download_and_extract(_DATA_URL)
+        config = self.builder_config.name + ".txt"
 
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={
-                "directory": directory,
-                "config": config,
-                "categories": _TRAIN_CATEGORY,
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={
-                "directory": directory,
-                "config": config,
-                "categories": _INTERPOLATE_CATEGORY,
-            }),
-    ]
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={
+                    "directory": directory,
+                    "config": config,
+                    "categories": _TRAIN_CATEGORY,
+                },
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={
+                    "directory": directory,
+                    "config": config,
+                    "categories": _INTERPOLATE_CATEGORY,
+                },
+            ),
+        ]
 
-  def _generate_examples(self, directory, config, categories):
-    """Yields examples based on directory, module file.."""
+    def _generate_examples(self, directory, config, categories):
+        """Yields examples based on directory, module file.."""
 
-    lines = self._read_data_from_all_categories(directory, config, categories)
-    logging.info("%s: %s contains total: %d", categories, config, len(lines))
-    questions = lines[::2]
-    answers = lines[1::2]
+        lines = self._read_data_from_all_categories(directory, config, categories)
+        logging.info("%s: %s contains total: %d", categories, config, len(lines))
+        questions = lines[::2]
+        answers = lines[1::2]
 
-    assert len(answers) == len(
-        questions), "answers: %d do not match questions: %d" % (len(answers),
-                                                                len(questions))
+        assert len(answers) == len(
+            questions
+        ), "answers: %d do not match questions: %d" % (len(answers), len(questions))
 
-    for idx, (q, a) in enumerate(zip(questions, answers)):
-      result = {_QUESTION: q, _ANSWER: a}
-      if all(result.values()):
-        yield idx, result
+        for idx, (q, a) in enumerate(zip(questions, answers)):
+            result = {_QUESTION: q, _ANSWER: a}
+            if all(result.values()):
+                yield idx, result

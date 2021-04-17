@@ -24,54 +24,54 @@ from tensorflow_datasets.translate import wmt19
 
 
 class TranslateDeEnWmt19Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = wmt19.Wmt19Translate
-  BUILDER_CONFIG_NAMES_TO_TEST = ["de-en"]
-  OVERLAPPING_SPLITS = ["validation"]
+    DATASET_CLASS = wmt19.Wmt19Translate
+    BUILDER_CONFIG_NAMES_TO_TEST = ["de-en"]
+    OVERLAPPING_SPLITS = ["validation"]
 
-  DL_EXTRACT_RESULT = {
-      "europarl_v9": ["sentences.de-en.tsv"],
-      "paracrawl_v3": ["sentences.de-en.tmx"],
-      "commoncrawl": ["commoncrawl"],
-      "newscommentary_v14": ["sentences.de-en.tsv"],
-      "wikititles_v1": ["sentences.de-en.tsv"],
-      "rapid_2019": ["rapid_2019"],
-      "newstest2018": ["validation"],
-  }
+    DL_EXTRACT_RESULT = {
+        "europarl_v9": ["sentences.de-en.tsv"],
+        "paracrawl_v3": ["sentences.de-en.tmx"],
+        "commoncrawl": ["commoncrawl"],
+        "newscommentary_v14": ["sentences.de-en.tsv"],
+        "wikititles_v1": ["sentences.de-en.tsv"],
+        "rapid_2019": ["rapid_2019"],
+        "newstest2018": ["validation"],
+    }
 
-  SPLITS = {
-      "train": 12,
-      "validation": 2,
-  }
+    SPLITS = {
+        "train": 12,
+        "validation": 2,
+    }
 
 
 class TranslateDeEnWmt19S3Test(TranslateDeEnWmt19Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class TranslateCsEnWmt19Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = wmt19.Wmt19Translate
-  BUILDER_CONFIG_NAMES_TO_TEST = ["cs-en"]
-  OVERLAPPING_SPLITS = ["validation"]
+    DATASET_CLASS = wmt19.Wmt19Translate
+    BUILDER_CONFIG_NAMES_TO_TEST = ["cs-en"]
+    OVERLAPPING_SPLITS = ["validation"]
 
-  DL_EXTRACT_RESULT = {
-      "czeng17_filter": ["czeng"],
-      "europarl_v9": ["sentences.cs-en.tsv"],
-      "paracrawl_v3": ["sentences.cs-en.tmx"],
-      "commoncrawl": ["commoncrawl"],
-      "newscommentary_v14": ["sentences.cs-en.tsv"],
-      "wikititles_v1": ["sentences.cs-en.tsv"],
-      "newstest2018": ["validation"],
-  }
+    DL_EXTRACT_RESULT = {
+        "czeng17_filter": ["czeng"],
+        "europarl_v9": ["sentences.cs-en.tsv"],
+        "paracrawl_v3": ["sentences.cs-en.tmx"],
+        "commoncrawl": ["commoncrawl"],
+        "newscommentary_v14": ["sentences.cs-en.tsv"],
+        "wikititles_v1": ["sentences.cs-en.tsv"],
+        "newstest2018": ["validation"],
+    }
 
-  SPLITS = {
-      "train": 13,
-      "validation": 2,
-  }
+    SPLITS = {
+        "train": 13,
+        "validation": 2,
+    }
 
 
 class TranslateCsEnWmt19S3Test(TranslateCsEnWmt19Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

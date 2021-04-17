@@ -26,7 +26,9 @@ import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
 
 _URL = "https://nextcloud.qriscloud.org.au/index.php/s/a3KxPawpqkiorST/download"
-_URL_LABELS = "https://raw.githubusercontent.com/AlexOlsen/DeepWeeds/master/labels/labels.csv"
+_URL_LABELS = (
+    "https://raw.githubusercontent.com/AlexOlsen/DeepWeeds/master/labels/labels.csv"
+)
 
 _DESCRIPTION = (
     """The DeepWeeds dataset consists of 17,509 images capturing eight different weed species native to Australia """
@@ -67,61 +69,66 @@ _CITATION = """\
 
 
 class DeepWeeds(tfds.core.GeneratorBasedBuilder):
-  """DeepWeeds Image Dataset Class."""
+    """DeepWeeds Image Dataset Class."""
 
-  VERSION = tfds.core.Version("2.0.0")
+    VERSION = tfds.core.Version("2.0.0")
 
-  def _info(self):
-    """Define Dataset Info."""
+    def _info(self):
+        """Define Dataset Info."""
 
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=(_DESCRIPTION),
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(shape=_IMAGE_SHAPE),
-            "label": tfds.features.ClassLabel(num_classes=9),
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://github.com/AlexOlsen/DeepWeeds",
-        citation=_CITATION,
-    )
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=(_DESCRIPTION),
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(shape=_IMAGE_SHAPE),
+                    "label": tfds.features.ClassLabel(num_classes=9),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://github.com/AlexOlsen/DeepWeeds",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Define Splits."""
-    # The file is in ZIP format, but URL doesn't mention it.
-    paths = dl_manager.download_and_extract({
-        "image": tfds.download.Resource(
-            url=_URL,
-            extract_method=tfds.download.ExtractMethod.ZIP),
-        "label": _URL_LABELS})
+    def _split_generators(self, dl_manager):
+        """Define Splits."""
+        # The file is in ZIP format, but URL doesn't mention it.
+        paths = dl_manager.download_and_extract(
+            {
+                "image": tfds.download.Resource(
+                    url=_URL, extract_method=tfds.download.ExtractMethod.ZIP
+                ),
+                "label": _URL_LABELS,
+            }
+        )
 
-    return [
-        tfds.core.SplitGenerator(
-            name="train",
-            gen_kwargs={
-                "data_dir_path": paths["image"],
-                "label_path": paths["label"],
-            },
-        ),
-    ]
+        return [
+            tfds.core.SplitGenerator(
+                name="train",
+                gen_kwargs={
+                    "data_dir_path": paths["image"],
+                    "label_path": paths["label"],
+                },
+            ),
+        ]
 
-  def _generate_examples(self, data_dir_path, label_path):
-    """Generate images and labels for splits."""
+    def _generate_examples(self, data_dir_path, label_path):
+        """Generate images and labels for splits."""
 
-    with tf.io.gfile.GFile(label_path) as f:
-      # Convert to list to reuse the iterator multiple times
-      reader = list(csv.DictReader(f))
+        with tf.io.gfile.GFile(label_path) as f:
+            # Convert to list to reuse the iterator multiple times
+            reader = list(csv.DictReader(f))
 
-    # Extract the mapping int -> str and save the label name string to the
-    # feature
-    label_id_to_name = {int(row["Label"]): row["Species"] for row in reader}
-    self.info.features["label"].names = [
-        v for _, v in sorted(label_id_to_name.items())
-    ]
+        # Extract the mapping int -> str and save the label name string to the
+        # feature
+        label_id_to_name = {int(row["Label"]): row["Species"] for row in reader}
+        self.info.features["label"].names = [
+            v for _, v in sorted(label_id_to_name.items())
+        ]
 
-    filename_to_label = {row["Filename"]: row["Species"] for row in reader}
-    for file_name in tf.io.gfile.listdir(data_dir_path):
-      yield file_name, {
-          "image": os.path.join(data_dir_path, file_name),
-          "label": filename_to_label[file_name]
-      }
+        filename_to_label = {row["Filename"]: row["Species"] for row in reader}
+        for file_name in tf.io.gfile.listdir(data_dir_path):
+            yield file_name, {
+                "image": os.path.join(data_dir_path, file_name),
+                "label": filename_to_label[file_name],
+            }

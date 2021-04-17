@@ -30,31 +30,33 @@ from absl import flags
 from tensorflow_datasets.core.utils import py_utils
 from tensorflow_datasets.testing import fake_data_utils
 
-flags.DEFINE_string('tfds_dir', py_utils.tfds_dir(),
-                    'Path to tensorflow_datasets directory')
+flags.DEFINE_string(
+    "tfds_dir", py_utils.tfds_dir(), "Path to tensorflow_datasets directory"
+)
 
 FLAGS = flags.FLAGS
 
 
 def _output_dir():
-  return os.path.join(FLAGS.tfds_dir, 'testing', 'test_data', 'fake_examples',
-                      'rock_paper_scissors')
+    return os.path.join(
+        FLAGS.tfds_dir, "testing", "test_data", "fake_examples", "rock_paper_scissors"
+    )
 
 
 def create_zip(fname, prefix):
-  out_path = os.path.join(_output_dir(), fname)
-  png = fake_data_utils.get_random_png(height=1, width=1)
-  with zipfile.ZipFile(out_path, 'w') as myzip:
-    myzip.write(png, prefix + 'rock/0.png')
-    myzip.write(png, prefix + 'paper/0.png')
-    myzip.write(png, prefix + 'scissors/0.png')
+    out_path = os.path.join(_output_dir(), fname)
+    png = fake_data_utils.get_random_png(height=1, width=1)
+    with zipfile.ZipFile(out_path, "w") as myzip:
+        myzip.write(png, prefix + "rock/0.png")
+        myzip.write(png, prefix + "paper/0.png")
+        myzip.write(png, prefix + "scissors/0.png")
 
 
 def main(argv):
-  del argv
-  create_zip('rps_train.zip', 'rps/')
-  create_zip('rps_test.zip', 'rps-test-set/')
+    del argv
+    create_zip("rps_train.zip", "rps/")
+    create_zip("rps_test.zip", "rps-test-set/")
 
 
-if __name__ == '__main__':
-  app.run(main)
+if __name__ == "__main__":
+    app.run(main)

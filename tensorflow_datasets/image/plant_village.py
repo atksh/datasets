@@ -101,48 +101,54 @@ _LABELS = [
 
 
 class PlantVillage(tfds.core.GeneratorBasedBuilder):
-  """The PlantVillage dataset of healthy and unhealthy leaves."""
+    """The PlantVillage dataset of healthy and unhealthy leaves."""
 
-  VERSION = tfds.core.Version("1.0.0")
+    VERSION = tfds.core.Version("1.0.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "image/filename": tfds.features.Text(),
-            "label": tfds.features.ClassLabel(names=_LABELS)
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://arxiv.org/abs/1511.08060",
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "image/filename": tfds.features.Text(),
+                    "label": tfds.features.ClassLabel(names=_LABELS),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://arxiv.org/abs/1511.08060",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    path = dl_manager.download_and_extract(_URL)
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN, gen_kwargs={"datapath": path})
-    ]
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        path = dl_manager.download_and_extract(_URL)
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, gen_kwargs={"datapath": path}
+            )
+        ]
 
-  def _generate_examples(self, datapath):
-    """Yields examples."""
-    for label in _LABELS:
-      # The real dataset has spaces and commas in directories (label) names,
-      # which causes issues with objfs and fig. The solution is to replace these
-      # characters with underscores in fake data directories and then not care
-      # whether it's an underscore or that character.
-      fuzzy_label = label.replace(" ", "[_ ]").replace(",", "[_,]")
-      glob_path = os.path.join(
-          datapath, "Plant_leave_diseases_dataset_without_augmentation",
-          fuzzy_label, "*.[jJ][pP][gG]")
-      for fpath in tf.io.gfile.glob(glob_path):
-        fname = os.path.basename(fpath)
-        record = {
-            "image": fpath,
-            "image/filename": fname,
-            "label": label,
-        }
-        yield "{}/{}".format(label, fname), record
+    def _generate_examples(self, datapath):
+        """Yields examples."""
+        for label in _LABELS:
+            # The real dataset has spaces and commas in directories (label) names,
+            # which causes issues with objfs and fig. The solution is to replace these
+            # characters with underscores in fake data directories and then not care
+            # whether it's an underscore or that character.
+            fuzzy_label = label.replace(" ", "[_ ]").replace(",", "[_,]")
+            glob_path = os.path.join(
+                datapath,
+                "Plant_leave_diseases_dataset_without_augmentation",
+                fuzzy_label,
+                "*.[jJ][pP][gG]",
+            )
+            for fpath in tf.io.gfile.glob(glob_path):
+                fname = os.path.basename(fpath)
+                record = {
+                    "image": fpath,
+                    "image/filename": fname,
+                    "label": label,
+                }
+                yield "{}/{}".format(label, fname), record

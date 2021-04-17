@@ -24,17 +24,18 @@ from tensorflow_datasets.translate import ted_multi
 
 
 class TedMultiTranslateTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = ted_multi.TedMultiTranslate
-  SPLITS = {  # Expected number of examples on each split from fake example.
-      "train": 4,
-      "validation": 4,
-      "test": 4,
-  }
-  DL_EXTRACT_RESULT = ""
+    DATASET_CLASS = ted_multi.TedMultiTranslate
+    SPLITS = {  # Expected number of examples on each split from fake example.
+        "train": 4,
+        "validation": 4,
+        "test": 4,
+    }
+    DL_EXTRACT_RESULT = ""
 
 
 class TedMultiTranslateS3Test(TedMultiTranslateTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

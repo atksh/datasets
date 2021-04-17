@@ -18,9 +18,9 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class StanfordOnlineProductsTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = stanford_online_products.StanfordOnlineProducts
-  SPLITS = {"train": 3, "test": 3}
+    DATASET_CLASS = stanford_online_products.StanfordOnlineProducts
+    SPLITS = {"train": 3, "test": 3}
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

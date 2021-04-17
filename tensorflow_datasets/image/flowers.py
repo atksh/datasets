@@ -37,44 +37,46 @@ _URL = "http://download.tensorflow.org/example_images/flower_photos.tgz"
 
 
 class TFFlowers(tfds.core.GeneratorBasedBuilder):
-  """Flowers dataset."""
+    """Flowers dataset."""
 
-  VERSION = tfds.core.Version("1.0.0",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description="A large set of images of flowers",
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "label": tfds.features.ClassLabel(
-                names=["dandelion", "daisy", "tulips", "sunflowers", "roses"]),
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://www.tensorflow.org/tutorials/load_data/images",
-        citation=_CITATION
-        )
-
-  def _split_generators(self, dl_manager):
-    path = dl_manager.download_and_extract(_URL)
-
-    # There is no predefined train/val/test split for this dataset.
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=20,
-            gen_kwargs={
-                "images_dir_path": path
-            }),
+    VERSION = tfds.core.Version("1.0.0", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, images_dir_path):
-    """Generate flower images and labels given the image directory path.
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description="A large set of images of flowers",
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(
+                        names=["dandelion", "daisy", "tulips", "sunflowers", "roses"]
+                    ),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://www.tensorflow.org/tutorials/load_data/images",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        path = dl_manager.download_and_extract(_URL)
+
+        # There is no predefined train/val/test split for this dataset.
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=20,
+                gen_kwargs={"images_dir_path": path},
+            ),
+        ]
+
+    def _generate_examples(self, images_dir_path):
+        """Generate flower images and labels given the image directory path.
 
     Args:
       images_dir_path: path to the directory where the images are stored.
@@ -82,18 +84,18 @@ class TFFlowers(tfds.core.GeneratorBasedBuilder):
     Yields:
       The image path and its corresponding label.
     """
-    parent_dir = tf.io.gfile.listdir(images_dir_path)[0]
-    walk_dir = os.path.join(images_dir_path, parent_dir)
-    dirs = tf.io.gfile.listdir(walk_dir)
+        parent_dir = tf.io.gfile.listdir(images_dir_path)[0]
+        walk_dir = os.path.join(images_dir_path, parent_dir)
+        dirs = tf.io.gfile.listdir(walk_dir)
 
-    for d in dirs:
-      if tf.io.gfile.isdir(os.path.join(walk_dir, d)):
-        for full_path, _, fname in tf.io.gfile.walk(os.path.join(walk_dir, d)):
-          for image_file in fname:
-            if image_file.endswith(".jpg"):
-              image_path = os.path.join(full_path, image_file)
-              record = {
-                  "image": image_path,
-                  "label": d.lower(),
-              }
-              yield "%s/%s" % (d, image_file), record
+        for d in dirs:
+            if tf.io.gfile.isdir(os.path.join(walk_dir, d)):
+                for full_path, _, fname in tf.io.gfile.walk(os.path.join(walk_dir, d)):
+                    for image_file in fname:
+                        if image_file.endswith(".jpg"):
+                            image_path = os.path.join(full_path, image_file)
+                            record = {
+                                "image": image_path,
+                                "label": d.lower(),
+                            }
+                            yield "%s/%s" % (d, image_file), record

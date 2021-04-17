@@ -50,7 +50,9 @@ Features includes:
   - upvote_ratio: upvote ratio.
 """
 
-_URL = "https://drive.google.com/uc?export=download&id=1ffWfITKFMJeqjT8loC8aiCLRNJpc_XnF"
+_URL = (
+    "https://drive.google.com/uc?export=download&id=1ffWfITKFMJeqjT8loC8aiCLRNJpc_XnF"
+)
 
 _DOCUMENT = "documents"
 _TITLE = "title"
@@ -59,80 +61,75 @@ _ADDITIONAL_FEATURES = ["ups", "num_comments", "score", "upvote_ratio"]
 
 
 class RedditTifuConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for RedditTifu."""
+    """BuilderConfig for RedditTifu."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, summary_key=None, **kwargs):
-    """BuilderConfig for RedditTifu.
+    @tfds.core.disallow_positional_args
+    def __init__(self, summary_key=None, **kwargs):
+        """BuilderConfig for RedditTifu.
 
     Args:
       summary_key: key string of summary in downloaded json file.
       **kwargs: keyword arguments forwarded to super.
     """
-    # Version 1.1.0 remove empty document and summary strings.
-    super(RedditTifuConfig, self).__init__(
-        version=tfds.core.Version("1.1.0"), **kwargs)
-    self.summary_key = summary_key
+        # Version 1.1.0 remove empty document and summary strings.
+        super(RedditTifuConfig, self).__init__(
+            version=tfds.core.Version("1.1.0"), **kwargs
+        )
+        self.summary_key = summary_key
 
 
 class RedditTifu(tfds.core.GeneratorBasedBuilder):
-  """Reddit TIFU Dataset."""
+    """Reddit TIFU Dataset."""
 
-  BUILDER_CONFIGS = [
-      RedditTifuConfig(
-          name="short",
-          summary_key=_TITLE,
-          description="Using title as summary.",
-      ),
-      RedditTifuConfig(
-          name="long",
-          summary_key=_TLDR,
-          description="Using TLDR as summary.",
-      )
-  ]
-
-  def _info(self):
-    features = {
-        k: tfds.features.Tensor(shape=[], dtype=tf.float32)
-        for k in _ADDITIONAL_FEATURES
-    }
-    features.update(
-        {k: tfds.features.Text() for k in [_DOCUMENT, _TLDR, _TITLE]})
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict(features),
-        supervised_keys=(_DOCUMENT, self.builder_config.summary_key),
-        homepage="https://github.com/ctr4si/MMN",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    dl_path = dl_manager.download_and_extract(_URL)
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={"path": dl_path},
-        )
+    BUILDER_CONFIGS = [
+        RedditTifuConfig(
+            name="short", summary_key=_TITLE, description="Using title as summary.",
+        ),
+        RedditTifuConfig(
+            name="long", summary_key=_TLDR, description="Using TLDR as summary.",
+        ),
     ]
 
-  def _generate_examples(self, path=None):
-    """Yields examples."""
-    with tf.io.gfile.GFile(path, "rb") as f:
-      for i, line in enumerate(f):
-        # keys are 'title_tokenized','permalink','title','url','num_comments',
-        #   'tldr'(optional),'created_utc','trimmed_title_tokenized','ups',
-        #   'selftext_html','score','upvote_ratio','tldr_tokenized'(optional),
-        #   'selftext','trimmed_title','selftext_without_tldr_tokenized',
-        #   'id','selftext_without_tldr'
-        d = json.loads(line)
-        r = {
-            _DOCUMENT: d["selftext_without_tldr"].strip(),
-            _TITLE: d["trimmed_title"].strip(),
-            _TLDR: (d["tldr"] or "").strip(),
+    def _info(self):
+        features = {
+            k: tfds.features.Tensor(shape=[], dtype=tf.float32)
+            for k in _ADDITIONAL_FEATURES
         }
-        r.update({k: d[k] for k in _ADDITIONAL_FEATURES})
-        # skip if document or summary is empty
-        if r[_DOCUMENT] and r[self.builder_config.summary_key]:
-          yield i, r
+        features.update({k: tfds.features.Text() for k in [_DOCUMENT, _TLDR, _TITLE]})
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(features),
+            supervised_keys=(_DOCUMENT, self.builder_config.summary_key),
+            homepage="https://github.com/ctr4si/MMN",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        dl_path = dl_manager.download_and_extract(_URL)
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, gen_kwargs={"path": dl_path},
+            )
+        ]
+
+    def _generate_examples(self, path=None):
+        """Yields examples."""
+        with tf.io.gfile.GFile(path, "rb") as f:
+            for i, line in enumerate(f):
+                # keys are 'title_tokenized','permalink','title','url','num_comments',
+                #   'tldr'(optional),'created_utc','trimmed_title_tokenized','ups',
+                #   'selftext_html','score','upvote_ratio','tldr_tokenized'(optional),
+                #   'selftext','trimmed_title','selftext_without_tldr_tokenized',
+                #   'id','selftext_without_tldr'
+                d = json.loads(line)
+                r = {
+                    _DOCUMENT: d["selftext_without_tldr"].strip(),
+                    _TITLE: d["trimmed_title"].strip(),
+                    _TLDR: (d["tldr"] or "").strip(),
+                }
+                r.update({k: d[k] for k in _ADDITIONAL_FEATURES})
+                # skip if document or summary is empty
+                if r[_DOCUMENT] and r[self.builder_config.summary_key]:
+                    yield i, r

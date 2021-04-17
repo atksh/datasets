@@ -28,50 +28,53 @@ tf.compat.v1.enable_eager_execution()
 
 
 class RunInGraphAndEagerTest(test_case.TestCase):
+    def test_run_in_graph_and_eager_modes(self):
+        l = []
 
-  def test_run_in_graph_and_eager_modes(self):
-    l = []
-    def inc(self, with_brackets):
-      del self  # self argument is required by run_in_graph_and_eager_modes.
-      mode = "eager" if tf.executing_eagerly() else "graph"
-      with_brackets = "with_brackets" if with_brackets else "without_brackets"
-      l.append((with_brackets, mode))
+        def inc(self, with_brackets):
+            del self  # self argument is required by run_in_graph_and_eager_modes.
+            mode = "eager" if tf.executing_eagerly() else "graph"
+            with_brackets = "with_brackets" if with_brackets else "without_brackets"
+            l.append((with_brackets, mode))
 
-    f = test_utils.run_in_graph_and_eager_modes(inc)
-    f(self, with_brackets=False)
-    f = test_utils.run_in_graph_and_eager_modes()(inc)
-    f(self, with_brackets=True)
+        f = test_utils.run_in_graph_and_eager_modes(inc)
+        f(self, with_brackets=False)
+        f = test_utils.run_in_graph_and_eager_modes()(inc)
+        f(self, with_brackets=True)
 
-    self.assertEqual(len(l), 4)
-    self.assertEqual(set(l), {
-        ("with_brackets", "graph"),
-        ("with_brackets", "eager"),
-        ("without_brackets", "graph"),
-        ("without_brackets", "eager"),
-    })
+        self.assertEqual(len(l), 4)
+        self.assertEqual(
+            set(l),
+            {
+                ("with_brackets", "graph"),
+                ("with_brackets", "eager"),
+                ("without_brackets", "graph"),
+                ("without_brackets", "eager"),
+            },
+        )
 
-  def test_run_in_graph_and_eager_modes_setup_in_same_mode(self):
-    modes = []
-    mode_name = lambda: "eager" if tf.executing_eagerly() else "graph"
+    def test_run_in_graph_and_eager_modes_setup_in_same_mode(self):
+        modes = []
+        mode_name = lambda: "eager" if tf.executing_eagerly() else "graph"
 
-    class ExampleTest(test_case.TestCase):
+        class ExampleTest(test_case.TestCase):
+            def runTest(self):
+                pass
 
-      def runTest(self):
-        pass
+            def setUp(self):
+                modes.append("setup_" + mode_name())
 
-      def setUp(self):
-        modes.append("setup_" + mode_name())
+            @test_utils.run_in_graph_and_eager_modes
+            def testBody(self):
+                modes.append("run_" + mode_name())
 
-      @test_utils.run_in_graph_and_eager_modes
-      def testBody(self):
-        modes.append("run_" + mode_name())
+        e = ExampleTest()
+        e.setUp()
+        e.testBody()
 
-    e = ExampleTest()
-    e.setUp()
-    e.testBody()
+        self.assertEqual(modes[0:2], ["setup_eager", "run_eager"])
+        self.assertEqual(modes[2:], ["setup_graph", "run_graph"])
 
-    self.assertEqual(modes[0:2], ["setup_eager", "run_eager"])
-    self.assertEqual(modes[2:], ["setup_graph", "run_graph"])
 
 if __name__ == "__main__":
-  test_utils.test_main()
+    test_utils.test_main()

@@ -23,15 +23,16 @@ import six
 from tensorflow_datasets.core.features import features_dict
 from tensorflow_datasets.core.features import sequence_feature
 from tensorflow_datasets.core.features import text_feature
+
 try:
-  # This fallback applies for all versions of Python before 3.3
-  import collections.abc as collections_abc  # pylint:disable=g-import-not-at-top
+    # This fallback applies for all versions of Python before 3.3
+    import collections.abc as collections_abc  # pylint:disable=g-import-not-at-top
 except ImportError:
-  import collections as collections_abc  # pylint:disable=g-import-not-at-top
+    import collections as collections_abc  # pylint:disable=g-import-not-at-top
 
 
 class Translation(features_dict.FeaturesDict):
-  """`FeatureConnector` for translations with fixed languages per example.
+    """`FeatureConnector` for translations with fixed languages per example.
 
   Input: The Translate feature accepts a dictionary for each example mapping
     string language codes to string translations.
@@ -67,8 +68,8 @@ class Translation(features_dict.FeaturesDict):
   ```
   """
 
-  def __init__(self, languages, encoder=None, encoder_config=None):
-    """Constructs a Translation FeatureConnector.
+    def __init__(self, languages, encoder=None, encoder_config=None):
+        """Constructs a Translation FeatureConnector.
 
     Args:
       languages: `list<string>` Full list of languages codes.
@@ -81,25 +82,28 @@ class Translation(features_dict.FeaturesDict):
         if restoring from a file with `load_metadata`. One config can be shared
         or one per language can be provided.
     """
-    # If encoder and encoder_config aren't lists, use the same values for all
-    # languages.
-    if not isinstance(encoder, collections_abc.Iterable):
-      encoder = [encoder] * len(languages)
-    if not isinstance(encoder_config, collections_abc.Iterable):
-      encoder_config = [encoder_config] * len(languages)
+        # If encoder and encoder_config aren't lists, use the same values for all
+        # languages.
+        if not isinstance(encoder, collections_abc.Iterable):
+            encoder = [encoder] * len(languages)
+        if not isinstance(encoder_config, collections_abc.Iterable):
+            encoder_config = [encoder_config] * len(languages)
 
-    super(Translation, self).__init__(
-        {lang: text_feature.Text(enc, enc_conf) for lang, enc, enc_conf in zip(
-            languages, encoder, encoder_config)})
+        super(Translation, self).__init__(
+            {
+                lang: text_feature.Text(enc, enc_conf)
+                for lang, enc, enc_conf in zip(languages, encoder, encoder_config)
+            }
+        )
 
-  @property
-  def languages(self):
-    """List of languages."""
-    return sorted(self.keys())
+    @property
+    def languages(self):
+        """List of languages."""
+        return sorted(self.keys())
 
 
 class TranslationVariableLanguages(sequence_feature.Sequence):
-  """`FeatureConnector` for translations with variable languages per example.
+    """`FeatureConnector` for translations with variable languages per example.
 
   Input: The TranslationVariableLanguages feature accepts a dictionary for each
     example mapping string language codes to one or more string translations.
@@ -141,52 +145,52 @@ class TranslationVariableLanguages(sequence_feature.Sequence):
   ```
   """
 
-  def __init__(self, languages=None):
-    """Constructs a Translation FeatureConnector.
+    def __init__(self, languages=None):
+        """Constructs a Translation FeatureConnector.
 
     Args:
       languages: `list<string>` (optional), full list of language codes if known
         in advance.
     """
-    # TODO(adarob): Add optional text encoders once `Sequence` adds support
-    # for FixedVarLenFeatures.
+        # TODO(adarob): Add optional text encoders once `Sequence` adds support
+        # for FixedVarLenFeatures.
 
-    self._languages = set(languages) if languages else None
-    super(TranslationVariableLanguages, self).__init__({
-        "language": text_feature.Text(),
-        "translation": text_feature.Text(),
-    })
+        self._languages = set(languages) if languages else None
+        super(TranslationVariableLanguages, self).__init__(
+            {"language": text_feature.Text(), "translation": text_feature.Text(),}
+        )
 
-  @property
-  def num_languages(self):
-    """Number of languages or None, if not specified in advance."""
-    return len(self._languages) if self._languages else None
+    @property
+    def num_languages(self):
+        """Number of languages or None, if not specified in advance."""
+        return len(self._languages) if self._languages else None
 
-  @property
-  def languages(self):
-    """List of languages or None, if not specified in advance."""
-    return sorted(list(self._languages)) if self._languages else None
+    @property
+    def languages(self):
+        """List of languages or None, if not specified in advance."""
+        return sorted(list(self._languages)) if self._languages else None
 
-  def encode_example(self, translation_dict):
-    if self.languages and set(translation_dict) - self._languages:
-      raise ValueError(
-          "Some languages in example ({0}) are not in valid set ({1}).".format(
-              ", ".join(sorted(set(translation_dict) - self._languages)),
-              ", ".join(self.languages)))
+    def encode_example(self, translation_dict):
+        if self.languages and set(translation_dict) - self._languages:
+            raise ValueError(
+                "Some languages in example ({0}) are not in valid set ({1}).".format(
+                    ", ".join(sorted(set(translation_dict) - self._languages)),
+                    ", ".join(self.languages),
+                )
+            )
 
-    # Convert dictionary into tuples, splitting out cases where there are
-    # multiple translations for a single language.
-    translation_tuples = []
-    for lang, text in translation_dict.items():
-      if isinstance(text, six.string_types):
-        translation_tuples.append((lang, text))
-      else:
-        translation_tuples.extend([(lang, el) for el in text])
+        # Convert dictionary into tuples, splitting out cases where there are
+        # multiple translations for a single language.
+        translation_tuples = []
+        for lang, text in translation_dict.items():
+            if isinstance(text, six.string_types):
+                translation_tuples.append((lang, text))
+            else:
+                translation_tuples.extend([(lang, el) for el in text])
 
-    # Ensure translations are in ascending order by language code.
-    languages, translations = zip(*sorted(translation_tuples))
+        # Ensure translations are in ascending order by language code.
+        languages, translations = zip(*sorted(translation_tuples))
 
-    return super(TranslationVariableLanguages, self).encode_example(
-        {"language": languages,
-         "translation": translations})
-
+        return super(TranslationVariableLanguages, self).encode_example(
+            {"language": languages, "translation": translations}
+        )

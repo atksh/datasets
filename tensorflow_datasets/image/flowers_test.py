@@ -23,16 +23,14 @@ from tensorflow_datasets.image import flowers
 
 
 class TFFlowersTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = flowers.TFFlowers
+    DATASET_CLASS = flowers.TFFlowers
 
-  SPLITS = {
-      'train': 5
-  }
+    SPLITS = {"train": 5}
 
 
 class TFFlowersS3Test(TFFlowersTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

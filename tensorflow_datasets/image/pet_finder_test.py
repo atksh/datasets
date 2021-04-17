@@ -24,19 +24,19 @@ from tensorflow_datasets.image import pet_finder
 
 
 class PetFinderTest(testing.DatasetBuilderTestCase):
-  # petfinder:
-  DATASET_CLASS = pet_finder.PetFinder
-  SPLITS = {
-      'train': 2,  # Number of fake train example
-      'test': 2,  # Number of fake test example
-  }
-  DL_EXTRACT_RESULT = {
-      'train': 'train.csv',
-      'train_images': 'train_images',
-      'test': 'test.csv',
-      'test_images': 'test_images',
-  }
+    # petfinder:
+    DATASET_CLASS = pet_finder.PetFinder
+    SPLITS = {
+        "train": 2,  # Number of fake train example
+        "test": 2,  # Number of fake test example
+    }
+    DL_EXTRACT_RESULT = {
+        "train": "train.csv",
+        "train_images": "train_images",
+        "test": "test.csv",
+        "test_images": "test_images",
+    }
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

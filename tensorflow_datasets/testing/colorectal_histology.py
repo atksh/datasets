@@ -30,11 +30,11 @@ from tensorflow_datasets.core import lazy_imports_lib
 from tensorflow_datasets.core.utils import py_utils
 from tensorflow_datasets.image import colorectal_histology
 
-flags.DEFINE_string("tfds_dir", py_utils.tfds_dir(),
-                    "Path to tensorflow_datasets directory")
-# --compression=raw may be more portable, but results in massive files (>100mb)
 flags.DEFINE_string(
-    "compression", "tiff_lzw", "Used by PIL to compress fake images")
+    "tfds_dir", py_utils.tfds_dir(), "Path to tensorflow_datasets directory"
+)
+# --compression=raw may be more portable, but results in massive files (>100mb)
+flags.DEFINE_string("compression", "tiff_lzw", "Used by PIL to compress fake images")
 FLAGS = flags.FLAGS
 
 # pylint: disable=protected-access
@@ -44,46 +44,48 @@ class_index = {c: i for i, c in enumerate(colorectal_histology._CLASS_NAMES)}
 
 
 def examples_dir():
-  return os.path.join(FLAGS.tfds_dir, "testing", "test_data", "fake_examples")
+    return os.path.join(FLAGS.tfds_dir, "testing", "test_data", "fake_examples")
 
 
 def histology_dir(large=False):
-  folder = os.path.join(examples_dir(), "colorectal_histology")
-  if large:
-    folder = "%s_large" % folder
-  return folder
+    folder = os.path.join(examples_dir(), "colorectal_histology")
+    if large:
+        folder = "%s_large" % folder
+    return folder
 
 
 def make_images(num_images, size):
-  # random values compress badly
-  return np.zeros((num_images, size, size, 3), dtype=np.uint8)
+    # random values compress badly
+    return np.zeros((num_images, size, size, 3), dtype=np.uint8)
 
 
 def write_image(filename, data):
-  lazy_imports_lib.lazy_imports.PIL_Image.fromarray(data).save(
-      filename, compression=FLAGS.compression)
+    lazy_imports_lib.lazy_imports.PIL_Image.fromarray(data).save(
+        filename, compression=FLAGS.compression
+    )
 
 
 def main(_):
-  base_dir = os.path.join(
-      histology_dir(False), colorectal_histology._TILES_SUBDIR)
-  for ci, class_name in enumerate(colorectal_histology._CLASS_NAMES):
-    subdir = os.path.join(
-        base_dir, colorectal_histology._class_subdir(ci, class_name))
-    tf.io.gfile.makedirs(subdir)
+    base_dir = os.path.join(histology_dir(False), colorectal_histology._TILES_SUBDIR)
+    for ci, class_name in enumerate(colorectal_histology._CLASS_NAMES):
+        subdir = os.path.join(
+            base_dir, colorectal_histology._class_subdir(ci, class_name)
+        )
+        tf.io.gfile.makedirs(subdir)
 
-    for i, image_data in enumerate(
-        make_images(2, colorectal_histology._TILES_SIZE)):
-      fn = "image%d.tif" % i
-      write_image(os.path.join(subdir, fn), image_data)
+        for i, image_data in enumerate(
+            make_images(2, colorectal_histology._TILES_SIZE)
+        ):
+            fn = "image%d.tif" % i
+            write_image(os.path.join(subdir, fn), image_data)
 
-  base_dir = os.path.join(
-      histology_dir(True), colorectal_histology._LARGE_SUBDIR)
-  tf.io.gfile.makedirs(base_dir)
-  write_image(
-      os.path.join(base_dir, "large_image.tif"),
-      make_images(1, colorectal_histology._LARGE_SIZE)[0])
+    base_dir = os.path.join(histology_dir(True), colorectal_histology._LARGE_SUBDIR)
+    tf.io.gfile.makedirs(base_dir)
+    write_image(
+        os.path.join(base_dir, "large_image.tif"),
+        make_images(1, colorectal_histology._LARGE_SIZE)[0],
+    )
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)

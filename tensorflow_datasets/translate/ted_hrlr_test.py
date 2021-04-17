@@ -24,17 +24,18 @@ from tensorflow_datasets.translate import ted_hrlr
 
 
 class TedHrlrTranslateTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = ted_hrlr.TedHrlrTranslate
-  BUILDER_CONFIG_NAMES_TO_TEST = ["az_to_en", "aztr_to_en"]
-  SPLITS = {
-      "train": 4,
-      "validation": 4,
-      "test": 4,
-  }
+    DATASET_CLASS = ted_hrlr.TedHrlrTranslate
+    BUILDER_CONFIG_NAMES_TO_TEST = ["az_to_en", "aztr_to_en"]
+    SPLITS = {
+        "train": 4,
+        "validation": 4,
+        "test": 4,
+    }
 
 
 class TedHrlrTranslateS3Test(TedHrlrTranslateTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

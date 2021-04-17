@@ -24,17 +24,17 @@ from tensorflow_datasets.image import cmaterdb
 
 
 class CmaterdbTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cmaterdb.Cmaterdb
-  BUILDER_CONFIG_NAMES_TO_TEST = ["bangla"]
-  SPLITS = {
-      "train": 20,
-      "test": 10,
-  }
-  DL_EXTRACT_RESULT = [
-      "training-images.npz",
-      "testing-images.npz",
-  ]
+    DATASET_CLASS = cmaterdb.Cmaterdb
+    BUILDER_CONFIG_NAMES_TO_TEST = ["bangla"]
+    SPLITS = {
+        "train": 20,
+        "test": 10,
+    }
+    DL_EXTRACT_RESULT = [
+        "training-images.npz",
+        "testing-images.npz",
+    ]
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

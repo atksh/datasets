@@ -24,17 +24,17 @@ from tensorflow_datasets.image import dtd
 
 
 class DtdTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = dtd.Dtd
-  SPLITS = {
-      'test': 3,
-      'train': 2,
-      'validation': 1,
-  }
+    DATASET_CLASS = dtd.Dtd
+    SPLITS = {
+        "test": 3,
+        "train": 2,
+        "validation": 1,
+    }
 
 
 class DtdS3Test(DtdTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

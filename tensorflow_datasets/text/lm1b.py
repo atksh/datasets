@@ -52,23 +52,25 @@ A benchmark corpus to be used for measuring progress in statistical language \
 modeling. This has almost one billion words in the training data.
 """
 
-_DOWNLOAD_URL = ("http://www.statmt.org/lm-benchmark/"
-                 "1-billion-word-language-modeling-benchmark-r13output.tar.gz")
+_DOWNLOAD_URL = (
+    "http://www.statmt.org/lm-benchmark/"
+    "1-billion-word-language-modeling-benchmark-r13output.tar.gz"
+)
 _TOP_LEVEL_DIR = "1-billion-word-language-modeling-benchmark-r13output"
-_TRAIN_FILE_FORMAT = os.path.join(_TOP_LEVEL_DIR,
-                                  "training-monolingual.tokenized.shuffled",
-                                  "news.en-*")
-_HELDOUT_FILE_FORMAT = os.path.join(_TOP_LEVEL_DIR,
-                                    "heldout-monolingual.tokenized.shuffled",
-                                    "news.en.heldout-*")
+_TRAIN_FILE_FORMAT = os.path.join(
+    _TOP_LEVEL_DIR, "training-monolingual.tokenized.shuffled", "news.en-*"
+)
+_HELDOUT_FILE_FORMAT = os.path.join(
+    _TOP_LEVEL_DIR, "heldout-monolingual.tokenized.shuffled", "news.en.heldout-*"
+)
 
 
 class Lm1bConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for Lm1b."""
+    """BuilderConfig for Lm1b."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, version=None, text_encoder_config=None, **kwargs):
-    """BuilderConfig for Lm1b.
+    @tfds.core.disallow_positional_args
+    def __init__(self, version=None, text_encoder_config=None, **kwargs):
+        """BuilderConfig for Lm1b.
 
     Args:
       version (string): version as string.
@@ -77,108 +79,114 @@ class Lm1bConfig(tfds.core.BuilderConfig):
         feature.
       **kwargs: keyword arguments forwarded to super.
     """
-    super(Lm1bConfig, self).__init__(
-        version=tfds.core.Version(
-            version, experiments={tfds.core.Experiment.S3: False}),
-        supported_versions=[
-            tfds.core.Version(
-                "1.0.0",
-                "New split API (https://tensorflow.org/datasets/splits)"),
-        ],
-        **kwargs)
-    self.text_encoder_config = (
-        text_encoder_config or tfds.features.text.TextEncoderConfig())
+        super(Lm1bConfig, self).__init__(
+            version=tfds.core.Version(
+                version, experiments={tfds.core.Experiment.S3: False}
+            ),
+            supported_versions=[
+                tfds.core.Version(
+                    "1.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+                ),
+            ],
+            **kwargs
+        )
+        self.text_encoder_config = (
+            text_encoder_config or tfds.features.text.TextEncoderConfig()
+        )
 
 
 def _train_data_filenames(tmp_dir):
-  return tf.io.gfile.glob(os.path.join(tmp_dir, _TRAIN_FILE_FORMAT))
+    return tf.io.gfile.glob(os.path.join(tmp_dir, _TRAIN_FILE_FORMAT))
 
 
 def _test_data_filenames(tmp_dir):
-  return tf.io.gfile.glob(os.path.join(tmp_dir, _HELDOUT_FILE_FORMAT))
+    return tf.io.gfile.glob(os.path.join(tmp_dir, _HELDOUT_FILE_FORMAT))
 
 
 class Lm1b(tfds.core.GeneratorBasedBuilder):
-  """1 Billion Word Language Model Benchmark dataset."""
-  BUILDER_CONFIGS = [
-      Lm1bConfig(
-          name="plain_text",
-          version="0.0.1",
-          description="Plain text",
-      ),
-      Lm1bConfig(
-          name="bytes",
-          version="0.0.1",
-          description=("Uses byte-level text encoding with "
-                       "`tfds.features.text.ByteTextEncoder`"),
-          text_encoder_config=tfds.features.text.TextEncoderConfig(
-              encoder=tfds.features.text.ByteTextEncoder()),
-      ),
-      Lm1bConfig(
-          name="subwords8k",
-          version="0.0.2",
-          description=("Uses `tfds.features.text.SubwordTextEncoder` with 8k "
-                       "vocab size"),
-          text_encoder_config=tfds.features.text.TextEncoderConfig(
-              encoder_cls=tfds.features.text.SubwordTextEncoder,
-              vocab_size=2**13),
-      ),
-      Lm1bConfig(
-          name="subwords32k",
-          version="0.0.2",
-          description=("Uses `tfds.features.text.SubwordTextEncoder` with "
-                       "32k vocab size"),
-          text_encoder_config=tfds.features.text.TextEncoderConfig(
-              encoder_cls=tfds.features.text.SubwordTextEncoder,
-              vocab_size=2**15),
-      ),
-  ]
+    """1 Billion Word Language Model Benchmark dataset."""
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "text":
-                tfds.features.Text(
-                    encoder_config=self.builder_config.text_encoder_config),
-        }),
-        supervised_keys=("text", "text"),
-        homepage="http://www.statmt.org/lm-benchmark/",
-        citation=_CITATION,
-    )
-
-  def _vocab_text_gen(self, training_files):
-    for _, ex in self._generate_examples(training_files):
-      yield ex["text"]
-
-  def _split_generators(self, dl_manager):
-    lm1b_path = dl_manager.download_and_extract(_DOWNLOAD_URL)
-
-    train_files = _train_data_filenames(lm1b_path)
-    test_files = _test_data_filenames(lm1b_path)
-
-    # Generate vocabulary from training data if SubwordTextEncoder configured
-    self.info.features["text"].maybe_build_from_corpus(
-        self._vocab_text_gen(train_files))
-
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=100,
-            gen_kwargs={"files": train_files}),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=50,
-            gen_kwargs={"files": test_files}),
+    BUILDER_CONFIGS = [
+        Lm1bConfig(name="plain_text", version="0.0.1", description="Plain text",),
+        Lm1bConfig(
+            name="bytes",
+            version="0.0.1",
+            description=(
+                "Uses byte-level text encoding with "
+                "`tfds.features.text.ByteTextEncoder`"
+            ),
+            text_encoder_config=tfds.features.text.TextEncoderConfig(
+                encoder=tfds.features.text.ByteTextEncoder()
+            ),
+        ),
+        Lm1bConfig(
+            name="subwords8k",
+            version="0.0.2",
+            description=(
+                "Uses `tfds.features.text.SubwordTextEncoder` with 8k " "vocab size"
+            ),
+            text_encoder_config=tfds.features.text.TextEncoderConfig(
+                encoder_cls=tfds.features.text.SubwordTextEncoder, vocab_size=2 ** 13
+            ),
+        ),
+        Lm1bConfig(
+            name="subwords32k",
+            version="0.0.2",
+            description=(
+                "Uses `tfds.features.text.SubwordTextEncoder` with " "32k vocab size"
+            ),
+            text_encoder_config=tfds.features.text.TextEncoderConfig(
+                encoder_cls=tfds.features.text.SubwordTextEncoder, vocab_size=2 ** 15
+            ),
+        ),
     ]
 
-  def _generate_examples(self, files):
-    for filepath in files:
-      logging.info("generating examples from = %s", filepath)
-      with tf.io.gfile.GFile(filepath) as f:
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "text": tfds.features.Text(
+                        encoder_config=self.builder_config.text_encoder_config
+                    ),
+                }
+            ),
+            supervised_keys=("text", "text"),
+            homepage="http://www.statmt.org/lm-benchmark/",
+            citation=_CITATION,
+        )
 
-        for idx, line in enumerate(f):
-          yield "%s_%d" % (os.path.basename(filepath), idx), {
-              "text": line.strip(),
-          }
+    def _vocab_text_gen(self, training_files):
+        for _, ex in self._generate_examples(training_files):
+            yield ex["text"]
+
+    def _split_generators(self, dl_manager):
+        lm1b_path = dl_manager.download_and_extract(_DOWNLOAD_URL)
+
+        train_files = _train_data_filenames(lm1b_path)
+        test_files = _test_data_filenames(lm1b_path)
+
+        # Generate vocabulary from training data if SubwordTextEncoder configured
+        self.info.features["text"].maybe_build_from_corpus(
+            self._vocab_text_gen(train_files)
+        )
+
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, num_shards=100, gen_kwargs={"files": train_files}
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST, num_shards=50, gen_kwargs={"files": test_files}
+            ),
+        ]
+
+    def _generate_examples(self, files):
+        for filepath in files:
+            logging.info("generating examples from = %s", filepath)
+            with tf.io.gfile.GFile(filepath) as f:
+
+                for idx, line in enumerate(f):
+                    yield "%s_%d" % (os.path.basename(filepath), idx), {
+                        "text": line.strip(),
+                    }

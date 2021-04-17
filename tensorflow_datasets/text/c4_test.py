@@ -26,29 +26,29 @@ from tensorflow_datasets.text import c4
 
 
 class C4Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = c4.C4
-  # 10k shards take make the test too slow.
-  c4._DEFAULT_NUM_SHARDS = 1
-  # GzipFile + GFile and TextIOWrapper are broken for py2.
-  BUILDER_CONFIG_NAMES_TO_TEST = ["en"] if six.PY3 else []
+    DATASET_CLASS = c4.C4
+    # 10k shards take make the test too slow.
+    c4._DEFAULT_NUM_SHARDS = 1
+    # GzipFile + GFile and TextIOWrapper are broken for py2.
+    BUILDER_CONFIG_NAMES_TO_TEST = ["en"] if six.PY3 else []
 
-  DL_EXTRACT_RESULT = {
-      "wet_urls": ["wet_urls.txt"],
-      "wet_files": ["cc_0.warc.wet.gz", "cc_1.warc.wet.gz"],
-      "badwords": "badwords.txt",
-  }
-  SPLITS = {
-      "train": 2,
-  }
+    DL_EXTRACT_RESULT = {
+        "wet_urls": ["wet_urls.txt"],
+        "wet_files": ["cc_0.warc.wet.gz", "cc_1.warc.wet.gz"],
+        "badwords": "badwords.txt",
+    }
+    SPLITS = {
+        "train": 2,
+    }
 
 
 class C4NoCleanTest(C4Test):
-  # GzipFile + GFile and TextIOWrapper are broken for py2.
-  BUILDER_CONFIG_NAMES_TO_TEST = ["en.noclean"] if six.PY3 else []
-  SPLITS = {
-      "train": 4,
-  }
+    # GzipFile + GFile and TextIOWrapper are broken for py2.
+    BUILDER_CONFIG_NAMES_TO_TEST = ["en.noclean"] if six.PY3 else []
+    SPLITS = {
+        "train": 4,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

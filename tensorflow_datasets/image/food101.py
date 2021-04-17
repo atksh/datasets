@@ -32,7 +32,8 @@ _DESCRIPTION = (
     " training images. On purpose, the training images were not cleaned, and "
     "thus still contain some amount of noise. This comes mostly in the form of"
     " intense colors and sometimes wrong labels. All images were rescaled to "
-    "have a maximum side length of 512 pixels.")
+    "have a maximum side length of 512 pixels."
+)
 
 _LABELS_FNAME = "image/food-101_classes.txt"
 
@@ -47,48 +48,49 @@ _CITATION = """\
 
 
 class Food101(tfds.core.GeneratorBasedBuilder):
-  """Food-101 Images dataset."""
+    """Food-101 Images dataset."""
 
-  VERSION = tfds.core.Version("1.0.0")
+    VERSION = tfds.core.Version("1.0.0")
 
-  def _info(self):
-    """Define Dataset Info."""
+    def _info(self):
+        """Define Dataset Info."""
 
-    names_file = tfds.core.get_tfds_path(_LABELS_FNAME)
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=(_DESCRIPTION),
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "label": tfds.features.ClassLabel(names_file=names_file),
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://www.vision.ee.ethz.ch/datasets_extra/food-101/",
-        citation=_CITATION)
+        names_file = tfds.core.get_tfds_path(_LABELS_FNAME)
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=(_DESCRIPTION),
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(names_file=names_file),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://www.vision.ee.ethz.ch/datasets_extra/food-101/",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Define Splits."""
+    def _split_generators(self, dl_manager):
+        """Define Splits."""
 
-    path = dl_manager.download_and_extract(_BASE_URL)
+        path = dl_manager.download_and_extract(_BASE_URL)
 
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=4,
-            gen_kwargs={
-                "data_dir_path": os.path.join(path, "food-101/images"),
-            },
-        ),
-    ]
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=4,
+                gen_kwargs={"data_dir_path": os.path.join(path, "food-101/images"),},
+            ),
+        ]
 
-  def _generate_examples(self, data_dir_path):
-    """Generate images and labels for splits."""
+    def _generate_examples(self, data_dir_path):
+        """Generate images and labels for splits."""
 
-    for class_name in tf.io.gfile.listdir(data_dir_path):
-      class_dir_path = os.path.join(data_dir_path, class_name)
-      for image_name in tf.io.gfile.listdir(class_dir_path):
-        image = os.path.join(class_dir_path, image_name)
-        yield image, {
-            "image": image,
-            "label": class_name,
-        }
+        for class_name in tf.io.gfile.listdir(data_dir_path):
+            class_dir_path = os.path.join(data_dir_path, class_name)
+            for image_name in tf.io.gfile.listdir(class_dir_path):
+                image = os.path.join(class_dir_path, image_name)
+                yield image, {
+                    "image": image,
+                    "label": class_name,
+                }

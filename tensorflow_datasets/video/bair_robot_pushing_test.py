@@ -24,17 +24,17 @@ from tensorflow_datasets.video import bair_robot_pushing
 
 
 class BairRobotPushingTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = bair_robot_pushing.BairRobotPushingSmall
+    DATASET_CLASS = bair_robot_pushing.BairRobotPushingSmall
 
-  SPLITS = {
-      "train": 1,
-      "test": 1,
-  }
+    SPLITS = {
+        "train": 1,
+        "test": 1,
+    }
 
 
 class BairRobotPushingS3Test(BairRobotPushingTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

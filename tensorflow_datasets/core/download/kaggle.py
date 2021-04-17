@@ -44,39 +44,39 @@ correctly.
 
 
 class KaggleFile(object):
-  """Represents a Kaggle competition file."""
-  _URL_PREFIX = "kaggle://"
+    """Represents a Kaggle competition file."""
 
-  def __init__(self, competition_name, filename):
-    self._competition_name = competition_name
-    self._filename = filename
+    _URL_PREFIX = "kaggle://"
 
-  @property
-  def competition(self):
-    return self._competition_name
+    def __init__(self, competition_name, filename):
+        self._competition_name = competition_name
+        self._filename = filename
 
-  @property
-  def filename(self):
-    return self._filename
+    @property
+    def competition(self):
+        return self._competition_name
 
-  @classmethod
-  def from_url(cls, url):
-    if not KaggleFile.is_kaggle_url(url):
-      raise TypeError("Not a valid kaggle URL")
-    competition_name, filename = url[len(cls._URL_PREFIX):].split("/", 1)
-    return cls(competition_name, filename)
+    @property
+    def filename(self):
+        return self._filename
 
-  @staticmethod
-  def is_kaggle_url(url):
-    return url.startswith(KaggleFile._URL_PREFIX)
+    @classmethod
+    def from_url(cls, url):
+        if not KaggleFile.is_kaggle_url(url):
+            raise TypeError("Not a valid kaggle URL")
+        competition_name, filename = url[len(cls._URL_PREFIX) :].split("/", 1)
+        return cls(competition_name, filename)
 
-  def to_url(self):
-    return "%s%s/%s" % (self._URL_PREFIX, self._competition_name,
-                        self._filename)
+    @staticmethod
+    def is_kaggle_url(url):
+        return url.startswith(KaggleFile._URL_PREFIX)
+
+    def to_url(self):
+        return "%s%s/%s" % (self._URL_PREFIX, self._competition_name, self._filename)
 
 
 class KaggleCompetitionDownloader(object):
-  """Downloader for a Kaggle competition.
+    """Downloader for a Kaggle competition.
 
   Usage:
   You can download with dataset or competition name like `zillow/zecon`
@@ -89,67 +89,69 @@ class KaggleCompetitionDownloader(object):
   ```
   """
 
-  def __init__(self, competition_name):
-    self._competition_name = competition_name
+    def __init__(self, competition_name):
+        self._competition_name = competition_name
 
-  @utils.memoized_property
-  def competition_files(self):
-    """List of competition files."""
-    command = [
-        "kaggle",
-        "datasets" if "/" in self._competition_name else "competitions",
-        "files",
-        "-v",
-        self._competition_name,
-    ]
-    output = _run_kaggle_command(command, self._competition_name)
-    return sorted([
-        line.split(",")[0] for line in output.split("\n")[1:] if line
-    ])
+    @utils.memoized_property
+    def competition_files(self):
+        """List of competition files."""
+        command = [
+            "kaggle",
+            "datasets" if "/" in self._competition_name else "competitions",
+            "files",
+            "-v",
+            self._competition_name,
+        ]
+        output = _run_kaggle_command(command, self._competition_name)
+        return sorted([line.split(",")[0] for line in output.split("\n")[1:] if line])
 
-  @utils.memoized_property
-  def competition_urls(self):
-    """Returns 'kaggle://' urls."""
-    return [
-        KaggleFile(self._competition_name, fname).to_url()
-        for fname in self.competition_files  # pylint: disable=not-an-iterable
-    ]
+    @utils.memoized_property
+    def competition_urls(self):
+        """Returns 'kaggle://' urls."""
+        return [
+            KaggleFile(self._competition_name, fname).to_url()
+            for fname in self.competition_files  # pylint: disable=not-an-iterable
+        ]
 
-  def download_file(self, fname, output_dir):
-    """Downloads competition file to output_dir."""
-    if fname not in self.competition_files:  # pylint: disable=unsupported-membership-test
-      raise ValueError("%s is not one of the competition's "
-                       "files: %s" % (fname, self.competition_files))
-    command = [
-        "kaggle",
-        "competitions",
-        "download",
-        "--file",
-        fname,
-        "--path",
-        output_dir,
-        "-c",
-        self._competition_name,
-    ]
-    _run_kaggle_command(command, self._competition_name)
-    return os.path.join(output_dir, fname)
+    def download_file(self, fname, output_dir):
+        """Downloads competition file to output_dir."""
+        if (
+            fname not in self.competition_files
+        ):  # pylint: disable=unsupported-membership-test
+            raise ValueError(
+                "%s is not one of the competition's "
+                "files: %s" % (fname, self.competition_files)
+            )
+        command = [
+            "kaggle",
+            "competitions",
+            "download",
+            "--file",
+            fname,
+            "--path",
+            output_dir,
+            "-c",
+            self._competition_name,
+        ]
+        _run_kaggle_command(command, self._competition_name)
+        return os.path.join(output_dir, fname)
 
 
 def _run_kaggle_command(command_args, competition_name):
-  """Run kaggle command with subprocess."""
-  try:
-    output = sp.check_output(command_args)
-    return tf.compat.as_text(output)
-  except sp.CalledProcessError as err:
-    output = err.output
-    _log_command_output(output, error=True)
-    if output.startswith(b"404"):
-      logging.error(_NOT_FOUND_ERR_MSG, competition_name)
-      raise
-    logging.error(_ERR_MSG, competition_name)
-    raise
+    """Run kaggle command with subprocess."""
+    try:
+        output = sp.check_output(command_args)
+        return tf.compat.as_text(output)
+    except sp.CalledProcessError as err:
+        output = err.output
+        _log_command_output(output, error=True)
+        if output.startswith(b"404"):
+            logging.error(_NOT_FOUND_ERR_MSG, competition_name)
+            raise
+        logging.error(_ERR_MSG, competition_name)
+        raise
 
 
 def _log_command_output(output, error=False):
-  log = logging.error if error else logging.info
-  log("kaggle command output:\n%s", tf.compat.as_text(output))
+    log = logging.error if error else logging.info
+    log("kaggle command output:\n%s", tf.compat.as_text(output))

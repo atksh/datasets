@@ -21,11 +21,11 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class Food101Test(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = food101.Food101
-  SPLITS = {
-      "train": 4,
-  }
+    DATASET_CLASS = food101.Food101
+    SPLITS = {
+        "train": 4,
+    }
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

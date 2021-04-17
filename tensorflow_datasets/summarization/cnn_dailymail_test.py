@@ -42,38 +42,42 @@ highlight Three
 
 
 class CnnDailymailTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cnn_dailymail.CnnDailymail
-  SPLITS = {'train': 3, 'validation': 2, 'test': 2}
-  DL_EXTRACT_RESULT = {
-      'cnn_stories': '',
-      'dm_stories': '',
-      'test_urls': 'all_test.txt',
-      'train_urls': 'all_train.txt',
-      'val_urls': 'all_val.txt'
-  }
+    DATASET_CLASS = cnn_dailymail.CnnDailymail
+    SPLITS = {"train": 3, "validation": 2, "test": 2}
+    DL_EXTRACT_RESULT = {
+        "cnn_stories": "",
+        "dm_stories": "",
+        "test_urls": "all_test.txt",
+        "train_urls": "all_train.txt",
+        "val_urls": "all_val.txt",
+    }
 
-  def test_get_art_abs(self):
-    with tempfile.NamedTemporaryFile(delete=True) as f:
-      f.write(_STORY_FILE)
-      f.flush()
-      article, abstract = cnn_dailymail._get_art_abs(
-          f.name, tfds.core.Version('1.0.0'))
-      self.assertEqual('some article. this is some article text.', article)
-      # This is a bit weird, but the original code at
-      # https://github.com/abisee/cnn-dailymail/ adds space before period
-      # for abstracts and we retain this behavior.
-      self.assertEqual('highlight text . highlight two . highlight three .',
-                       abstract)
+    def test_get_art_abs(self):
+        with tempfile.NamedTemporaryFile(delete=True) as f:
+            f.write(_STORY_FILE)
+            f.flush()
+            article, abstract = cnn_dailymail._get_art_abs(
+                f.name, tfds.core.Version("1.0.0")
+            )
+            self.assertEqual("some article. this is some article text.", article)
+            # This is a bit weird, but the original code at
+            # https://github.com/abisee/cnn-dailymail/ adds space before period
+            # for abstracts and we retain this behavior.
+            self.assertEqual(
+                "highlight text . highlight two . highlight three .", abstract
+            )
 
-      article, abstract = cnn_dailymail._get_art_abs(f.name,
-                                                     tfds.core.Version('2.0.0'))
-      self.assertEqual('highlight text .\nhighlight two .\nhighlight three .',
-                       abstract)
+            article, abstract = cnn_dailymail._get_art_abs(
+                f.name, tfds.core.Version("2.0.0")
+            )
+            self.assertEqual(
+                "highlight text .\nhighlight two .\nhighlight three .", abstract
+            )
 
 
 class CnnDailymailS3Test(CnnDailymailTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

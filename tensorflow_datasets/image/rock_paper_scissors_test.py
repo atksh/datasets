@@ -26,19 +26,19 @@ rock_paper_scissors._IMAGE_SHAPE = (None, None, 3)  # pylint: disable=protected-
 
 
 class RockPaperScissorsTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = rock_paper_scissors.RockPaperScissors
+    DATASET_CLASS = rock_paper_scissors.RockPaperScissors
 
-  SPLITS = {
-      'train': 3,
-      'test': 3,
-  }
+    SPLITS = {
+        "train": 3,
+        "test": 3,
+    }
 
-  DL_EXTRACT_RESULT = ['rps_train.zip', 'rps_test.zip']
+    DL_EXTRACT_RESULT = ["rps_train.zip", "rps_test.zip"]
 
 
 class RockPaperScissorsS3Test(RockPaperScissorsTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  tfds_test.test_main()
+if __name__ == "__main__":
+    tfds_test.test_main()

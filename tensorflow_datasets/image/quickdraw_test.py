@@ -24,20 +24,20 @@ from tensorflow_datasets.image import quickdraw
 
 class QuickdrawTest(testing.DatasetBuilderTestCase):
 
-  DATASET_CLASS = quickdraw.QuickdrawBitmap
-  SPLITS = {
-      "train": 9,
-  }
-  DL_EXTRACT_RESULT = {
-      "airplane": "airplane.npy",
-      "ambulance": "ambulance.npy",
-      "angel": "angel.npy",
-  }
+    DATASET_CLASS = quickdraw.QuickdrawBitmap
+    SPLITS = {
+        "train": 9,
+    }
+    DL_EXTRACT_RESULT = {
+        "airplane": "airplane.npy",
+        "ambulance": "ambulance.npy",
+        "angel": "angel.npy",
+    }
 
 
 class QuickdrawS3Test(QuickdrawTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

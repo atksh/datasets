@@ -40,68 +40,69 @@ evaluation platform for the algorithms of scene parsing.
 """
 
 _TRAIN_URL = {
-    "images":
-        "http://placeschallenge.csail.mit.edu/data/ChallengeData2017/images.tar",
-    "annotations":
-        "http://placeschallenge.csail.mit.edu/data/ChallengeData2017/annotations_instance.tar"
+    "images": "http://placeschallenge.csail.mit.edu/data/ChallengeData2017/images.tar",
+    "annotations": "http://placeschallenge.csail.mit.edu/data/ChallengeData2017/annotations_instance.tar",
 }
 
 
 class SceneParse150(tfds.core.GeneratorBasedBuilder):
-  """MIT Scene Parsing Benchmark dataset."""
+    """MIT Scene Parsing Benchmark dataset."""
 
-  VERSION = tfds.core.Version("1.0.0")
+    VERSION = tfds.core.Version("1.0.0")
 
-  def _info(self):
+    def _info(self):
 
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(encoding_format="jpeg"),
-            "annotation": tfds.features.Image(encoding_format="png")
-        }),
-        supervised_keys=("image", "annotation"),
-        homepage="http://sceneparsing.csail.mit.edu/",
-        citation=_CITATION,
-    )
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(encoding_format="jpeg"),
+                    "annotation": tfds.features.Image(encoding_format="png"),
+                }
+            ),
+            supervised_keys=("image", "annotation"),
+            homepage="http://sceneparsing.csail.mit.edu/",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    dl_paths = dl_manager.download_and_extract({
-        "images": _TRAIN_URL["images"],
-        "annotations": _TRAIN_URL["annotations"],
-    })
+    def _split_generators(self, dl_manager):
+        dl_paths = dl_manager.download_and_extract(
+            {"images": _TRAIN_URL["images"], "annotations": _TRAIN_URL["annotations"],}
+        )
 
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={
-                "images_dir_path":
-                    os.path.join(dl_paths["images"], "images/training"),
-                "annotations_dir_path":
-                    os.path.join(dl_paths["annotations"],
-                                 "annotations_instance/training")
-            },
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={
-                "images_dir_path":
-                    os.path.join(dl_paths["images"], "images/validation"),
-                "annotations_dir_path":
-                    os.path.join(dl_paths["annotations"],
-                                 "annotations_instance/validation")
-            },
-        ),
-    ]
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={
+                    "images_dir_path": os.path.join(
+                        dl_paths["images"], "images/training"
+                    ),
+                    "annotations_dir_path": os.path.join(
+                        dl_paths["annotations"], "annotations_instance/training"
+                    ),
+                },
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={
+                    "images_dir_path": os.path.join(
+                        dl_paths["images"], "images/validation"
+                    ),
+                    "annotations_dir_path": os.path.join(
+                        dl_paths["annotations"], "annotations_instance/validation"
+                    ),
+                },
+            ),
+        ]
 
-  def _generate_examples(self, images_dir_path, annotations_dir_path):
-    for image_file in tf.io.gfile.listdir(images_dir_path):
-      # get the filename
-      image_id = os.path.split(image_file)[1].split(".")[0]
-      yield image_id, {
-          "image":
-              os.path.join(images_dir_path, "{}.jpg".format(image_id)),
-          "annotation":
-              os.path.join(annotations_dir_path, "{}.png".format(image_id))
-      }
+    def _generate_examples(self, images_dir_path, annotations_dir_path):
+        for image_file in tf.io.gfile.listdir(images_dir_path):
+            # get the filename
+            image_id = os.path.split(image_file)[1].split(".")[0]
+            yield image_id, {
+                "image": os.path.join(images_dir_path, "{}.jpg".format(image_id)),
+                "annotation": os.path.join(
+                    annotations_dir_path, "{}.png".format(image_id)
+                ),
+            }

@@ -24,19 +24,18 @@ from tensorflow_datasets.core import hashing
 
 
 class HashingTest(testing.TestCase):
+    def test_ints(self):
+        hasher = hashing.Hasher(salt="")
+        res = hasher.hash_key(0)
+        self.assertEqual(res, 276215275525073243129443018166533317850)
+        res = hasher.hash_key(123455678901234567890)
+        self.assertEqual(res, 6876359009333865997613257802033240610)
 
-  def test_ints(self):
-    hasher = hashing.Hasher(salt='')
-    res = hasher.hash_key(0)
-    self.assertEqual(res, 276215275525073243129443018166533317850)
-    res = hasher.hash_key(123455678901234567890)
-    self.assertEqual(res, 6876359009333865997613257802033240610)
-
-  def test_ascii(self):
-    hasher = hashing.Hasher(salt='')
-    res = hasher.hash_key('foo')
-    self.assertEqual(res, 229609063533823256041787889330700985560)
+    def test_ascii(self):
+        hasher = hashing.Hasher(salt="")
+        res = hasher.hash_key("foo")
+        self.assertEqual(res, 229609063533823256041787889330700985560)
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

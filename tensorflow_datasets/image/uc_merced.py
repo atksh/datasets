@@ -70,55 +70,57 @@ _ZIP_SUBDIR = "UCMerced_LandUse/Images"
 
 
 class UcMerced(tfds.core.GeneratorBasedBuilder):
-  """Small 21 class remote sensing land use classification dataset."""
+    """Small 21 class remote sensing land use classification dataset."""
 
-  VERSION = tfds.core.Version("0.0.1",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "label": tfds.features.ClassLabel(names=_LABELS),
-            "filename": tfds.features.Text(),
-        }),
-        supervised_keys=("image", "label"),
-        homepage=_URL,
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    path = dl_manager.download_and_extract(_ZIP_URL)
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=1,
-            gen_kwargs={"path": os.path.join(path, _ZIP_SUBDIR)},
+    VERSION = tfds.core.Version("0.0.1", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
         ),
     ]
 
-  def _generate_examples(self, path):
-    """Yields examples."""
-    for label in tf.io.gfile.listdir(path):
-      for filename in tf.io.gfile.glob(os.path.join(path, label, "*.tif")):
-        image = _load_tif(filename)
-        filename = os.path.basename(filename)
-        record = {
-            "image": image,
-            "label": label,
-            "filename": filename,
-        }
-        yield filename, record
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(names=_LABELS),
+                    "filename": tfds.features.Text(),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage=_URL,
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        path = dl_manager.download_and_extract(_ZIP_URL)
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=1,
+                gen_kwargs={"path": os.path.join(path, _ZIP_SUBDIR)},
+            ),
+        ]
+
+    def _generate_examples(self, path):
+        """Yields examples."""
+        for label in tf.io.gfile.listdir(path):
+            for filename in tf.io.gfile.glob(os.path.join(path, label, "*.tif")):
+                image = _load_tif(filename)
+                filename = os.path.basename(filename)
+                record = {
+                    "image": image,
+                    "label": label,
+                    "filename": filename,
+                }
+                yield filename, record
 
 
 def _load_tif(path):
-  with tf.io.gfile.GFile(path, "rb") as fp:
-    image = tfds.core.lazy_imports.PIL_Image.open(fp)
-  return np.array(image)
+    with tf.io.gfile.GFile(path, "rb") as fp:
+        image = tfds.core.lazy_imports.PIL_Image.open(fp)
+    return np.array(image)

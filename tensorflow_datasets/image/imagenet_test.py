@@ -31,20 +31,20 @@ imagenet.Imagenet2012.CMYK_IMAGES = [
 
 
 class Imagenet2012Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = imagenet.Imagenet2012
-  SPLITS = {  # Expected number of examples on each split.
-      "train": 100,
-      "validation": 10,
-  }
-  DL_EXTRACT_RESULT = [
-      "ILSVRC2012_img_train.tar",
-      "ILSVRC2012_img_val.tar",
-  ]
+    DATASET_CLASS = imagenet.Imagenet2012
+    SPLITS = {  # Expected number of examples on each split.
+        "train": 100,
+        "validation": 10,
+    }
+    DL_EXTRACT_RESULT = [
+        "ILSVRC2012_img_train.tar",
+        "ILSVRC2012_img_val.tar",
+    ]
 
 
 class Imagenet2012S3(Imagenet2012Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

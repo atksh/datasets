@@ -24,18 +24,16 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class TitanicTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = titanic.Titanic
+    DATASET_CLASS = titanic.Titanic
 
-  SPLITS = {
-      'train': 5
-  }
+    SPLITS = {"train": 5}
 
-  DL_EXTRACT_RESULT = 'test.csv'
+    DL_EXTRACT_RESULT = "test.csv"
 
 
 class TitanicS3Test(TitanicTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  tfds_test.test_main()
+if __name__ == "__main__":
+    tfds_test.test_main()

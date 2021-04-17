@@ -21,16 +21,16 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class Places365SmallTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = places365_small.Places365Small
-  SPLITS = {'train': 2, 'test': 2, 'validation': 2}
+    DATASET_CLASS = places365_small.Places365Small
+    SPLITS = {"train": 2, "test": 2, "validation": 2}
 
-  DL_EXTRACT_RESULT = {
-      'train': '',
-      'test': '',
-      'validation': '',
-      'annotation': 'annotation',
-  }
+    DL_EXTRACT_RESULT = {
+        "train": "",
+        "test": "",
+        "validation": "",
+        "annotation": "annotation",
+    }
 
 
-if __name__ == '__main__':
-  tfds_test.test_main()
+if __name__ == "__main__":
+    tfds_test.test_main()

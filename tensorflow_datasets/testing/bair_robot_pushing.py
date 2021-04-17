@@ -37,26 +37,30 @@ flags.DEFINE_string("output_file", None, "Path to the output file.")
 
 
 def main(argv):
-  if len(argv) > 1:
-    raise tf.app.UsageError("Too many command-line arguments.")
+    if len(argv) > 1:
+        raise tf.app.UsageError("Too many command-line arguments.")
 
-  writer = tf.io.TFRecordWriter(FLAGS.output_file)
+    writer = tf.io.TFRecordWriter(FLAGS.output_file)
 
-  feature = {}
+    feature = {}
 
-  for frame in range(30):
-    feature["%d/action" % frame] = tf.train.Feature(
-        float_list=tf.train.FloatList(value=np.random.uniform(size=(4))))
-    feature["%d/endeffector_pos" % frame] = tf.train.Feature(
-        float_list=tf.train.FloatList(value=np.random.uniform(size=(3))))
-    feature["%d/image_aux1/encoded" % frame] = tf.train.Feature(
-        bytes_list=tf.train.BytesList(value=["\x00\xff\x00" * 64 * 64]))
-    feature["%d/image_main/encoded" % frame] = tf.train.Feature(
-        bytes_list=tf.train.BytesList(value=["\x00\x00\xff" * 64 * 64]))
-  example = tf.train.Example(features=tf.train.Features(feature=feature))
-  writer.write(example.SerializeToString())
-  writer.close()
+    for frame in range(30):
+        feature["%d/action" % frame] = tf.train.Feature(
+            float_list=tf.train.FloatList(value=np.random.uniform(size=(4)))
+        )
+        feature["%d/endeffector_pos" % frame] = tf.train.Feature(
+            float_list=tf.train.FloatList(value=np.random.uniform(size=(3)))
+        )
+        feature["%d/image_aux1/encoded" % frame] = tf.train.Feature(
+            bytes_list=tf.train.BytesList(value=["\x00\xff\x00" * 64 * 64])
+        )
+        feature["%d/image_main/encoded" % frame] = tf.train.Feature(
+            bytes_list=tf.train.BytesList(value=["\x00\x00\xff" * 64 * 64])
+        )
+    example = tf.train.Example(features=tf.train.Features(feature=feature))
+    writer.write(example.SerializeToString())
+    writer.close()
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)

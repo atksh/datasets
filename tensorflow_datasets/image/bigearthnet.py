@@ -71,195 +71,214 @@ URL: http://bigearth.net/
 """
 
 _LABELS = [
-    'Agro-forestry areas', 'Airports',
-    'Annual crops associated with permanent crops', 'Bare rock',
-    'Beaches, dunes, sands', 'Broad-leaved forest', 'Burnt areas',
-    'Coastal lagoons', 'Complex cultivation patterns', 'Coniferous forest',
-    'Construction sites', 'Continuous urban fabric',
-    'Discontinuous urban fabric', 'Dump sites', 'Estuaries',
-    'Fruit trees and berry plantations', 'Green urban areas',
-    'Industrial or commercial units', 'Inland marshes', 'Intertidal flats',
-    'Land principally occupied by agriculture, with significant areas of '
-    'natural vegetation', 'Mineral extraction sites', 'Mixed forest',
-    'Moors and heathland', 'Natural grassland', 'Non-irrigated arable land',
-    'Olive groves', 'Pastures', 'Peatbogs', 'Permanently irrigated land',
-    'Port areas', 'Rice fields', 'Road and rail networks and associated land',
-    'Salines', 'Salt marshes', 'Sclerophyllous vegetation', 'Sea and ocean',
-    'Sparsely vegetated areas', 'Sport and leisure facilities',
-    'Transitional woodland/shrub', 'Vineyards', 'Water bodies', 'Water courses'
+    "Agro-forestry areas",
+    "Airports",
+    "Annual crops associated with permanent crops",
+    "Bare rock",
+    "Beaches, dunes, sands",
+    "Broad-leaved forest",
+    "Burnt areas",
+    "Coastal lagoons",
+    "Complex cultivation patterns",
+    "Coniferous forest",
+    "Construction sites",
+    "Continuous urban fabric",
+    "Discontinuous urban fabric",
+    "Dump sites",
+    "Estuaries",
+    "Fruit trees and berry plantations",
+    "Green urban areas",
+    "Industrial or commercial units",
+    "Inland marshes",
+    "Intertidal flats",
+    "Land principally occupied by agriculture, with significant areas of "
+    "natural vegetation",
+    "Mineral extraction sites",
+    "Mixed forest",
+    "Moors and heathland",
+    "Natural grassland",
+    "Non-irrigated arable land",
+    "Olive groves",
+    "Pastures",
+    "Peatbogs",
+    "Permanently irrigated land",
+    "Port areas",
+    "Rice fields",
+    "Road and rail networks and associated land",
+    "Salines",
+    "Salt marshes",
+    "Sclerophyllous vegetation",
+    "Sea and ocean",
+    "Sparsely vegetated areas",
+    "Sport and leisure facilities",
+    "Transitional woodland/shrub",
+    "Vineyards",
+    "Water bodies",
+    "Water courses",
 ]
 
-_DATA_OPTIONS = ['rgb', 'all']
+_DATA_OPTIONS = ["rgb", "all"]
 
-_ZIP_FILE = 'http://bigearth.net/downloads/BigEarthNet-v1.0.tar.gz'
-_ZIP_SUBIDR = 'BigEarthNet-v1.0'
+_ZIP_FILE = "http://bigearth.net/downloads/BigEarthNet-v1.0.tar.gz"
+_ZIP_SUBIDR = "BigEarthNet-v1.0"
 
 # To clip and rescale the RGB channels for the JPEG images visualizatoin.
 # This is not the maximal value.
 # Sample observed max value was about 17800, while the sample observed mean
 # was about 400 with a standard deviation of about 200.
 # Adhoc selection of the upper max value to be mean + 7*std.
-_OPTICAL_MAX_VALUE = 2000.
+_OPTICAL_MAX_VALUE = 2000.0
 
 
 class BigearthnetConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for Bigearthnet."""
+    """BuilderConfig for Bigearthnet."""
 
-  def __init__(self, selection=None, **kwargs):
-    """Constructs a BigearthnetConfig.
+    def __init__(self, selection=None, **kwargs):
+        """Constructs a BigearthnetConfig.
 
     Args:
       selection: `str`, one of `_DATA_OPTIONS`.
       **kwargs: keyword arguments forwarded to super.
     """
-    if selection not in _DATA_OPTIONS:
-      raise ValueError('selection must be one of %s' % _DATA_OPTIONS)
+        if selection not in _DATA_OPTIONS:
+            raise ValueError("selection must be one of %s" % _DATA_OPTIONS)
 
-    super(BigearthnetConfig, self).__init__(
-        version=tfds.core.Version('0.0.2',
-                                  experiments={tfds.core.Experiment.S3: False}),
-        **kwargs)
-    self.selection = selection
+        super(BigearthnetConfig, self).__init__(
+            version=tfds.core.Version(
+                "0.0.2", experiments={tfds.core.Experiment.S3: False}
+            ),
+            **kwargs
+        )
+        self.selection = selection
 
 
 class Bigearthnet(tfds.core.BeamBasedBuilder):
-  """Bigearthnet remote sensing dataset of Sentinel-2 image patches."""
+    """Bigearthnet remote sensing dataset of Sentinel-2 image patches."""
 
-  BUILDER_CONFIGS = [
-      BigearthnetConfig(
-          selection='rgb',
-          name='rgb',
-          description='Sentinel-2 RGB channels'),
-      BigearthnetConfig(
-          selection='all',
-          name='all',
-          description='13 Sentinel-2 channels'),
-  ]
-
-  def _info(self):
-    metadata_dict = tfds.features.FeaturesDict({
-        'acquisition_date': tfds.features.Text(),
-        'coordinates': {
-            'lrx': tf.int64,
-            'lry': tf.int64,
-            'ulx': tf.int64,
-            'uly': tf.int64,
-        },
-        'projection': tfds.features.Text(),
-        'tile_source': tfds.features.Text(),
-    })
-    if self.builder_config.selection == 'rgb':
-      features = tfds.features.FeaturesDict({
-          'image':
-              tfds.features.Image(shape=[120, 120, 3]),
-          'labels':
-              tfds.features.Sequence(tfds.features.ClassLabel(names=_LABELS)),
-          'filename':
-              tfds.features.Text(),
-          'metadata':
-              metadata_dict,
-      })
-      supervised_keys = ('image', 'labels')
-    elif self.builder_config.selection == 'all':
-      features = tfds.features.FeaturesDict({
-          'B01':
-              tfds.features.Tensor(shape=[20, 20], dtype=tf.float32),
-          'B02':
-              tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
-          'B03':
-              tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
-          'B04':
-              tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
-          'B05':
-              tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
-          'B06':
-              tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
-          'B07':
-              tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
-          'B08':
-              tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
-          'B09':
-              tfds.features.Tensor(shape=[20, 20], dtype=tf.float32),
-          'B11':
-              tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
-          'B12':
-              tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
-          'B8A':
-              tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
-          'labels':
-              tfds.features.Sequence(tfds.features.ClassLabel(names=_LABELS)),
-          'filename':
-              tfds.features.Text(),
-          'metadata':
-              metadata_dict,
-      })
-      supervised_keys = None
-
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=features,
-        supervised_keys=supervised_keys,
-        homepage='http://bigearth.net',
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    path = dl_manager.download_and_extract(_ZIP_FILE)
-    path = os.path.join(path, _ZIP_SUBIDR)
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=50,
-            gen_kwargs={
-                'path': path,
-                'selection': self.builder_config.selection,
-            },
+    BUILDER_CONFIGS = [
+        BigearthnetConfig(
+            selection="rgb", name="rgb", description="Sentinel-2 RGB channels"
+        ),
+        BigearthnetConfig(
+            selection="all", name="all", description="13 Sentinel-2 channels"
         ),
     ]
 
-  def _build_pcollection(self, pipeline, path, selection):
-    """Generates examples as dicts."""
-    beam = tfds.core.lazy_imports.apache_beam
+    def _info(self):
+        metadata_dict = tfds.features.FeaturesDict(
+            {
+                "acquisition_date": tfds.features.Text(),
+                "coordinates": {
+                    "lrx": tf.int64,
+                    "lry": tf.int64,
+                    "ulx": tf.int64,
+                    "uly": tf.int64,
+                },
+                "projection": tfds.features.Text(),
+                "tile_source": tfds.features.Text(),
+            }
+        )
+        if self.builder_config.selection == "rgb":
+            features = tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(shape=[120, 120, 3]),
+                    "labels": tfds.features.Sequence(
+                        tfds.features.ClassLabel(names=_LABELS)
+                    ),
+                    "filename": tfds.features.Text(),
+                    "metadata": metadata_dict,
+                }
+            )
+            supervised_keys = ("image", "labels")
+        elif self.builder_config.selection == "all":
+            features = tfds.features.FeaturesDict(
+                {
+                    "B01": tfds.features.Tensor(shape=[20, 20], dtype=tf.float32),
+                    "B02": tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
+                    "B03": tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
+                    "B04": tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
+                    "B05": tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
+                    "B06": tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
+                    "B07": tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
+                    "B08": tfds.features.Tensor(shape=[120, 120], dtype=tf.float32),
+                    "B09": tfds.features.Tensor(shape=[20, 20], dtype=tf.float32),
+                    "B11": tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
+                    "B12": tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
+                    "B8A": tfds.features.Tensor(shape=[60, 60], dtype=tf.float32),
+                    "labels": tfds.features.Sequence(
+                        tfds.features.ClassLabel(names=_LABELS)
+                    ),
+                    "filename": tfds.features.Text(),
+                    "metadata": metadata_dict,
+                }
+            )
+            supervised_keys = None
 
-    def _process_example(subdir):
-      return _read_chip(os.path.join(path, subdir), selection)
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=features,
+            supervised_keys=supervised_keys,
+            homepage="http://bigearth.net",
+            citation=_CITATION,
+        )
 
-    return (pipeline | beam.Create(tf.io.gfile.listdir(path))
-            | beam.Map(_process_example))
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        path = dl_manager.download_and_extract(_ZIP_FILE)
+        path = os.path.join(path, _ZIP_SUBIDR)
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=50,
+                gen_kwargs={"path": path, "selection": self.builder_config.selection,},
+            ),
+        ]
+
+    def _build_pcollection(self, pipeline, path, selection):
+        """Generates examples as dicts."""
+        beam = tfds.core.lazy_imports.apache_beam
+
+        def _process_example(subdir):
+            return _read_chip(os.path.join(path, subdir), selection)
+
+        return (
+            pipeline
+            | beam.Create(tf.io.gfile.listdir(path))
+            | beam.Map(_process_example)
+        )
 
 
 def _read_chip(path, selection):
-  """Reads content of a single classification chip."""
-  d = {'filename': os.path.basename(path)}
-  for filename in tf.io.gfile.glob(path + '/*'):
-    if filename.endswith('_labels_metadata.json'):
-      with tf.io.gfile.GFile(filename, 'r') as fid:
-        d['metadata'] = json.loads(fid.read())
-      d['labels'] = d['metadata'].pop('labels')
-    elif filename.endswith('.tif'):
-      band = filename[-7:-4]
-      if selection == 'rgb' and band not in {'B02', 'B03', 'B04'}:
-        continue
-      d[band] = _load_tif(filename)
-    else:
-      raise ValueError('Unexpected file: %s' % filename)
-  if selection == 'rgb':
-    d['image'] = _create_rgb_image(d)
-  return d
+    """Reads content of a single classification chip."""
+    d = {"filename": os.path.basename(path)}
+    for filename in tf.io.gfile.glob(path + "/*"):
+        if filename.endswith("_labels_metadata.json"):
+            with tf.io.gfile.GFile(filename, "r") as fid:
+                d["metadata"] = json.loads(fid.read())
+            d["labels"] = d["metadata"].pop("labels")
+        elif filename.endswith(".tif"):
+            band = filename[-7:-4]
+            if selection == "rgb" and band not in {"B02", "B03", "B04"}:
+                continue
+            d[band] = _load_tif(filename)
+        else:
+            raise ValueError("Unexpected file: %s" % filename)
+    if selection == "rgb":
+        d["image"] = _create_rgb_image(d)
+    return d
 
 
 def _create_rgb_image(d):
-  """Creates and rescales RGB image."""
-  img = np.stack([d.pop('B04'), d.pop('B03'), d.pop('B02')], axis=2)
-  img = img / _OPTICAL_MAX_VALUE * 255.0
-  return np.clip(img, 0, 255).astype(np.uint8)
+    """Creates and rescales RGB image."""
+    img = np.stack([d.pop("B04"), d.pop("B03"), d.pop("B02")], axis=2)
+    img = img / _OPTICAL_MAX_VALUE * 255.0
+    return np.clip(img, 0, 255).astype(np.uint8)
 
 
 def _load_tif(path):
-  """Loads TIF file and returns as float32 numpy array."""
-  with tf.io.gfile.GFile(path, 'rb') as fp:
-    img = tfds.core.lazy_imports.PIL_Image.open(fp)
-  img = np.array(img.getdata()).reshape(img.size).astype(np.float32)
-  return img
+    """Loads TIF file and returns as float32 numpy array."""
+    with tf.io.gfile.GFile(path, "rb") as fp:
+        img = tfds.core.lazy_imports.PIL_Image.open(fp)
+    img = np.array(img.getdata()).reshape(img.size).astype(np.float32)
+    return img

@@ -55,77 +55,77 @@ Bayesian Decision Trees from a standard physics package and
 5-layer neural networks are presented in the original paper. 
 """
 
-_URL = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz'
+_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz"
 
 
 class Higgs(tfds.core.GeneratorBasedBuilder):
-  """HIGGS Data Set."""
-  VERSION = tfds.core.Version('1.0.0',
-                              experiments={tfds.core.Experiment.S3: False})
+    """HIGGS Data Set."""
 
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          '2.0.0', 'New split API (https://tensorflow.org/datasets/splits)'),
-  ]
+    VERSION = tfds.core.Version("1.0.0", experiments={tfds.core.Experiment.S3: False})
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            'class_label': tf.float32,  # 1 for signal, 0 for background
-            # 21 low-level features
-            'lepton_pT': tf.float64,
-            'lepton_eta': tf.float64,
-            'lepton_phi': tf.float64,
-            'missing_energy_magnitude': tf.float64,
-            'missing_energy_phi': tf.float64,
-            'jet_1_pt': tf.float64,
-            'jet_1_eta': tf.float64,
-            'jet_1_phi': tf.float64,
-            'jet_1_b-tag': tf.float64,
-            'jet_2_pt': tf.float64,
-            'jet_2_eta': tf.float64,
-            'jet_2_phi': tf.float64,
-            'jet_2_b-tag': tf.float64,
-            'jet_3_pt': tf.float64,
-            'jet_3_eta': tf.float64,
-            'jet_3_phi': tf.float64,
-            'jet_3_b-tag': tf.float64,
-            'jet_4_pt': tf.float64,
-            'jet_4_eta': tf.float64,
-            'jet_4_phi': tf.float64,
-            'jet_4_b-tag': tf.float64,
-            # 7 high-level features
-            'm_jj': tf.float64,
-            'm_jjj': tf.float64,
-            'm_lv': tf.float64,
-            'm_jlv': tf.float64,
-            'm_bb': tf.float64,
-            'm_wbb': tf.float64,
-            'm_wwbb': tf.float64
-        }),
-        supervised_keys=None,
-        homepage='https://archive.ics.uci.edu/ml/datasets/HIGGS',
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-
-    path = dl_manager.download_and_extract(_URL)
-
-    # There is no predefined train/val/test split for this dataset.
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=10,
-            gen_kwargs={
-                'file_path': path,
-            }),
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, file_path):
-    """Generate features given the directory path.
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "class_label": tf.float32,  # 1 for signal, 0 for background
+                    # 21 low-level features
+                    "lepton_pT": tf.float64,
+                    "lepton_eta": tf.float64,
+                    "lepton_phi": tf.float64,
+                    "missing_energy_magnitude": tf.float64,
+                    "missing_energy_phi": tf.float64,
+                    "jet_1_pt": tf.float64,
+                    "jet_1_eta": tf.float64,
+                    "jet_1_phi": tf.float64,
+                    "jet_1_b-tag": tf.float64,
+                    "jet_2_pt": tf.float64,
+                    "jet_2_eta": tf.float64,
+                    "jet_2_phi": tf.float64,
+                    "jet_2_b-tag": tf.float64,
+                    "jet_3_pt": tf.float64,
+                    "jet_3_eta": tf.float64,
+                    "jet_3_phi": tf.float64,
+                    "jet_3_b-tag": tf.float64,
+                    "jet_4_pt": tf.float64,
+                    "jet_4_eta": tf.float64,
+                    "jet_4_phi": tf.float64,
+                    "jet_4_b-tag": tf.float64,
+                    # 7 high-level features
+                    "m_jj": tf.float64,
+                    "m_jjj": tf.float64,
+                    "m_lv": tf.float64,
+                    "m_jlv": tf.float64,
+                    "m_bb": tf.float64,
+                    "m_wbb": tf.float64,
+                    "m_wwbb": tf.float64,
+                }
+            ),
+            supervised_keys=None,
+            homepage="https://archive.ics.uci.edu/ml/datasets/HIGGS",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+
+        path = dl_manager.download_and_extract(_URL)
+
+        # There is no predefined train/val/test split for this dataset.
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, num_shards=10, gen_kwargs={"file_path": path,}
+            ),
+        ]
+
+    def _generate_examples(self, file_path):
+        """Generate features given the directory path.
 
     Args:
       file_path: path where the csv file is stored
@@ -134,16 +134,39 @@ class Higgs(tfds.core.GeneratorBasedBuilder):
       The features, per row.
     """
 
-    fieldnames = [
-        'class_label', 'lepton_pT', 'lepton_eta', 'lepton_phi',
-        'missing_energy_magnitude', 'missing_energy_phi', 'jet_1_pt',
-        'jet_1_eta', 'jet_1_phi', 'jet_1_b-tag', 'jet_2_pt', 'jet_2_eta',
-        'jet_2_phi', 'jet_2_b-tag', 'jet_3_pt', 'jet_3_eta', 'jet_3_phi',
-        'jet_3_b-tag', 'jet_4_pt', 'jet_4_eta', 'jet_4_phi', 'jet_4_b-tag',
-        'm_jj', 'm_jjj', 'm_lv', 'm_jlv', 'm_bb', 'm_wbb', 'm_wwbb'
-    ]
+        fieldnames = [
+            "class_label",
+            "lepton_pT",
+            "lepton_eta",
+            "lepton_phi",
+            "missing_energy_magnitude",
+            "missing_energy_phi",
+            "jet_1_pt",
+            "jet_1_eta",
+            "jet_1_phi",
+            "jet_1_b-tag",
+            "jet_2_pt",
+            "jet_2_eta",
+            "jet_2_phi",
+            "jet_2_b-tag",
+            "jet_3_pt",
+            "jet_3_eta",
+            "jet_3_phi",
+            "jet_3_b-tag",
+            "jet_4_pt",
+            "jet_4_eta",
+            "jet_4_phi",
+            "jet_4_b-tag",
+            "m_jj",
+            "m_jjj",
+            "m_lv",
+            "m_jlv",
+            "m_bb",
+            "m_wbb",
+            "m_wwbb",
+        ]
 
-    with tf.io.gfile.GFile(file_path) as csvfile:
-      reader = csv.DictReader(csvfile, fieldnames=fieldnames)
-      for i, row in enumerate(reader):
-        yield i, row
+        with tf.io.gfile.GFile(file_path) as csvfile:
+            reader = csv.DictReader(csvfile, fieldnames=fieldnames)
+            for i, row in enumerate(reader):
+                yield i, row

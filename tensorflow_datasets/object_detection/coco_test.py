@@ -25,58 +25,58 @@ import tensorflow_datasets.public_api as tfds
 
 
 class Coco2014Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = coco.Coco
-  BUILDER_CONFIG_NAMES_TO_TEST = ["2014"]
-  SPLITS = {
-      tfds.Split.TRAIN: 5,
-      tfds.Split.VALIDATION: 2,
-      tfds.Split.TEST: 2,
-      "test2015": 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "train_images": "train_images",
-      "train_annotations": "trainval_annotations",
-      "validation_images": "val_images",
-      "validation_annotations": "trainval_annotations",
-      "test_images": "test_images",
-      "test_annotations": "test_annotations",
-      "test2015_images": "test2015_images",
-      "test2015_annotations": "test2015_annotations",
-  }
+    DATASET_CLASS = coco.Coco
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2014"]
+    SPLITS = {
+        tfds.Split.TRAIN: 5,
+        tfds.Split.VALIDATION: 2,
+        tfds.Split.TEST: 2,
+        "test2015": 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "train_images": "train_images",
+        "train_annotations": "trainval_annotations",
+        "validation_images": "val_images",
+        "validation_annotations": "trainval_annotations",
+        "test_images": "test_images",
+        "test_annotations": "test_annotations",
+        "test2015_images": "test2015_images",
+        "test2015_annotations": "test2015_annotations",
+    }
 
 
 class Coco2017Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = coco.Coco
-  BUILDER_CONFIG_NAMES_TO_TEST = ["2017"]
-  SPLITS = {
-      tfds.Split.TRAIN: 5,
-      tfds.Split.VALIDATION: 2,
-      tfds.Split.TEST: 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "train_images": "train_images",
-      "train_annotations": "trainval_annotations",
-      "validation_images": "val_images",
-      "validation_annotations": "trainval_annotations",
-      "test_images": "test_images",
-      "test_annotations": "test_annotations",
-  }
+    DATASET_CLASS = coco.Coco
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2017"]
+    SPLITS = {
+        tfds.Split.TRAIN: 5,
+        tfds.Split.VALIDATION: 2,
+        tfds.Split.TEST: 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "train_images": "train_images",
+        "train_annotations": "trainval_annotations",
+        "validation_images": "val_images",
+        "validation_annotations": "trainval_annotations",
+        "test_images": "test_images",
+        "test_annotations": "test_annotations",
+    }
 
 
 class Coco2017PanopticTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = coco.Coco
-  BUILDER_CONFIG_NAMES_TO_TEST = ["2017_panoptic"]
-  SPLITS = {
-      tfds.Split.TRAIN: 3,
-      tfds.Split.VALIDATION: 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "train_images": "train_images",
-      "validation_images": "val_images",
-      "train_annotations": "panoptic_annotations_trainval2017",
-      "validation_annotations": "panoptic_annotations_trainval2017",
-  }
+    DATASET_CLASS = coco.Coco
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2017_panoptic"]
+    SPLITS = {
+        tfds.Split.TRAIN: 3,
+        tfds.Split.VALIDATION: 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "train_images": "train_images",
+        "validation_images": "val_images",
+        "train_annotations": "panoptic_annotations_trainval2017",
+        "validation_annotations": "panoptic_annotations_trainval2017",
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

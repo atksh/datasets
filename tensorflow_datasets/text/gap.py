@@ -50,67 +50,65 @@ Google AI Language for the evaluation of coreference resolution in practical
 applications.
 """
 
-_TRAINURL = 'https://raw.githubusercontent.com/google-research-datasets/gap-coreference/master/gap-development.tsv'
-_VALIDATIONURL = 'https://raw.githubusercontent.com/google-research-datasets/gap-coreference/master/gap-validation.tsv'
-_TESTURL = 'https://raw.githubusercontent.com/google-research-datasets/gap-coreference/master/gap-test.tsv'
+_TRAINURL = "https://raw.githubusercontent.com/google-research-datasets/gap-coreference/master/gap-development.tsv"
+_VALIDATIONURL = "https://raw.githubusercontent.com/google-research-datasets/gap-coreference/master/gap-validation.tsv"
+_TESTURL = "https://raw.githubusercontent.com/google-research-datasets/gap-coreference/master/gap-test.tsv"
 
 
 class Gap(tfds.core.GeneratorBasedBuilder):
-  """GAP is a gender-balanced dataset.
+    """GAP is a gender-balanced dataset.
 
   It contains 8,908 coreference-labeled pairs
   of (ambiguous pronoun, antecedent name), sampled from Wikipedia.
   """
 
-  VERSION = tfds.core.Version('0.1.0')
+    VERSION = tfds.core.Version("0.1.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            'ID': tfds.features.Text(),
-            'Text': tfds.features.Text(),
-            'Pronoun': tfds.features.Text(),
-            'Pronoun-offset': tf.int32,
-            'A': tfds.features.Text(),
-            'A-offset': tf.int32,
-            'A-coref': tf.bool,
-            'B': tfds.features.Text(),
-            'B-offset': tf.int32,
-            'B-coref': tf.bool,
-            'URL': tfds.features.Text()
-        }),
-        supervised_keys=None,
-        homepage='https://github.com/google-research-datasets/gap-coreference',
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    directory = dl_manager.download_and_extract({
-        'train': _TRAINURL,
-        'validation': _VALIDATIONURL,
-        'test': _TESTURL
-    })
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={'filepath': directory['train']},
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={'filepath': directory['validation']},
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={'filepath': directory['test']},
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "ID": tfds.features.Text(),
+                    "Text": tfds.features.Text(),
+                    "Pronoun": tfds.features.Text(),
+                    "Pronoun-offset": tf.int32,
+                    "A": tfds.features.Text(),
+                    "A-offset": tf.int32,
+                    "A-coref": tf.bool,
+                    "B": tfds.features.Text(),
+                    "B-offset": tf.int32,
+                    "B-coref": tf.bool,
+                    "URL": tfds.features.Text(),
+                }
+            ),
+            supervised_keys=None,
+            homepage="https://github.com/google-research-datasets/gap-coreference",
+            citation=_CITATION,
         )
-    ]
 
-  def _generate_examples(self, filepath):
-    """Yields examples."""
-    with tf.io.gfile.GFile(filepath) as tsvfile:
-      reader = csv.DictReader(tsvfile, dialect='excel-tab')
-      for i, row in enumerate(reader):
-        yield i, row
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        directory = dl_manager.download_and_extract(
+            {"train": _TRAINURL, "validation": _VALIDATIONURL, "test": _TESTURL}
+        )
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, gen_kwargs={"filepath": directory["train"]},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                gen_kwargs={"filepath": directory["validation"]},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST, gen_kwargs={"filepath": directory["test"]},
+            ),
+        ]
+
+    def _generate_examples(self, filepath):
+        """Yields examples."""
+        with tf.io.gfile.GFile(filepath) as tsvfile:
+            reader = csv.DictReader(tsvfile, dialect="excel-tab")
+            for i, row in enumerate(reader):
+                yield i, row

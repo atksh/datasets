@@ -33,58 +33,67 @@ _CITATION = """
 }
 """
 
-_LANGUAGE_PAIRS = [
-    (lang, "en") for lang in ["cs", "de", "fi", "fr", "ru"]
-]
+_LANGUAGE_PAIRS = [(lang, "en") for lang in ["cs", "de", "fi", "fr", "ru"]]
 
 
 class Wmt15Translate(wmt.WmtTranslate):
-  """WMT 15 translation datasets for all {xx, "en"} language pairs."""
+    """WMT 15 translation datasets for all {xx, "en"} language pairs."""
 
-  # Version history:
-  # 1.0.0: S3 (new shuffling, sharding and slicing mechanism).
-  # 0.0.4: Initial version.
-  BUILDER_CONFIGS = [
-      wmt.WmtConfig(  # pylint:disable=g-complex-comprehension
-          description="WMT 2015 %s-%s translation task dataset." % (l1, l2),
-          url=_URL,
-          citation=_CITATION,
-          language_pair=(l1, l2),
-          version=tfds.core.Version(
-              "0.0.4", experiments={tfds.core.Experiment.S3: False}),
-          supported_versions=[
-              tfds.core.Version("1.0.0"),
-          ],
-      ) for l1, l2 in _LANGUAGE_PAIRS
-  ] + [
-      wmt.WmtConfig(  # pylint:disable=g-complex-comprehension
-          description=(
-              "WMT 2015 %s-%s translation task dataset with subword encoding."
-              % (l1, l2)),
-          url=_URL,
-          citation=_CITATION,
-          language_pair=(l1, l2),
-          text_encoder_config=tfds.features.text.TextEncoderConfig(
-              encoder_cls=tfds.features.text.SubwordTextEncoder,
-              name="subwords8k",
-              vocab_size=2**13),
-          version=tfds.core.Version(
-              "0.0.4", experiments={tfds.core.Experiment.S3: False}),
-          )
-      for l1, l2 in _LANGUAGE_PAIRS
-  ]
+    # Version history:
+    # 1.0.0: S3 (new shuffling, sharding and slicing mechanism).
+    # 0.0.4: Initial version.
+    BUILDER_CONFIGS = [
+        wmt.WmtConfig(  # pylint:disable=g-complex-comprehension
+            description="WMT 2015 %s-%s translation task dataset." % (l1, l2),
+            url=_URL,
+            citation=_CITATION,
+            language_pair=(l1, l2),
+            version=tfds.core.Version(
+                "0.0.4", experiments={tfds.core.Experiment.S3: False}
+            ),
+            supported_versions=[tfds.core.Version("1.0.0"),],
+        )
+        for l1, l2 in _LANGUAGE_PAIRS
+    ] + [
+        wmt.WmtConfig(  # pylint:disable=g-complex-comprehension
+            description=(
+                "WMT 2015 %s-%s translation task dataset with subword encoding."
+                % (l1, l2)
+            ),
+            url=_URL,
+            citation=_CITATION,
+            language_pair=(l1, l2),
+            text_encoder_config=tfds.features.text.TextEncoderConfig(
+                encoder_cls=tfds.features.text.SubwordTextEncoder,
+                name="subwords8k",
+                vocab_size=2 ** 13,
+            ),
+            version=tfds.core.Version(
+                "0.0.4", experiments={tfds.core.Experiment.S3: False}
+            ),
+        )
+        for l1, l2 in _LANGUAGE_PAIRS
+    ]
 
-  @property
-  def _subsets(self):
-    return {
-        tfds.Split.TRAIN: [
-            "europarl_v7", "europarl_v8_16", "commoncrawl", "multiun",
-            "newscommentary_v10", "gigafren", "czeng_10", "yandexcorpus",
-            "wikiheadlines_fi", "wikiheadlines_ru"],
-        tfds.Split.VALIDATION: [
-            "newsdev2015", "newsdiscussdev2015", "newstest2014"
-        ],
-        tfds.Split.TEST: [
-            "newstest2015", "newsdiscusstest2015",
-        ]
-    }
+    @property
+    def _subsets(self):
+        return {
+            tfds.Split.TRAIN: [
+                "europarl_v7",
+                "europarl_v8_16",
+                "commoncrawl",
+                "multiun",
+                "newscommentary_v10",
+                "gigafren",
+                "czeng_10",
+                "yandexcorpus",
+                "wikiheadlines_fi",
+                "wikiheadlines_ru",
+            ],
+            tfds.Split.VALIDATION: [
+                "newsdev2015",
+                "newsdiscussdev2015",
+                "newstest2014",
+            ],
+            tfds.Split.TEST: ["newstest2015", "newsdiscusstest2015",],
+        }

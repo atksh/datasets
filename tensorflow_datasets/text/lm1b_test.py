@@ -24,15 +24,16 @@ from tensorflow_datasets.text import lm1b
 
 
 class Lm1bTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = lm1b.Lm1b
-  SPLITS = {
-      "train": 3,
-      "test": 2,
-  }
+    DATASET_CLASS = lm1b.Lm1b
+    SPLITS = {
+        "train": 3,
+        "test": 2,
+    }
 
 
 class Lm1bS3Test(Lm1bTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

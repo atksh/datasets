@@ -25,18 +25,18 @@ from tensorflow_datasets.image import mnist_corrupted
 
 class MNISTCorruptedTest(testing.DatasetBuilderTestCase):
 
-  BUILDER_CONFIG_NAMES_TO_TEST = ["dotted_line"]
+    BUILDER_CONFIG_NAMES_TO_TEST = ["dotted_line"]
 
-  DATASET_CLASS = mnist_corrupted.MNISTCorrupted
-  SPLITS = {
-      "train": 2,
-      "test": 2,
-  }
+    DATASET_CLASS = mnist_corrupted.MNISTCorrupted
+    SPLITS = {
+        "train": 2,
+        "test": 2,
+    }
 
 
 class MNISTCorruptedS3Test(MNISTCorruptedTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

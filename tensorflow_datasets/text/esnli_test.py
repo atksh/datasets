@@ -24,19 +24,19 @@ from tensorflow_datasets.text import esnli
 
 
 class EsnliTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = esnli.Esnli
-  SPLITS = {
-      "train": 2,  # Number of fake train examples
-      "test": 1,  # Number of fake test examples
-      "validation": 1,  # Number of fake validation examples
-  }
+    DATASET_CLASS = esnli.Esnli
+    SPLITS = {
+        "train": 2,  # Number of fake train examples
+        "test": 1,  # Number of fake test examples
+        "validation": 1,  # Number of fake validation examples
+    }
 
-  DL_EXTRACT_RESULT = {
-      "train": ["esnli_train_1.csv", "esnli_train_2.csv"],
-      "test": ["esnli_test.csv"],
-      "validation": ["esnli_dev.csv"],
-  }
+    DL_EXTRACT_RESULT = {
+        "train": ["esnli_train_1.csv", "esnli_train_2.csv"],
+        "test": ["esnli_test.csv"],
+        "validation": ["esnli_dev.csv"],
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

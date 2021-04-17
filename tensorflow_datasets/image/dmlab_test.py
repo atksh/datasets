@@ -24,14 +24,14 @@ from tensorflow_datasets.image import dmlab
 
 
 class DmlabDatasetTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = dmlab.Dmlab
+    DATASET_CLASS = dmlab.Dmlab
 
-  SPLITS = {
-      "train": 2,
-      "test": 2,
-      "validation": 2,
-  }
+    SPLITS = {
+        "train": 2,
+        "test": 2,
+        "validation": 2,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

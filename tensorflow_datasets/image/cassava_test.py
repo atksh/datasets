@@ -24,17 +24,17 @@ from tensorflow_datasets.image import cassava
 
 
 class CassavaTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cassava.Cassava
-  SPLITS = {
-      "train": 5,
-      "test": 5,
-      "validation": 5,
-  }
+    DATASET_CLASS = cassava.Cassava
+    SPLITS = {
+        "train": 5,
+        "test": 5,
+        "validation": 5,
+    }
 
 
 class CassavaS3Test(CassavaTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
-
+    testing.test_main()

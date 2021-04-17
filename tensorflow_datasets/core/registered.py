@@ -86,59 +86,66 @@ Check that:
 
 
 class DatasetNotFoundError(ValueError):
-  """The requested Dataset was not found."""
+    """The requested Dataset was not found."""
 
-  def __init__(self, name, is_abstract=False, in_development=False):
-    all_datasets_str = "\n\t- ".join([""] + list_builders())
-    if is_abstract:
-      error_string = ("Dataset %s is an abstract class so cannot be created. "
-                      "Please make sure to instantiate all abstract methods.\n"
-                      "%s") % (name, _DATASET_NOT_FOUND_ERR)
-    elif in_development:
-      error_string = ("Dataset %s is under active development and is not "
-                      "available yet.\n") % name
-    else:
-      error_string = ("Dataset %s not found. Available datasets:%s\n"
-                      "%s") % (name, all_datasets_str, _DATASET_NOT_FOUND_ERR)
-    ValueError.__init__(self, error_string)
+    def __init__(self, name, is_abstract=False, in_development=False):
+        all_datasets_str = "\n\t- ".join([""] + list_builders())
+        if is_abstract:
+            error_string = (
+                "Dataset %s is an abstract class so cannot be created. "
+                "Please make sure to instantiate all abstract methods.\n"
+                "%s"
+            ) % (name, _DATASET_NOT_FOUND_ERR)
+        elif in_development:
+            error_string = (
+                "Dataset %s is under active development and is not " "available yet.\n"
+            ) % name
+        else:
+            error_string = ("Dataset %s not found. Available datasets:%s\n" "%s") % (
+                name,
+                all_datasets_str,
+                _DATASET_NOT_FOUND_ERR,
+            )
+        ValueError.__init__(self, error_string)
 
 
 class RegisteredDataset(abc.ABCMeta):
-  """Subclasses will be registered and given a `name` property."""
+    """Subclasses will be registered and given a `name` property."""
 
-  def __new__(mcs, cls_name, bases, class_dict):
-    name = naming.camelcase_to_snakecase(cls_name)
-    class_dict["name"] = name
-    cls = super(RegisteredDataset, mcs).__new__(
-        mcs, cls_name, bases, class_dict)
+    def __new__(mcs, cls_name, bases, class_dict):
+        name = naming.camelcase_to_snakecase(cls_name)
+        class_dict["name"] = name
+        cls = super(RegisteredDataset, mcs).__new__(mcs, cls_name, bases, class_dict)
 
-    if py_utils.is_notebook():  # On Colab/Jupyter, we allow overwriting
-      pass
-    elif name in _DATASET_REGISTRY:
-      raise ValueError("Dataset with name %s already registered." % name)
-    elif name in _IN_DEVELOPMENT_REGISTRY:
-      raise ValueError(
-          "Dataset with name %s already registered as in development." % name)
-    elif name in _ABSTRACT_DATASET_REGISTRY:
-      raise ValueError(
-          "Dataset with name %s already registered as abstract." % name)
+        if py_utils.is_notebook():  # On Colab/Jupyter, we allow overwriting
+            pass
+        elif name in _DATASET_REGISTRY:
+            raise ValueError("Dataset with name %s already registered." % name)
+        elif name in _IN_DEVELOPMENT_REGISTRY:
+            raise ValueError(
+                "Dataset with name %s already registered as in development." % name
+            )
+        elif name in _ABSTRACT_DATASET_REGISTRY:
+            raise ValueError(
+                "Dataset with name %s already registered as abstract." % name
+            )
 
-    if inspect.isabstract(cls):
-      _ABSTRACT_DATASET_REGISTRY[name] = cls
-    elif class_dict.get("IN_DEVELOPMENT"):
-      _IN_DEVELOPMENT_REGISTRY[name] = cls
-    else:
-      _DATASET_REGISTRY[name] = cls
-    return cls
+        if inspect.isabstract(cls):
+            _ABSTRACT_DATASET_REGISTRY[name] = cls
+        elif class_dict.get("IN_DEVELOPMENT"):
+            _IN_DEVELOPMENT_REGISTRY[name] = cls
+        else:
+            _DATASET_REGISTRY[name] = cls
+        return cls
 
 
 def list_builders():
-  """Returns the string names of all `tfds.core.DatasetBuilder`s."""
-  return sorted(list(_DATASET_REGISTRY))
+    """Returns the string names of all `tfds.core.DatasetBuilder`s."""
+    return sorted(list(_DATASET_REGISTRY))
 
 
 def builder(name, **builder_init_kwargs):
-  """Fetches a `tfds.core.DatasetBuilder` by string name.
+    """Fetches a `tfds.core.DatasetBuilder` by string name.
 
   Args:
     name: `str`, the registered name of the `DatasetBuilder` (the snake case
@@ -160,38 +167,40 @@ def builder(name, **builder_init_kwargs):
   Raises:
     DatasetNotFoundError: if `name` is unrecognized.
   """
-  name, builder_kwargs = _dataset_name_and_kwargs_from_name_str(name)
-  builder_kwargs.update(builder_init_kwargs)
-  if name in _ABSTRACT_DATASET_REGISTRY:
-    raise DatasetNotFoundError(name, is_abstract=True)
-  if name in _IN_DEVELOPMENT_REGISTRY:
-    raise DatasetNotFoundError(name, in_development=True)
-  if name not in _DATASET_REGISTRY:
-    raise DatasetNotFoundError(name)
-  try:
-    return _DATASET_REGISTRY[name](**builder_kwargs)
-  except BaseException:
-    logging.error("Failed to construct dataset %s", name)
-    raise
+    name, builder_kwargs = _dataset_name_and_kwargs_from_name_str(name)
+    builder_kwargs.update(builder_init_kwargs)
+    if name in _ABSTRACT_DATASET_REGISTRY:
+        raise DatasetNotFoundError(name, is_abstract=True)
+    if name in _IN_DEVELOPMENT_REGISTRY:
+        raise DatasetNotFoundError(name, in_development=True)
+    if name not in _DATASET_REGISTRY:
+        raise DatasetNotFoundError(name)
+    try:
+        return _DATASET_REGISTRY[name](**builder_kwargs)
+    except BaseException:
+        logging.error("Failed to construct dataset %s", name)
+        raise
 
 
 @api_utils.disallow_positional_args(allowed=["name"])
-def load(name,
-         split=None,
-         data_dir=None,
-         batch_size=None,
-         in_memory=None,
-         shuffle_files=False,
-         download=True,
-         as_supervised=False,
-         decoders=None,
-         with_info=False,
-         builder_kwargs=None,
-         download_and_prepare_kwargs=None,
-         as_dataset_kwargs=None,
-         try_gcs=False):
-  # pylint: disable=line-too-long
-  """Loads the named dataset into a `tf.data.Dataset`.
+def load(
+    name,
+    split=None,
+    data_dir=None,
+    batch_size=None,
+    in_memory=None,
+    shuffle_files=False,
+    download=True,
+    as_supervised=False,
+    decoders=None,
+    with_info=False,
+    builder_kwargs=None,
+    download_and_prepare_kwargs=None,
+    as_dataset_kwargs=None,
+    try_gcs=False,
+):
+    # pylint: disable=line-too-long
+    """Loads the named dataset into a `tf.data.Dataset`.
 
   If `split=None` (the default), returns all splits for the dataset. Otherwise,
   returns the specified split.
@@ -284,37 +293,37 @@ def load(name,
       object documents the entire dataset, regardless of the `split` requested.
       Split-specific information is available in `ds_info.splits`.
   """
-  # pylint: enable=line-too-long
+    # pylint: enable=line-too-long
 
-  name, name_builder_kwargs = _dataset_name_and_kwargs_from_name_str(name)
-  name_builder_kwargs.update(builder_kwargs or {})
-  builder_kwargs = name_builder_kwargs
+    name, name_builder_kwargs = _dataset_name_and_kwargs_from_name_str(name)
+    name_builder_kwargs.update(builder_kwargs or {})
+    builder_kwargs = name_builder_kwargs
 
-  # Set data_dir
-  if try_gcs and gcs_utils.is_dataset_on_gcs(name):
-    data_dir = constants.GCS_DATA_DIR
-  elif data_dir is None:
-    data_dir = constants.DATA_DIR
+    # Set data_dir
+    if try_gcs and gcs_utils.is_dataset_on_gcs(name):
+        data_dir = constants.GCS_DATA_DIR
+    elif data_dir is None:
+        data_dir = constants.DATA_DIR
 
-  dbuilder = builder(name, data_dir=data_dir, **builder_kwargs)
-  if download:
-    download_and_prepare_kwargs = download_and_prepare_kwargs or {}
-    dbuilder.download_and_prepare(**download_and_prepare_kwargs)
+    dbuilder = builder(name, data_dir=data_dir, **builder_kwargs)
+    if download:
+        download_and_prepare_kwargs = download_and_prepare_kwargs or {}
+        dbuilder.download_and_prepare(**download_and_prepare_kwargs)
 
-  if as_dataset_kwargs is None:
-    as_dataset_kwargs = {}
-  as_dataset_kwargs = dict(as_dataset_kwargs)
-  as_dataset_kwargs.setdefault("split", split)
-  as_dataset_kwargs.setdefault("as_supervised", as_supervised)
-  as_dataset_kwargs.setdefault("batch_size", batch_size)
-  as_dataset_kwargs.setdefault("decoders", decoders)
-  as_dataset_kwargs.setdefault("in_memory", in_memory)
-  as_dataset_kwargs.setdefault("shuffle_files", shuffle_files)
+    if as_dataset_kwargs is None:
+        as_dataset_kwargs = {}
+    as_dataset_kwargs = dict(as_dataset_kwargs)
+    as_dataset_kwargs.setdefault("split", split)
+    as_dataset_kwargs.setdefault("as_supervised", as_supervised)
+    as_dataset_kwargs.setdefault("batch_size", batch_size)
+    as_dataset_kwargs.setdefault("decoders", decoders)
+    as_dataset_kwargs.setdefault("in_memory", in_memory)
+    as_dataset_kwargs.setdefault("shuffle_files", shuffle_files)
 
-  ds = dbuilder.as_dataset(**as_dataset_kwargs)
-  if with_info:
-    return ds, dbuilder.info
-  return ds
+    ds = dbuilder.as_dataset(**as_dataset_kwargs)
+    if with_info:
+        return ds, dbuilder.info
+    return ds
 
 
 _VERSION_RE = r""
@@ -325,50 +334,53 @@ _NAME_REG = re.compile(
     r"(/(?P<config>[\w\-\.]+))?"
     r"(:(?P<version>(\d+|\*)(\.(\d+|\*)){2}))?"
     r"(/(?P<kwargs>(\w+=\w+)(,\w+=[^,]+)*))?"
-    r"$")
+    r"$"
+)
 
 
 def _dataset_name_and_kwargs_from_name_str(name_str):
-  """Extract kwargs from name str."""
-  res = _NAME_REG.match(name_str)
-  if not res:
-    raise ValueError(_NAME_STR_ERR.format(name_str))
-  name = res.group("dataset_name")
-  kwargs = _kwargs_str_to_kwargs(res.group("kwargs"))
-  try:
-    for attr in ["config", "version"]:
-      val = res.group(attr)
-      if val is None:
-        continue
-      if attr in kwargs:
-        raise ValueError("Dataset %s: cannot pass %s twice." % (name, attr))
-      kwargs[attr] = val
-    return name, kwargs
-  except:
-    logging.error(_NAME_STR_ERR.format(name_str))   # pylint: disable=logging-format-interpolation
-    raise
+    """Extract kwargs from name str."""
+    res = _NAME_REG.match(name_str)
+    if not res:
+        raise ValueError(_NAME_STR_ERR.format(name_str))
+    name = res.group("dataset_name")
+    kwargs = _kwargs_str_to_kwargs(res.group("kwargs"))
+    try:
+        for attr in ["config", "version"]:
+            val = res.group(attr)
+            if val is None:
+                continue
+            if attr in kwargs:
+                raise ValueError("Dataset %s: cannot pass %s twice." % (name, attr))
+            kwargs[attr] = val
+        return name, kwargs
+    except:
+        logging.error(
+            _NAME_STR_ERR.format(name_str)
+        )  # pylint: disable=logging-format-interpolation
+        raise
 
 
 def _kwargs_str_to_kwargs(kwargs_str):
-  if not kwargs_str:
-    return {}
-  kwarg_strs = kwargs_str.split(",")
-  kwargs = {}
-  for kwarg_str in kwarg_strs:
-    kwarg_name, kwarg_val = kwarg_str.split("=")
-    kwargs[kwarg_name] = _cast_to_pod(kwarg_val)
-  return kwargs
+    if not kwargs_str:
+        return {}
+    kwarg_strs = kwargs_str.split(",")
+    kwargs = {}
+    for kwarg_str in kwarg_strs:
+        kwarg_name, kwarg_val = kwarg_str.split("=")
+        kwargs[kwarg_name] = _cast_to_pod(kwarg_val)
+    return kwargs
 
 
 def _cast_to_pod(val):
-  """Try cast to int, float, bool, str, in that order."""
-  bools = {"True": True, "False": False}
-  if val in bools:
-    return bools[val]
-  try:
-    return int(val)
-  except ValueError:
+    """Try cast to int, float, bool, str, in that order."""
+    bools = {"True": True, "False": False}
+    if val in bools:
+        return bools[val]
     try:
-      return float(val)
+        return int(val)
     except ValueError:
-      return tf.compat.as_text(val)
+        try:
+            return float(val)
+        except ValueError:
+            return tf.compat.as_text(val)

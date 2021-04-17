@@ -24,26 +24,26 @@ from tensorflow_datasets.image import visual_domain_decathlon
 
 
 class VisualDomainDecathlonGenericTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = visual_domain_decathlon.VisualDomainDecathlon
-  BUILDER_CONFIG_NAMES_TO_TEST = ['aircraft']
-  SPLITS = {
-      'train': 2,
-      'test': 1,
-      'validation': 1,
-  }
-  DL_EXTRACT_RESULT = ['', '']
+    DATASET_CLASS = visual_domain_decathlon.VisualDomainDecathlon
+    BUILDER_CONFIG_NAMES_TO_TEST = ["aircraft"]
+    SPLITS = {
+        "train": 2,
+        "test": 1,
+        "validation": 1,
+    }
+    DL_EXTRACT_RESULT = ["", ""]
 
 
 class VisualDomainDecathlonImagenetTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = visual_domain_decathlon.VisualDomainDecathlon
-  BUILDER_CONFIG_NAMES_TO_TEST = ['imagenet12']
-  SPLITS = {
-      'train': 3,
-      'test': 2,
-      'validation': 1,
-  }
-  DL_EXTRACT_RESULT = ['', 'imagenet12.tar']
+    DATASET_CLASS = visual_domain_decathlon.VisualDomainDecathlon
+    BUILDER_CONFIG_NAMES_TO_TEST = ["imagenet12"]
+    SPLITS = {
+        "train": 3,
+        "test": 2,
+        "validation": 1,
+    }
+    DL_EXTRACT_RESULT = ["", "imagenet12.tar"]
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

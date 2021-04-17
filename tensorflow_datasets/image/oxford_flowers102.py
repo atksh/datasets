@@ -49,76 +49,83 @@ The test set consists of the remaining 6149 images (minimum 20 per class).
 
 
 class OxfordFlowers102(tfds.core.GeneratorBasedBuilder):
-  """Oxford 102 category flower dataset."""
+    """Oxford 102 category flower dataset."""
 
-  VERSION = tfds.core.Version("0.0.1",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "label": tfds.features.ClassLabel(num_classes=102),
-            "file_name": tfds.features.Text(),
-        }),
-        supervised_keys=("image", "label"),
-        homepage=_BASE_URL,
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    # Download images and annotations that come in separate archives.
-    # Note, that the extension of archives is .tar.gz even though the actual
-    # archives format is uncompressed tar.
-    dl_paths = dl_manager.download_and_extract({
-        "images": tfds.download.Resource(
-            url=os.path.join(_BASE_URL, "102flowers.tgz"),
-            extract_method=tfds.download.ExtractMethod.TAR),
-        "labels": os.path.join(_BASE_URL, "imagelabels.mat"),
-        "setid": os.path.join(_BASE_URL, "setid.mat"),
-    })
-
-    gen_kwargs = dict(
-        images_dir_path=os.path.join(dl_paths["images"], "jpg"),
-        labels_path=dl_paths["labels"],
-        setid_path=dl_paths["setid"],
-    )
-
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=1,
-            gen_kwargs=dict(split_name="trnid", **gen_kwargs)),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=1,
-            gen_kwargs=dict(split_name="tstid", **gen_kwargs)),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=1,
-            gen_kwargs=dict(split_name="valid", **gen_kwargs)),
+    VERSION = tfds.core.Version("0.0.1", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, images_dir_path, labels_path, setid_path,
-                         split_name):
-    """Yields examples."""
-    with tf.io.gfile.GFile(labels_path, "rb") as f:
-      labels = tfds.core.lazy_imports.scipy.io.loadmat(f)["labels"][0]
-    with tf.io.gfile.GFile(setid_path, "rb") as f:
-      examples = tfds.core.lazy_imports.scipy.io.loadmat(f)[split_name][0]
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(num_classes=102),
+                    "file_name": tfds.features.Text(),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage=_BASE_URL,
+            citation=_CITATION,
+        )
 
-    for image_id in examples:
-      file_name = "image_%05d.jpg" % image_id
-      record = {
-          "image": os.path.join(images_dir_path, file_name),
-          "label": labels[image_id - 1] - 1,
-          "file_name": file_name,
-      }
-      yield file_name, record
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        # Download images and annotations that come in separate archives.
+        # Note, that the extension of archives is .tar.gz even though the actual
+        # archives format is uncompressed tar.
+        dl_paths = dl_manager.download_and_extract(
+            {
+                "images": tfds.download.Resource(
+                    url=os.path.join(_BASE_URL, "102flowers.tgz"),
+                    extract_method=tfds.download.ExtractMethod.TAR,
+                ),
+                "labels": os.path.join(_BASE_URL, "imagelabels.mat"),
+                "setid": os.path.join(_BASE_URL, "setid.mat"),
+            }
+        )
+
+        gen_kwargs = dict(
+            images_dir_path=os.path.join(dl_paths["images"], "jpg"),
+            labels_path=dl_paths["labels"],
+            setid_path=dl_paths["setid"],
+        )
+
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=1,
+                gen_kwargs=dict(split_name="trnid", **gen_kwargs),
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                num_shards=1,
+                gen_kwargs=dict(split_name="tstid", **gen_kwargs),
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=1,
+                gen_kwargs=dict(split_name="valid", **gen_kwargs),
+            ),
+        ]
+
+    def _generate_examples(self, images_dir_path, labels_path, setid_path, split_name):
+        """Yields examples."""
+        with tf.io.gfile.GFile(labels_path, "rb") as f:
+            labels = tfds.core.lazy_imports.scipy.io.loadmat(f)["labels"][0]
+        with tf.io.gfile.GFile(setid_path, "rb") as f:
+            examples = tfds.core.lazy_imports.scipy.io.loadmat(f)[split_name][0]
+
+        for image_id in examples:
+            file_name = "image_%05d.jpg" % image_id
+            record = {
+                "image": os.path.join(images_dir_path, file_name),
+                "label": labels[image_id - 1] - 1,
+                "file_name": file_name,
+            }
+            yield file_name, record

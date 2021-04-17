@@ -24,17 +24,17 @@ from tensorflow_datasets.text import trivia_qa
 
 
 class TriviaqaTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = trivia_qa.TriviaQA
-  DL_EXTRACT_RESULT = {
-      "rc": "",
-      "unfiltered": "",
-  }
-  SPLITS = {
-      "train": 1,
-      "test": 1,
-      "validation": 1,
-  }
+    DATASET_CLASS = trivia_qa.TriviaQA
+    DL_EXTRACT_RESULT = {
+        "rc": "",
+        "unfiltered": "",
+    }
+    SPLITS = {
+        "train": 1,
+        "test": 1,
+        "validation": 1,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

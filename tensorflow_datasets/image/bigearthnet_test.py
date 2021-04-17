@@ -24,11 +24,11 @@ from tensorflow_datasets.image import bigearthnet
 
 
 class BigearthnetTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = bigearthnet.Bigearthnet
-  SPLITS = {
-      "train": 1,
-  }
+    DATASET_CLASS = bigearthnet.Bigearthnet
+    SPLITS = {
+        "train": 1,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

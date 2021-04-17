@@ -25,15 +25,14 @@ from tensorflow_datasets.core import visualization
 
 
 class VisualizationTest(testing.TestCase):
-
-  @mock.patch("matplotlib.pyplot.figure")
-  def test_show_examples(self, mock_fig):
-    with testing.tmp_dir(self.get_temp_dir()) as tmp_dir:
-      builder = testing.DummyMnist(data_dir=tmp_dir)
-    builder.download_and_prepare()
-    ds = builder.as_dataset(split="train")
-    visualization.show_examples(builder.info, ds)
+    @mock.patch("matplotlib.pyplot.figure")
+    def test_show_examples(self, mock_fig):
+        with testing.tmp_dir(self.get_temp_dir()) as tmp_dir:
+            builder = testing.DummyMnist(data_dir=tmp_dir)
+        builder.download_and_prepare()
+        ds = builder.as_dataset(split="train")
+        visualization.show_examples(builder.info, ds)
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

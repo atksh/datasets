@@ -19,14 +19,14 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class Shapes3dTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = shapes3d.Shapes3d
-  SPLITS = {"train": 5}
-  DL_EXTRACT_RESULT = "3dshapes.h5"
+    DATASET_CLASS = shapes3d.Shapes3d
+    SPLITS = {"train": 5}
+    DL_EXTRACT_RESULT = "3dshapes.h5"
 
 
 class Shapes3dS3Test(Shapes3dTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

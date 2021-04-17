@@ -47,96 +47,104 @@ WARNING: This dataset currently requires you to prepare images on your own.
 
 
 class CelebaHQConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for CelebaHQ."""
+    """BuilderConfig for CelebaHQ."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, resolution, **kwargs):
-    """BuilderConfig for SQUAD.
+    @tfds.core.disallow_positional_args
+    def __init__(self, resolution, **kwargs):
+        """BuilderConfig for SQUAD.
 
     Args:
       resolution: Resolution of the image. Values supported: powers of 2 up to
         1024.
       **kwargs: keyword arguments forwarded to super.
     """
-    super(CelebaHQConfig, self).__init__(
-        name="%d" % resolution,
-        description=("CelebaHQ images in %d x %d resolution" %
-                     (resolution, resolution)),
-        version=tfds.core.Version(
-            "0.1.0", experiments={tfds.core.Experiment.S3: False}),
-        supported_versions=[
-            tfds.core.Version(
-                "2.0.0",
-                "New split API (https://tensorflow.org/datasets/splits)"),
-        ],
-        **kwargs)
-    self.resolution = resolution
-    self.file_name = "data%dx%d.tar" % (resolution, resolution)
+        super(CelebaHQConfig, self).__init__(
+            name="%d" % resolution,
+            description=(
+                "CelebaHQ images in %d x %d resolution" % (resolution, resolution)
+            ),
+            version=tfds.core.Version(
+                "0.1.0", experiments={tfds.core.Experiment.S3: False}
+            ),
+            supported_versions=[
+                tfds.core.Version(
+                    "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+                ),
+            ],
+            **kwargs
+        )
+        self.resolution = resolution
+        self.file_name = "data%dx%d.tar" % (resolution, resolution)
 
 
 class CelebAHq(tfds.core.GeneratorBasedBuilder):
-  """Celeba_HQ Dataset."""
+    """Celeba_HQ Dataset."""
 
-  MANUAL_DOWNLOAD_INSTRUCTIONS = """\
+    MANUAL_DOWNLOAD_INSTRUCTIONS = """\
   manual_dir should contain multiple tar files with images (data2x2.tar,
   data4x4.tar .. data1024x1024.tar).
   Detailed instructions are here:
   https://github.com/tkarras/progressive_growing_of_gans#preparing-datasets-for-training
   """
 
-  VERSION = tfds.core.Version("0.1.0")
+    VERSION = tfds.core.Version("0.1.0")
 
-  BUILDER_CONFIGS = [
-      CelebaHQConfig(resolution=1024),
-      CelebaHQConfig(resolution=512),
-      CelebaHQConfig(resolution=256),
-      CelebaHQConfig(resolution=128),
-      CelebaHQConfig(resolution=64),
-      CelebaHQConfig(resolution=32),
-      CelebaHQConfig(resolution=16),
-      CelebaHQConfig(resolution=8),
-      CelebaHQConfig(resolution=4),
-      CelebaHQConfig(resolution=2),
-      CelebaHQConfig(resolution=1),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image":
-                tfds.features.Image(
-                    shape=(self.builder_config.resolution,
-                           self.builder_config.resolution, 3),
-                    encoding_format="png"),
-            "image/filename":
-                tfds.features.Text(),
-        },),
-        homepage="https://github.com/tkarras/progressive_growing_of_gans",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    image_tar_file = os.path.join(dl_manager.manual_dir,
-                                  self.builder_config.file_name)
-    if not tf.io.gfile.exists(image_tar_file):
-      # The current celebahq generation code depends on a concrete version of
-      # pillow library and cannot be easily ported into tfds.
-      msg = "You must download the dataset files manually and place them in: "
-      msg += dl_manager.manual_dir
-      msg += " as .tar files. See testing/test_data/fake_examples/celeb_a_hq "
-      raise AssertionError(msg)
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=50,
-            gen_kwargs={"archive": dl_manager.iter_archive(image_tar_file)},
-        )
+    BUILDER_CONFIGS = [
+        CelebaHQConfig(resolution=1024),
+        CelebaHQConfig(resolution=512),
+        CelebaHQConfig(resolution=256),
+        CelebaHQConfig(resolution=128),
+        CelebaHQConfig(resolution=64),
+        CelebaHQConfig(resolution=32),
+        CelebaHQConfig(resolution=16),
+        CelebaHQConfig(resolution=8),
+        CelebaHQConfig(resolution=4),
+        CelebaHQConfig(resolution=2),
+        CelebaHQConfig(resolution=1),
     ]
 
-  def _generate_examples(self, archive):
-    for fname, fobj in archive:
-      record = {"image": fobj, "image/filename": fname}
-      yield fname, record
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(
+                        shape=(
+                            self.builder_config.resolution,
+                            self.builder_config.resolution,
+                            3,
+                        ),
+                        encoding_format="png",
+                    ),
+                    "image/filename": tfds.features.Text(),
+                },
+            ),
+            homepage="https://github.com/tkarras/progressive_growing_of_gans",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        image_tar_file = os.path.join(
+            dl_manager.manual_dir, self.builder_config.file_name
+        )
+        if not tf.io.gfile.exists(image_tar_file):
+            # The current celebahq generation code depends on a concrete version of
+            # pillow library and cannot be easily ported into tfds.
+            msg = "You must download the dataset files manually and place them in: "
+            msg += dl_manager.manual_dir
+            msg += " as .tar files. See testing/test_data/fake_examples/celeb_a_hq "
+            raise AssertionError(msg)
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=50,
+                gen_kwargs={"archive": dl_manager.iter_archive(image_tar_file)},
+            )
+        ]
+
+    def _generate_examples(self, archive):
+        for fname, fobj in archive:
+            record = {"image": fobj, "image/filename": fname}
+            yield fname, record

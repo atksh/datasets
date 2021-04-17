@@ -24,14 +24,14 @@ from tensorflow_datasets.structured import amazon_us_reviews
 
 
 class AmazonUSReviewsTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = amazon_us_reviews.AmazonUSReviews
-  BUILDER_CONFIG_NAMES_TO_TEST = ["Apparel_v1_00"]
-  SPLITS = {
-      "train": 5,
-  }
+    DATASET_CLASS = amazon_us_reviews.AmazonUSReviews
+    BUILDER_CONFIG_NAMES_TO_TEST = ["Apparel_v1_00"]
+    SPLITS = {
+        "train": 5,
+    }
 
-  DL_EXTRACT_RESULT = "test.tsv"
+    DL_EXTRACT_RESULT = "test.tsv"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

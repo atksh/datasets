@@ -25,16 +25,15 @@ from tensorflow_datasets.image import eurosat
 
 
 class EurosatTest(testing.DatasetBuilderTestCase):
-  # TODO(mnn): Re-enable Py3 test (b/129964829)
-  # None implies testing all BUILDER_CONFIGS, while [] implies no tests.
-  BUILDER_CONFIG_NAMES_TO_TEST = None if six.PY2 else []
+    # TODO(mnn): Re-enable Py3 test (b/129964829)
+    # None implies testing all BUILDER_CONFIGS, while [] implies no tests.
+    BUILDER_CONFIG_NAMES_TO_TEST = None if six.PY2 else []
 
-
-  DATASET_CLASS = eurosat.Eurosat
-  SPLITS = {
-      "train": 3,
-  }
+    DATASET_CLASS = eurosat.Eurosat
+    SPLITS = {
+        "train": 3,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

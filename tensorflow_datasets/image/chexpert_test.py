@@ -24,16 +24,16 @@ from tensorflow_datasets.image import chexpert
 
 
 class ChexpertTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = chexpert.Chexpert
-  SPLITS = {
-      "train": 1,
-      "validation": 1,
-  }
+    DATASET_CLASS = chexpert.Chexpert
+    SPLITS = {
+        "train": 1,
+        "validation": 1,
+    }
 
 
 class ChexpertS3Test(ChexpertTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

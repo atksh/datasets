@@ -25,39 +25,43 @@ from tensorflow_datasets.video import ucf101
 
 
 class Ucf101Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = ucf101.Ucf101
+    DATASET_CLASS = ucf101.Ucf101
 
-  SPLITS = {
-      'train': 3,
-      'test': 2,
-  }
+    SPLITS = {
+        "train": 3,
+        "test": 2,
+    }
 
-  DL_EXTRACT_RESULT = {
-      'videos': 'videos',
-      'splits': 'splits',
-  }
+    DL_EXTRACT_RESULT = {
+        "videos": "videos",
+        "splits": "splits",
+    }
 
-  BUILDER_CONFIG_NAMES_TO_TEST = ['ucf101_1_256', 'ucf101_2']
+    BUILDER_CONFIG_NAMES_TO_TEST = ["ucf101_1_256", "ucf101_2"]
 
-  def _assertAsDataset(self, builder):
-    """Check the label distribution for each split."""
-    super(Ucf101Test, self)._assertAsDataset(builder)
-    label_frequncies = {}
-    label_feature = builder.info.features['label']
-    dataset = builder.as_dataset()
-    for split_name in Ucf101Test.SPLITS:
-      label_frequncies[split_name] = collections.defaultdict(int)
-      for features in dataset_utils.as_numpy(dataset[split_name]):
-        label_name = label_feature.int2str(features['label'])
-        label_frequncies[split_name][label_name] += 1
-    self.assertEqual(dict(label_frequncies),
-                     {'test': {'Archery': 1, 'Nunchucks': 1},
-                      'train': {'Archery': 1, 'Nunchucks': 2}})
+    def _assertAsDataset(self, builder):
+        """Check the label distribution for each split."""
+        super(Ucf101Test, self)._assertAsDataset(builder)
+        label_frequncies = {}
+        label_feature = builder.info.features["label"]
+        dataset = builder.as_dataset()
+        for split_name in Ucf101Test.SPLITS:
+            label_frequncies[split_name] = collections.defaultdict(int)
+            for features in dataset_utils.as_numpy(dataset[split_name]):
+                label_name = label_feature.int2str(features["label"])
+                label_frequncies[split_name][label_name] += 1
+        self.assertEqual(
+            dict(label_frequncies),
+            {
+                "test": {"Archery": 1, "Nunchucks": 1},
+                "train": {"Archery": 1, "Nunchucks": 2},
+            },
+        )
 
 
 class Ucf101S3Test(Ucf101Test):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

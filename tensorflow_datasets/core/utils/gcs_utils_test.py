@@ -25,18 +25,17 @@ from tensorflow_datasets.core.utils import gcs_utils
 
 
 class GcsUtilsTest(testing.TestCase):
+    def is_dataset_accessible(self):
+        # Re-enable GCS access. TestCase disables it.
+        with self.gcs_access():
+            self.assertTrue(gcs_utils.is_dataset_on_gcs("mnist/1.0.0"))
 
-  def is_dataset_accessible(self):
-    # Re-enable GCS access. TestCase disables it.
-    with self.gcs_access():
-      self.assertTrue(gcs_utils.is_dataset_on_gcs("mnist/1.0.0"))
-
-  def test_mnist(self):
-    with self.gcs_access():
-      mnist = tfds.image.MNIST(data_dir="gs://tfds-data/datasets")
-      example = next(tfds.as_numpy(mnist.as_dataset(split="train").take(1)))
-    _ = example["image"], example["label"]
+    def test_mnist(self):
+        with self.gcs_access():
+            mnist = tfds.image.MNIST(data_dir="gs://tfds-data/datasets")
+            example = next(tfds.as_numpy(mnist.as_dataset(split="train").take(1)))
+        _ = example["image"], example["label"]
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

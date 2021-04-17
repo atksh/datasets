@@ -24,11 +24,11 @@ from tensorflow_datasets.image import malaria
 
 
 class MalariaTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = malaria.Malaria
-  SPLITS = {
-      "train": 4,
-  }
+    DATASET_CLASS = malaria.Malaria
+    SPLITS = {
+        "train": 4,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

@@ -24,14 +24,14 @@ from tensorflow_datasets.text import scicite
 
 
 class SciciteTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = scicite.Scicite
-  SPLITS = {
-      "train": 3,  # Number of fake train example
-      "validation": 1,  # Number of fake validation example
-      "test": 1,  # Number of fake test example
-  }
-  DL_EXTRACT_RESULT = {"scicite": ""}
+    DATASET_CLASS = scicite.Scicite
+    SPLITS = {
+        "train": 3,  # Number of fake train example
+        "validation": 1,  # Number of fake validation example
+        "test": 1,  # Number of fake test example
+    }
+    DL_EXTRACT_RESULT = {"scicite": ""}
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

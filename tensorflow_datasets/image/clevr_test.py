@@ -23,17 +23,17 @@ from tensorflow_datasets.image.clevr import CLEVR
 
 
 class CLEVRTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = CLEVR
-  SPLITS = {  # Expected number of examples on each split.
-      "train": 5,
-      "validation": 5,
-      "test": 5,
-  }
+    DATASET_CLASS = CLEVR
+    SPLITS = {  # Expected number of examples on each split.
+        "train": 5,
+        "validation": 5,
+        "test": 5,
+    }
 
 
 class CLEVRS3Test(CLEVRTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

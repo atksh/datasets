@@ -26,19 +26,19 @@ horses_or_humans._IMAGE_SHAPE = (None, None, 3)  # pylint: disable=protected-acc
 
 
 class HorsesOrHumansTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = horses_or_humans.HorsesOrHumans
+    DATASET_CLASS = horses_or_humans.HorsesOrHumans
 
-  SPLITS = {
-      'train': 2,
-      'test': 2,
-  }
+    SPLITS = {
+        "train": 2,
+        "test": 2,
+    }
 
-  DL_EXTRACT_RESULT = ['hoh_train.zip', 'hoh_test.zip']
+    DL_EXTRACT_RESULT = ["hoh_train.zip", "hoh_test.zip"]
 
 
 class HorsesOrHumansS3Test(HorsesOrHumansTest):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  tfds_test.test_main()
+if __name__ == "__main__":
+    tfds_test.test_main()

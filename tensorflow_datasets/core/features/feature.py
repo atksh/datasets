@@ -99,10 +99,10 @@ from tensorflow_datasets.core import utils
 
 
 class TensorInfo(object):
-  """Structure containing info on the `tf.Tensor` shape/dtype."""
+    """Structure containing info on the `tf.Tensor` shape/dtype."""
 
-  def __init__(self, shape, dtype, default_value=None, sequence_rank=None):
-    """Constructor.
+    def __init__(self, shape, dtype, default_value=None, sequence_rank=None):
+        """Constructor.
 
     Args:
       shape: `tuple[int]`, shape of the tensor
@@ -111,40 +111,38 @@ class TensorInfo(object):
         field is added to provide a default value when reading the file.
       sequence_rank: `int`, Number of `tfds.features.Sequence` dimension.
     """
-    self.shape = shape
-    self.dtype = dtype
-    self.default_value = default_value
-    self.sequence_rank = sequence_rank or 0
+        self.shape = shape
+        self.dtype = dtype
+        self.default_value = default_value
+        self.sequence_rank = sequence_rank or 0
 
-  @classmethod
-  def copy_from(cls, tensor_info):
-    """Copy constructor."""
-    return cls(
-        shape=tensor_info.shape,
-        dtype=tensor_info.dtype,
-        default_value=tensor_info.default_value,
-        sequence_rank=tensor_info.sequence_rank,
-    )
+    @classmethod
+    def copy_from(cls, tensor_info):
+        """Copy constructor."""
+        return cls(
+            shape=tensor_info.shape,
+            dtype=tensor_info.dtype,
+            default_value=tensor_info.default_value,
+            sequence_rank=tensor_info.sequence_rank,
+        )
 
-  def __eq__(self, other):
-    """Equality."""
-    return (
-        self.shape == other.shape and
-        self.dtype == other.dtype and
-        self.default_value == other.default_value
-    )
+    def __eq__(self, other):
+        """Equality."""
+        return (
+            self.shape == other.shape
+            and self.dtype == other.dtype
+            and self.default_value == other.default_value
+        )
 
-  def __repr__(self):
-    return '{}(shape={}, dtype={})'.format(
-        type(self).__name__,
-        self.shape,
-        repr(self.dtype),
-    )
+    def __repr__(self):
+        return "{}(shape={}, dtype={})".format(
+            type(self).__name__, self.shape, repr(self.dtype),
+        )
 
 
 @six.add_metaclass(abc.ABCMeta)
 class FeatureConnector(object):
-  """Abstract base class for feature types.
+    """Abstract base class for feature types.
 
   This class provides an interface between the way the information is stored
   on disk, and the way it is presented to the user.
@@ -161,9 +159,9 @@ class FeatureConnector(object):
 
   """
 
-  @abc.abstractmethod
-  def get_tensor_info(self):
-    """Return the tf.Tensor dtype/shape of the feature.
+    @abc.abstractmethod
+    def get_tensor_info(self):
+        """Return the tf.Tensor dtype/shape of the feature.
 
     This returns the tensor dtype/shape, as returned by .as_dataset by the
     `tf.data.Dataset` object.
@@ -190,20 +188,20 @@ class FeatureConnector(object):
         `tfds.features.TensorInfo`
 
     """
-    raise NotImplementedError
+        raise NotImplementedError
 
-  @property
-  def shape(self):
-    """Return the shape (or dict of shape) of this FeatureConnector."""
-    return utils.map_nested(lambda t: t.shape, self.get_tensor_info())
+    @property
+    def shape(self):
+        """Return the shape (or dict of shape) of this FeatureConnector."""
+        return utils.map_nested(lambda t: t.shape, self.get_tensor_info())
 
-  @property
-  def dtype(self):
-    """Return the dtype (or dict of dtype) of this FeatureConnector."""
-    return utils.map_nested(lambda t: t.dtype, self.get_tensor_info())
+    @property
+    def dtype(self):
+        """Return the dtype (or dict of dtype) of this FeatureConnector."""
+        return utils.map_nested(lambda t: t.dtype, self.get_tensor_info())
 
-  def get_serialized_info(self):
-    """Return the shape/dtype of features after encoding (for the adapter).
+    def get_serialized_info(self):
+        """Return the shape/dtype of features after encoding (for the adapter).
 
     The `FileAdapter` then use those information to write data on disk.
 
@@ -234,11 +232,11 @@ class FeatureConnector(object):
       features: Either a dict of feature proto object, or a feature proto object
 
     """
-    return self.get_tensor_info()
+        return self.get_tensor_info()
 
-  @abc.abstractmethod
-  def encode_example(self, example_data):
-    """Encode the feature dict into tf-example compatible input.
+    @abc.abstractmethod
+    def encode_example(self, example_data):
+        """Encode the feature dict into tf-example compatible input.
 
     The input example_data can be anything that the user passed at data
     generation. For example:
@@ -281,10 +279,10 @@ class FeatureConnector(object):
         the data returned here should be integer, float or string. User type
         can be restored in `decode_example()`.
     """
-    raise NotImplementedError
+        raise NotImplementedError
 
-  def decode_example(self, tfexample_data):
-    """Decode the feature dict to TF compatible input.
+    def decode_example(self, tfexample_data):
+        """Decode the feature dict to TF compatible input.
 
     Note: If eager is not enabled, this function will be executed as a
     tensorflow graph (in `tf.data.Dataset.map(features.decode_example)`).
@@ -299,10 +297,10 @@ class FeatureConnector(object):
       tensor_data: Tensor or dictionary of tensor, output of the tf.data.Dataset
         object
     """
-    return tfexample_data
+        return tfexample_data
 
-  def decode_batch_example(self, tfexample_data):
-    """Decode multiple features batched in a single tf.Tensor.
+    def decode_batch_example(self, tfexample_data):
+        """Decode multiple features batched in a single tf.Tensor.
 
     This function is used to decode features wrapped in
     `tfds.features.Sequence()`.
@@ -318,21 +316,21 @@ class FeatureConnector(object):
       tensor_data: Tensor or dictionary of tensor, output of the tf.data.Dataset
         object
     """
-    # Note: This all works fine in Eager mode (without tf.function) because
-    # tf.data pipelines are always executed in Graph mode.
+        # Note: This all works fine in Eager mode (without tf.function) because
+        # tf.data pipelines are always executed in Graph mode.
 
-    # Apply the decoding to each of the individual distributed features.
-    return tf.map_fn(
-        self.decode_example,
-        tfexample_data,
-        dtype=self.dtype,
-        parallel_iterations=10,
-        back_prop=False,
-        name='sequence_decode',
-    )
+        # Apply the decoding to each of the individual distributed features.
+        return tf.map_fn(
+            self.decode_example,
+            tfexample_data,
+            dtype=self.dtype,
+            parallel_iterations=10,
+            back_prop=False,
+            name="sequence_decode",
+        )
 
-  def decode_ragged_example(self, tfexample_data):
-    """Decode nested features from a tf.RaggedTensor.
+    def decode_ragged_example(self, tfexample_data):
+        """Decode nested features from a tf.RaggedTensor.
 
     This function is used to decode features wrapped in nested
     `tfds.features.Sequence()`.
@@ -348,10 +346,10 @@ class FeatureConnector(object):
       tensor_data: The decoded `tf.RaggedTensor` or dictionary of tensor,
         output of the tf.data.Dataset object
     """
-    return tf.ragged.map_flat_values(self.decode_batch_example, tfexample_data)
+        return tf.ragged.map_flat_values(self.decode_batch_example, tfexample_data)
 
-  def _flatten(self, x):
-    """Flatten the input dict into a list of values.
+    def _flatten(self, x):
+        """Flatten the input dict into a list of values.
 
     For instance, the following feature:
     ```
@@ -393,10 +391,10 @@ class FeatureConnector(object):
       `list`: The flattened list of element of `x`. Order is guaranteed to be
       deterministic. Missing elements will be filled with `None`.
     """
-    return [x]
+        return [x]
 
-  def _nest(self, list_x):
-    """Pack the list into a nested dict.
+    def _nest(self, list_x):
+        """Pack the list into a nested dict.
 
     This is the reverse function of flatten.
 
@@ -442,35 +440,32 @@ class FeatureConnector(object):
       nested_x: nested `dict` matching the flattened `FeatureConnector`
         structure.
     """
-    assert len(list_x) == 1
-    return list_x[0]
+        assert len(list_x) == 1
+        return list_x[0]
 
-  def _additional_repr_info(self):
-    """Override to return additional info to go into __repr__."""
-    return {}
+    def _additional_repr_info(self):
+        """Override to return additional info to go into __repr__."""
+        return {}
 
-  def __repr__(self):
-    """Display the feature dictionary."""
-    tensor_info = self.get_tensor_info()
-    if not isinstance(tensor_info, TensorInfo):
-      return '{}({})'.format(type(self).__name__, tensor_info)
+    def __repr__(self):
+        """Display the feature dictionary."""
+        tensor_info = self.get_tensor_info()
+        if not isinstance(tensor_info, TensorInfo):
+            return "{}({})".format(type(self).__name__, tensor_info)
 
-    # Ensure ordering of keys by adding them one-by-one
-    repr_info = collections.OrderedDict()
-    repr_info['shape'] = tensor_info.shape
-    repr_info['dtype'] = repr(tensor_info.dtype)
-    additional_info = self._additional_repr_info()
-    for k, v in additional_info.items():
-      repr_info[k] = v
+        # Ensure ordering of keys by adding them one-by-one
+        repr_info = collections.OrderedDict()
+        repr_info["shape"] = tensor_info.shape
+        repr_info["dtype"] = repr(tensor_info.dtype)
+        additional_info = self._additional_repr_info()
+        for k, v in additional_info.items():
+            repr_info[k] = v
 
-    info_str = ', '.join(['%s=%s' % (k, v) for k, v in repr_info.items()])
-    return '{}({})'.format(
-        type(self).__name__,
-        info_str,
-    )
+        info_str = ", ".join(["%s=%s" % (k, v) for k, v in repr_info.items()])
+        return "{}({})".format(type(self).__name__, info_str,)
 
-  def save_metadata(self, data_dir, feature_name):
-    """Save the feature metadata on disk.
+    def save_metadata(self, data_dir, feature_name):
+        """Save the feature metadata on disk.
 
     This function is called after the data has been generated (by
     `_download_and_prepare`) to save the feature connector info with the
@@ -494,10 +489,10 @@ class FeatureConnector(object):
         `~/datasets/cifar10/1.2.0/`)
       feature_name: `str`, the name of the feature (from the FeaturesDict key)
     """
-    pass
+        pass
 
-  def load_metadata(self, data_dir, feature_name):
-    """Restore the feature metadata from disk.
+    def load_metadata(self, data_dir, feature_name):
+        """Restore the feature metadata from disk.
 
     If a dataset is re-loaded and generated files exists on disk, this function
     will restore the feature metadata from the saved file.
@@ -507,40 +502,41 @@ class FeatureConnector(object):
         `~/datasets/cifar10/1.2.0/`)
       feature_name: `str`, the name of the feature (from the FeaturesDict key)
     """
-    pass
+        pass
 
 
 class Tensor(FeatureConnector):
-  """`FeatureConnector` for generic data of arbitrary shape and type."""
+    """`FeatureConnector` for generic data of arbitrary shape and type."""
 
-  @api_utils.disallow_positional_args
-  def __init__(self, shape, dtype):
-    """Construct a Tensor feature."""
-    self._shape = shape
-    self._dtype = dtype
+    @api_utils.disallow_positional_args
+    def __init__(self, shape, dtype):
+        """Construct a Tensor feature."""
+        self._shape = shape
+        self._dtype = dtype
 
-  def get_tensor_info(self):
-    """See base class for details."""
-    return TensorInfo(shape=self._shape, dtype=self._dtype)
+    def get_tensor_info(self):
+        """See base class for details."""
+        return TensorInfo(shape=self._shape, dtype=self._dtype)
 
-  def decode_batch_example(self, example_data):
-    """See base class for details."""
-    # Overwrite the `tf.map_fn`, decoding is a no-op
-    return self.decode_example(example_data)
+    def decode_batch_example(self, example_data):
+        """See base class for details."""
+        # Overwrite the `tf.map_fn`, decoding is a no-op
+        return self.decode_example(example_data)
 
-  def decode_ragged_example(self, example_data):
-    """See base class for details."""
-    # Overwrite the `tf.map_fn`, decoding is a no-op
-    return self.decode_example(example_data)
+    def decode_ragged_example(self, example_data):
+        """See base class for details."""
+        # Overwrite the `tf.map_fn`, decoding is a no-op
+        return self.decode_example(example_data)
 
-  def encode_example(self, example_data):
-    """See base class for details."""
-    np_dtype = np.dtype(self.dtype.as_numpy_dtype)
-    if not isinstance(example_data, np.ndarray):
-      example_data = np.array(example_data, dtype=np_dtype)
-    # Ensure the shape and dtype match
-    if example_data.dtype != np_dtype:
-      raise ValueError('Dtype {} do not match {}'.format(
-          example_data.dtype, np_dtype))
-    utils.assert_shape_match(example_data.shape, self._shape)
-    return example_data
+    def encode_example(self, example_data):
+        """See base class for details."""
+        np_dtype = np.dtype(self.dtype.as_numpy_dtype)
+        if not isinstance(example_data, np.ndarray):
+            example_data = np.array(example_data, dtype=np_dtype)
+        # Ensure the shape and dtype match
+        if example_data.dtype != np_dtype:
+            raise ValueError(
+                "Dtype {} do not match {}".format(example_data.dtype, np_dtype)
+            )
+        utils.assert_shape_match(example_data.shape, self._shape)
+        return example_data

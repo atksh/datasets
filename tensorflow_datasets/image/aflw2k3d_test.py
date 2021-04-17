@@ -24,11 +24,11 @@ import tensorflow_datasets.public_api as tfds
 
 
 class Aflw2k3dTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = aflw2k3d.Aflw2k3d
-  SPLITS = {
-      tfds.Split.TRAIN: 2,
-  }
+    DATASET_CLASS = aflw2k3d.Aflw2k3d
+    SPLITS = {
+        tfds.Split.TRAIN: 2,
+    }
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

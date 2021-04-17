@@ -24,13 +24,14 @@ from tensorflow_datasets.summarization import billsum
 
 
 class BillsumTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = billsum.Billsum
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-      "test": 1,  # Number of fake test example
-      "ca_test": 1  # Number of fake test example
-  }
-  DL_EXTRACT_RESULT = ""
+    DATASET_CLASS = billsum.Billsum
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+        "test": 1,  # Number of fake test example
+        "ca_test": 1,  # Number of fake test example
+    }
+    DL_EXTRACT_RESULT = ""
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

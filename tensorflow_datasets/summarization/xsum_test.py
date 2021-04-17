@@ -24,14 +24,14 @@ from tensorflow_datasets.summarization import xsum
 
 
 class XsumTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = xsum.Xsum
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-      "validation": 1,  # Number of fake validation example
-      "test": 1,  # Number of fake test example
-  }
-  DL_EXTRACT_RESULT = "XSum-TRAINING-DEV-TEST-SPLIT-90-5-5.json"
+    DATASET_CLASS = xsum.Xsum
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+        "validation": 1,  # Number of fake validation example
+        "test": 1,  # Number of fake test example
+    }
+    DL_EXTRACT_RESULT = "XSum-TRAINING-DEV-TEST-SPLIT-90-5-5.json"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

@@ -28,38 +28,46 @@ tf.compat.v1.enable_eager_execution()
 
 
 class MovingSequenceTest(tf.test.TestCase):
+    @testing.run_in_graph_and_eager_modes()
+    def test_images_as_moving_sequence(self):
+        h, w = (28, 28)
+        sequence_length = 8
 
-  @testing.run_in_graph_and_eager_modes()
-  def test_images_as_moving_sequence(self):
-    h, w = (28, 28)
-    sequence_length = 8
+        vh = 1 / (sequence_length)
+        vw = 1 / (2 * (sequence_length))
+        image = tf.ones((28, 28, 1), dtype=tf.uint8)
 
-    vh = 1 / (sequence_length)
-    vw = 1 / (2*(sequence_length))
-    image = tf.ones((28, 28, 1), dtype=tf.uint8)
+        velocity = tf.constant([vh, vw], dtype=tf.float32)
+        out_size = (h + sequence_length, w + sequence_length)
+        start_position = tf.constant([0, 0], dtype=tf.float32)
 
-    velocity = tf.constant([vh, vw], dtype=tf.float32)
-    out_size = (h + sequence_length, w + sequence_length)
-    start_position = tf.constant([0, 0], dtype=tf.float32)
+        sequence = ms.image_as_moving_sequence(
+            image,
+            start_position=start_position,
+            velocity=velocity,
+            output_size=out_size,
+            sequence_length=sequence_length,
+        )
+        sequence = tf.cast(sequence.image_sequence, tf.float32)
 
-    sequence = ms.image_as_moving_sequence(
-        image, start_position=start_position, velocity=velocity,
-        output_size=out_size, sequence_length=sequence_length)
-    sequence = tf.cast(sequence.image_sequence, tf.float32)
+        self.assertAllEqual(
+            *self.evaluate(
+                [
+                    tf.reduce_sum(sequence, axis=(1, 2, 3)),
+                    tf.fill(
+                        (sequence_length,), tf.reduce_sum(tf.cast(image, tf.float32))
+                    ),
+                ]
+            )
+        )
 
-    self.assertAllEqual(*self.evaluate([
-        tf.reduce_sum(sequence, axis=(1, 2, 3)),
-        tf.fill((sequence_length,),
-                tf.reduce_sum(tf.cast(image, tf.float32)))
-    ]))
-
-    for i, full_image in enumerate(tf.unstack(sequence, axis=0)):
-      j = i // 2
-      subimage = full_image[i:i+h, j:j+w]
-      n_true = tf.reduce_sum(subimage)
-      # allow for pixel rounding errors in each dimension
-      self.assertTrue(self.evaluate(n_true) >= (h-1)*(w-1))
+        for i, full_image in enumerate(tf.unstack(sequence, axis=0)):
+            j = i // 2
+            subimage = full_image[i : i + h, j : j + w]
+            n_true = tf.reduce_sum(subimage)
+            # allow for pixel rounding errors in each dimension
+            self.assertTrue(self.evaluate(n_true) >= (h - 1) * (w - 1))
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

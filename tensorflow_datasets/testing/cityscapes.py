@@ -21,11 +21,11 @@ import re
 import zipfile
 from tensorflow_datasets.testing.fake_data_utils import get_random_png
 
-CITY_IN_ID_RE = re.compile(r'(.+)_[0-9]+_[0-9]+')
+CITY_IN_ID_RE = re.compile(r"(.+)_[0-9]+_[0-9]+")
 
 
 def generate_ids(city, num=2):
-  """Generates image ids following the format of the cityscapes dataset.
+    """Generates image ids following the format of the cityscapes dataset.
 
   Args:
     city (str): The city/scene the ids belong to, used as a prefix to the id.
@@ -34,13 +34,14 @@ def generate_ids(city, num=2):
   Yields:
     Generator for id strings.
   """
-  for _ in range(num):
-    yield '{}_{:06d}_{:06d}'.format(city, random.randint(0, 999999),
-                                    random.randint(0, 999999))
+    for _ in range(num):
+        yield "{}_{:06d}_{:06d}".format(
+            city, random.randint(0, 999999), random.randint(0, 999999)
+        )
 
 
 def create_zipfile(zip_filepath, splits_with_ids, suffixes, maindir=None):
-  """Generates a zipfile with a cityscapes-like file structure and random pngs.
+    """Generates a zipfile with a cityscapes-like file structure and random pngs.
 
   Args:
     zip_filepath (str): filepath to the zip archive that will be created
@@ -51,17 +52,19 @@ def create_zipfile(zip_filepath, splits_with_ids, suffixes, maindir=None):
     maindir (str): name of the root directory of the zipfile, defaults to the
       name of the zipfile
   """
-  with zipfile.ZipFile(zip_filepath, 'w') as z:
-    for split, ids in splits_with_ids.items():
-      if maindir is None:
-        maindir = os.path.basename(zip_filepath).strip('.zip')
-      split = os.path.join(maindir, split)
-      for img_id in ids:
-        city = CITY_IN_ID_RE.match(img_id).group(1)
-        for suffix in suffixes:
-          if 'Img' in suffix:
-            img = get_random_png(height=1024, width=2048, channels=3)
-          else:
-            img = get_random_png(height=1024, width=2048, channels=1)
-          z.write(img, os.path.join(split, city,
-                                    '{}_{}.png'.format(img_id, suffix)))
+    with zipfile.ZipFile(zip_filepath, "w") as z:
+        for split, ids in splits_with_ids.items():
+            if maindir is None:
+                maindir = os.path.basename(zip_filepath).strip(".zip")
+            split = os.path.join(maindir, split)
+            for img_id in ids:
+                city = CITY_IN_ID_RE.match(img_id).group(1)
+                for suffix in suffixes:
+                    if "Img" in suffix:
+                        img = get_random_png(height=1024, width=2048, channels=3)
+                    else:
+                        img = get_random_png(height=1024, width=2048, channels=1)
+                    z.write(
+                        img,
+                        os.path.join(split, city, "{}_{}.png".format(img_id, suffix)),
+                    )

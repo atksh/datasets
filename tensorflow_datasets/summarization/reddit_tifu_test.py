@@ -24,12 +24,12 @@ from tensorflow_datasets.summarization import reddit_tifu
 
 
 class RedditTifuTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = reddit_tifu.RedditTifu
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-  }
-  DL_EXTRACT_RESULT = "data.json"
+    DATASET_CLASS = reddit_tifu.RedditTifu
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+    }
+    DL_EXTRACT_RESULT = "data.json"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

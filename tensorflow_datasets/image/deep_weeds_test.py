@@ -21,15 +21,15 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class DeepWeedsTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = deep_weeds.DeepWeeds
-  SPLITS = {
-      "train": 9,
-  }
-  DL_EXTRACT_RESULT = {
-      "image": "images",
-      "label": "labels.csv",
-  }
+    DATASET_CLASS = deep_weeds.DeepWeeds
+    SPLITS = {
+        "train": 9,
+    }
+    DL_EXTRACT_RESULT = {
+        "image": "images",
+        "label": "labels.csv",
+    }
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

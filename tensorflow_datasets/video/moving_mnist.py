@@ -22,7 +22,9 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
-from tensorflow_datasets.video.moving_sequence import image_as_moving_sequence  # pylint: disable=unused-import
+from tensorflow_datasets.video.moving_sequence import (
+    image_as_moving_sequence,
+)  # pylint: disable=unused-import
 
 _OUT_RESOLUTION = (64, 64)
 _SEQUENCE_LENGTH = 20
@@ -53,38 +55,39 @@ for generating training/validation data from the MNIST dataset.
 
 
 class MovingMnist(tfds.core.GeneratorBasedBuilder):
-  """MovingMnist."""
+    """MovingMnist."""
 
-  VERSION = tfds.core.Version("0.1.0",
-                              experiments={tfds.core.Experiment.S3: False})
+    VERSION = tfds.core.Version("0.1.0", experiments={tfds.core.Experiment.S3: False})
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image_sequence": tfds.features.Video(
-                shape=(_SEQUENCE_LENGTH,) + _OUT_RESOLUTION + (1,))
-        }),
-        homepage=_URL,
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image_sequence": tfds.features.Video(
+                        shape=(_SEQUENCE_LENGTH,) + _OUT_RESOLUTION + (1,)
+                    )
+                }
+            ),
+            homepage=_URL,
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    data_path = dl_manager.download(_URL + "mnist_test_seq.npy")
+    def _split_generators(self, dl_manager):
+        data_path = dl_manager.download(_URL + "mnist_test_seq.npy")
 
-    # authors only provide test data.
-    # See `tfds.video.moving_mnist.image_as_moving_sequence` for mapping
-    # function to create training/validation dataset from MNIST.
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=5,
-            gen_kwargs=dict(data_path=data_path)),
-    ]
+        # authors only provide test data.
+        # See `tfds.video.moving_mnist.image_as_moving_sequence` for mapping
+        # function to create training/validation dataset from MNIST.
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST, num_shards=5, gen_kwargs=dict(data_path=data_path)
+            ),
+        ]
 
-  def _generate_examples(self, data_path):
-    """Generate MovingMnist sequences.
+    def _generate_examples(self, data_path):
+        """Generate MovingMnist sequences.
 
     Args:
       data_path (str): Path to the data file
@@ -92,9 +95,9 @@ class MovingMnist(tfds.core.GeneratorBasedBuilder):
     Yields:
       20 x 64 x 64 x 1 uint8 numpy arrays
     """
-    with tf.io.gfile.GFile(data_path, "rb") as fp:
-      images = np.load(fp)
-    images = np.transpose(images, (1, 0, 2, 3))
-    images = np.expand_dims(images, axis=-1)
-    for sequence in images:
-      yield dict(image_sequence=sequence)
+        with tf.io.gfile.GFile(data_path, "rb") as fp:
+            images = np.load(fp)
+        images = np.transpose(images, (1, 0, 2, 3))
+        images = np.expand_dims(images, axis=-1)
+        for sequence in images:
+            yield dict(image_sequence=sequence)

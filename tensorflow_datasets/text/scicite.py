@@ -55,117 +55,112 @@ Method, Background, Result
 """
 
 _SOURCE_NAMES = [
-    "properNoun", "andPhrase", "acronym", "etAlPhrase", "explicit",
-    "acronymParen", "nan"
+    "properNoun",
+    "andPhrase",
+    "acronym",
+    "etAlPhrase",
+    "explicit",
+    "acronymParen",
+    "nan",
 ]
 
 
 class Scicite(tfds.core.GeneratorBasedBuilder):
-  """This is a dataset for classifying citation intents in academic papers."""
+    """This is a dataset for classifying citation intents in academic papers."""
 
-  VERSION = tfds.core.Version("1.0.0")
+    VERSION = tfds.core.Version("1.0.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        # This is the description that will appear on the datasets page.
-        description=_DESCRIPTION,
-        # tfds.features.FeatureConnectors
-        features=tfds.features.FeaturesDict({
-            "string":
-                tfds.features.Text(),
-            "sectionName":
-                tfds.features.Text(),
-            "label":
-                tfds.features.ClassLabel(
-                    names=["method", "background", "result"]),
-            "citingPaperId":
-                tfds.features.Text(),
-            "citedPaperId":
-                tfds.features.Text(),
-            "excerpt_index":
-                tf.int32,
-            "isKeyCitation":
-                tf.bool,
-            "label2":
-                tfds.features.ClassLabel(names=[
-                    "supportive", "not_supportive", "cant_determine", "none"
-                ]),
-            "citeEnd":
-                tf.int64,
-            "citeStart":
-                tf.int64,
-            "source":
-                tfds.features.ClassLabel(names=_SOURCE_NAMES),
-            "label_confidence":
-                tf.float32,
-            "label2_confidence":
-                tf.float32,
-            "id":
-                tfds.features.Text(),
-        }),
-        # If there's a common (input, target) tuple from the features,
-        # specify them here. They'll be used if as_supervised=True in
-        # builder.as_dataset.
-        supervised_keys=("string", "label"),
-        # Homepage of the dataset for documentation
-        homepage="https://github.com/allenai/scicite",
-        citation=_CITATION,
-    )
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            # This is the description that will appear on the datasets page.
+            description=_DESCRIPTION,
+            # tfds.features.FeatureConnectors
+            features=tfds.features.FeaturesDict(
+                {
+                    "string": tfds.features.Text(),
+                    "sectionName": tfds.features.Text(),
+                    "label": tfds.features.ClassLabel(
+                        names=["method", "background", "result"]
+                    ),
+                    "citingPaperId": tfds.features.Text(),
+                    "citedPaperId": tfds.features.Text(),
+                    "excerpt_index": tf.int32,
+                    "isKeyCitation": tf.bool,
+                    "label2": tfds.features.ClassLabel(
+                        names=["supportive", "not_supportive", "cant_determine", "none"]
+                    ),
+                    "citeEnd": tf.int64,
+                    "citeStart": tf.int64,
+                    "source": tfds.features.ClassLabel(names=_SOURCE_NAMES),
+                    "label_confidence": tf.float32,
+                    "label2_confidence": tf.float32,
+                    "id": tfds.features.Text(),
+                }
+            ),
+            # If there's a common (input, target) tuple from the features,
+            # specify them here. They'll be used if as_supervised=True in
+            # builder.as_dataset.
+            supervised_keys=("string", "label"),
+            # Homepage of the dataset for documentation
+            homepage="https://github.com/allenai/scicite",
+            citation=_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    dl_paths = dl_manager.download_and_extract({
-        "scicite":
-            "https://s3-us-west-2.amazonaws.com/ai2-s2-research/scicite/scicite.tar.gz",
-    })
-    path = os.path.join(dl_paths["scicite"], "scicite")
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={"path": os.path.join(path, "train.jsonl")},
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={"path": os.path.join(path, "dev.jsonl")},
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={"path": os.path.join(path, "test.jsonl")},
-        ),
-    ]
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        dl_paths = dl_manager.download_and_extract(
+            {
+                "scicite": "https://s3-us-west-2.amazonaws.com/ai2-s2-research/scicite/scicite.tar.gz",
+            }
+        )
+        path = os.path.join(dl_paths["scicite"], "scicite")
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={"path": os.path.join(path, "train.jsonl")},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                gen_kwargs={"path": os.path.join(path, "dev.jsonl")},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={"path": os.path.join(path, "test.jsonl")},
+            ),
+        ]
 
-  def _generate_examples(self, path=None):
-    """Yields examples."""
-    with tf.io.gfile.GFile(path) as f:
-      unique_ids = {}
-      for line in f:
-        d = json.loads(line)
-        unique_id = str(d["unique_id"])
-        if unique_id in unique_ids:
-          continue
-        unique_ids[unique_id] = True
-        yield unique_id, {
-            "string": d["string"],
-            "label": str(d["label"]),
-            "sectionName": str(d["sectionName"]),
-            "citingPaperId": str(d["citingPaperId"]),
-            "citedPaperId": str(d["citedPaperId"]),
-            "excerpt_index": int(d["excerpt_index"]),
-            "isKeyCitation": bool(d["isKeyCitation"]),
-            "label2": str(d.get("label2", "none")),
-            "citeEnd": _safe_int(d["citeEnd"]),
-            "citeStart": _safe_int(d["citeStart"]),
-            "source": str(d["source"]),
-            "label_confidence": float(d.get("label_confidence", 0.)),
-            "label2_confidence": float(d.get("label2_confidence", 0.)),
-            "id": str(d["id"]),
-        }
+    def _generate_examples(self, path=None):
+        """Yields examples."""
+        with tf.io.gfile.GFile(path) as f:
+            unique_ids = {}
+            for line in f:
+                d = json.loads(line)
+                unique_id = str(d["unique_id"])
+                if unique_id in unique_ids:
+                    continue
+                unique_ids[unique_id] = True
+                yield unique_id, {
+                    "string": d["string"],
+                    "label": str(d["label"]),
+                    "sectionName": str(d["sectionName"]),
+                    "citingPaperId": str(d["citingPaperId"]),
+                    "citedPaperId": str(d["citedPaperId"]),
+                    "excerpt_index": int(d["excerpt_index"]),
+                    "isKeyCitation": bool(d["isKeyCitation"]),
+                    "label2": str(d.get("label2", "none")),
+                    "citeEnd": _safe_int(d["citeEnd"]),
+                    "citeStart": _safe_int(d["citeStart"]),
+                    "source": str(d["source"]),
+                    "label_confidence": float(d.get("label_confidence", 0.0)),
+                    "label2_confidence": float(d.get("label2_confidence", 0.0)),
+                    "id": str(d["id"]),
+                }
 
 
 def _safe_int(a):
-  try:
-    # skip NaNs
-    return int(a)
-  except ValueError:
-    return -1
+    try:
+        # skip NaNs
+        return int(a)
+    except ValueError:
+        return -1

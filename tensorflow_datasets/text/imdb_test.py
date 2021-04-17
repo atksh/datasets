@@ -24,18 +24,18 @@ from tensorflow_datasets.text import imdb
 
 
 class IMDBReviewsTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = imdb.IMDBReviews
-  SPLITS = {
-      "train": 5,
-      "test": 4,
-      "unsupervised": 3,
-  }
-  DL_EXTRACT_RESULT = "aclImdb_v1.tar.gz"
+    DATASET_CLASS = imdb.IMDBReviews
+    SPLITS = {
+        "train": 5,
+        "test": 4,
+        "unsupervised": 3,
+    }
+    DL_EXTRACT_RESULT = "aclImdb_v1.tar.gz"
 
 
 class IMDBReviewsS3Test(IMDBReviewsTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

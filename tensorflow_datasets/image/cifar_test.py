@@ -26,28 +26,28 @@ from tensorflow_datasets.image import cifar
 
 
 class Cifar10Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cifar.Cifar10
-  SPLITS = {
-      "train": 10,
-      "test": 2,
-  }
+    DATASET_CLASS = cifar.Cifar10
+    SPLITS = {
+        "train": 10,
+        "test": 2,
+    }
 
 
 class Cifar10TestS3(Cifar10Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class Cifar100Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cifar.Cifar100
-  SPLITS = {
-      "train": 10,
-      "test": 2,
-  }
+    DATASET_CLASS = cifar.Cifar100
+    SPLITS = {
+        "train": 10,
+        "test": 2,
+    }
 
 
 class Cifar100TestS3(Cifar100Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

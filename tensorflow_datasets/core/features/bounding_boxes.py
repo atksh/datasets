@@ -26,11 +26,11 @@ import tensorflow as tf
 from tensorflow_datasets.core.features import feature
 
 
-BBox = collections.namedtuple('BBox', 'ymin, xmin, ymax, xmax')
+BBox = collections.namedtuple("BBox", "ymin, xmin, ymax, xmax")
 
 
 class BBoxFeature(feature.Tensor):
-  """`FeatureConnector` for a normalized bounding box.
+    """`FeatureConnector` for a normalized bounding box.
 
   Note: If you have multiple bounding boxes, you may want to wrap the feature
   inside a `tfds.feature.Sequence`.
@@ -60,23 +60,26 @@ class BBoxFeature(feature.Tensor):
     ```
   """
 
-  def __init__(self):
-    super(BBoxFeature, self).__init__(shape=(4,), dtype=tf.float32)
+    def __init__(self):
+        super(BBoxFeature, self).__init__(shape=(4,), dtype=tf.float32)
 
-  def encode_example(self, bbox):
-    """See base class for details."""
-    # Validate the coordinates
-    for coordinate in bbox:
-      if not isinstance(coordinate, float):
-        raise ValueError(
-            'BBox coordinates should be float. Got {}.'.format(bbox))
-      if not 0.0 <= coordinate <= 1.0:
-        raise ValueError(
-            'BBox coordinates should be between 0 and 1. Got {}.'.format(bbox))
-      if bbox.xmax < bbox.xmin or bbox.ymax < bbox.ymin:
-        raise ValueError(
-            'BBox coordinates should have min <= max. Got {}.'.format(bbox))
+    def encode_example(self, bbox):
+        """See base class for details."""
+        # Validate the coordinates
+        for coordinate in bbox:
+            if not isinstance(coordinate, float):
+                raise ValueError(
+                    "BBox coordinates should be float. Got {}.".format(bbox)
+                )
+            if not 0.0 <= coordinate <= 1.0:
+                raise ValueError(
+                    "BBox coordinates should be between 0 and 1. Got {}.".format(bbox)
+                )
+            if bbox.xmax < bbox.xmin or bbox.ymax < bbox.ymin:
+                raise ValueError(
+                    "BBox coordinates should have min <= max. Got {}.".format(bbox)
+                )
 
-    return super(BBoxFeature, self).encode_example(
-        [bbox.ymin, bbox.xmin, bbox.ymax, bbox.xmax]
-    )
+        return super(BBoxFeature, self).encode_example(
+            [bbox.ymin, bbox.xmin, bbox.ymax, bbox.xmax]
+        )

@@ -47,51 +47,49 @@ _TRAIN_POINTS_PER_CLASS = 30
 
 
 class Caltech101(tfds.core.GeneratorBasedBuilder):
-  """Caltech-101."""
+    """Caltech-101."""
 
-  VERSION = tfds.core.Version("1.1.0",
-                              experiments={tfds.core.Experiment.S3: False})
-  SUPPORTED_VERSIONS = [
-      tfds.core.Version(
-          "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"),
-  ]
-
-  def _info(self):
-    names_file = tfds.core.get_tfds_path(_LABELS_FNAME)
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-            "label": tfds.features.ClassLabel(names_file=names_file),
-            "image/file_name": tfds.features.Text(),  # E.g. 'image_0001.jpg'.
-        }),
-        supervised_keys=("image", "label"),
-        homepage=_URL,
-        citation=_CITATION
-        )
-
-  def _split_generators(self, dl_manager):
-    path = dl_manager.download_and_extract(os.path.join(_URL, _IMAGES_FNAME))
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=5,
-            gen_kwargs={
-                "images_dir_path": path,
-                "is_train_split": True,
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=5,
-            gen_kwargs={
-                "images_dir_path": path,
-                "is_train_split": False,
-            }),
+    VERSION = tfds.core.Version("1.1.0", experiments={tfds.core.Experiment.S3: False})
+    SUPPORTED_VERSIONS = [
+        tfds.core.Version(
+            "3.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+        ),
     ]
 
-  def _generate_examples(self, images_dir_path, is_train_split):
-    """Generates images and labels given the image directory path.
+    def _info(self):
+        names_file = tfds.core.get_tfds_path(_LABELS_FNAME)
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(names_file=names_file),
+                    "image/file_name": tfds.features.Text(),  # E.g. 'image_0001.jpg'.
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage=_URL,
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        path = dl_manager.download_and_extract(os.path.join(_URL, _IMAGES_FNAME))
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=5,
+                gen_kwargs={"images_dir_path": path, "is_train_split": True,},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                num_shards=5,
+                gen_kwargs={"images_dir_path": path, "is_train_split": False,},
+            ),
+        ]
+
+    def _generate_examples(self, images_dir_path, is_train_split):
+        """Generates images and labels given the image directory path.
 
     As is usual for this dataset, 30 random examples from each class are added
     to the train split, and the remainder are added to the test split.
@@ -108,38 +106,42 @@ class Caltech101(tfds.core.GeneratorBasedBuilder):
       ValueError: If too few points are present to create the train set for any
         class.
     """
-    # Sets random seed so the random partitioning of files is the same when
-    # called for the train and test splits.
-    numpy_original_state = np.random.get_state()
-    np.random.seed(1234)
+        # Sets random seed so the random partitioning of files is the same when
+        # called for the train and test splits.
+        numpy_original_state = np.random.get_state()
+        np.random.seed(1234)
 
-    parent_dir = tf.io.gfile.listdir(images_dir_path)[0]
-    walk_dir = os.path.join(images_dir_path, parent_dir)
-    dirs = tf.io.gfile.listdir(walk_dir)
+        parent_dir = tf.io.gfile.listdir(images_dir_path)[0]
+        walk_dir = os.path.join(images_dir_path, parent_dir)
+        dirs = tf.io.gfile.listdir(walk_dir)
 
-    for d in dirs:
-      # Each directory contains all the images from a single class.
-      if tf.io.gfile.isdir(os.path.join(walk_dir, d)):
-        for full_path, _, fnames in tf.io.gfile.walk(os.path.join(walk_dir, d)):
+        for d in dirs:
+            # Each directory contains all the images from a single class.
+            if tf.io.gfile.isdir(os.path.join(walk_dir, d)):
+                for full_path, _, fnames in tf.io.gfile.walk(os.path.join(walk_dir, d)):
 
-          # _TRAIN_POINTS_PER_CLASS datapoints are sampled for the train split,
-          # the others constitute the test split.
-          if _TRAIN_POINTS_PER_CLASS > len(fnames):
-            raise ValueError("Fewer than {} ({}) points in class {}".format(
-                _TRAIN_POINTS_PER_CLASS, len(fnames), d))
-          train_fnames = np.random.choice(fnames, _TRAIN_POINTS_PER_CLASS,
-                                          replace=False)
-          test_fnames = set(fnames).difference(train_fnames)
-          fnames_to_emit = train_fnames if is_train_split else test_fnames
+                    # _TRAIN_POINTS_PER_CLASS datapoints are sampled for the train split,
+                    # the others constitute the test split.
+                    if _TRAIN_POINTS_PER_CLASS > len(fnames):
+                        raise ValueError(
+                            "Fewer than {} ({}) points in class {}".format(
+                                _TRAIN_POINTS_PER_CLASS, len(fnames), d
+                            )
+                        )
+                    train_fnames = np.random.choice(
+                        fnames, _TRAIN_POINTS_PER_CLASS, replace=False
+                    )
+                    test_fnames = set(fnames).difference(train_fnames)
+                    fnames_to_emit = train_fnames if is_train_split else test_fnames
 
-          for image_file in fnames_to_emit:
-            if image_file.endswith(".jpg"):
-              image_path = os.path.join(full_path, image_file)
-              record = {
-                  "image": image_path,
-                  "label": d.lower(),
-                  "image/file_name": image_file,
-              }
-              yield "%s/%s" % (d, image_file), record
-    # Resets the seeds to their previous states.
-    np.random.set_state(numpy_original_state)
+                    for image_file in fnames_to_emit:
+                        if image_file.endswith(".jpg"):
+                            image_path = os.path.join(full_path, image_file)
+                            record = {
+                                "image": image_path,
+                                "label": d.lower(),
+                                "image/file_name": image_file,
+                            }
+                            yield "%s/%s" % (d, image_file), record
+        # Resets the seeds to their previous states.
+        np.random.set_state(numpy_original_state)

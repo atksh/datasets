@@ -27,27 +27,21 @@ tf.compat.v1.enable_eager_execution()
 
 
 class BBoxFeatureTest(testing.FeatureExpectationsTestCase):
+    def test_feature(self):
 
-  def test_feature(self):
-
-    self.assertFeature(
-        feature=features.BBoxFeature(),
-        shape=(4,),
-        dtype=tf.float32,
-        tests=[
-            # Numpy array
-            testing.FeatureExpectationItem(
-                value=features.BBox(
-                    ymin=0.0,
-                    xmin=0.25,
-                    ymax=1.0,
-                    xmax=0.75,
+        self.assertFeature(
+            feature=features.BBoxFeature(),
+            shape=(4,),
+            dtype=tf.float32,
+            tests=[
+                # Numpy array
+                testing.FeatureExpectationItem(
+                    value=features.BBox(ymin=0.0, xmin=0.25, ymax=1.0, xmax=0.75,),
+                    expected=[0.0, 0.25, 1.0, 0.75],
                 ),
-                expected=[0.0, 0.25, 1.0, 0.75],
-            ),
-        ],
-    )
+            ],
+        )
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

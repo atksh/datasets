@@ -39,21 +39,22 @@ import tensorflow as tf
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string("input_files", None,
-                    "Comma separated list of files to put into the database.")
+flags.DEFINE_string(
+    "input_files", None, "Comma separated list of files to put into the database."
+)
 flags.DEFINE_string("output_file", None, "Path to the output file.")
 
 
 def main(argv):
-  if len(argv) > 1:
-    raise tf.app.UsageError("Too many command-line arguments.")
+    if len(argv) > 1:
+        raise tf.app.UsageError("Too many command-line arguments.")
 
-  db = lmdb.open(FLAGS.output_file)
-  with db.begin(write=True) as txn:
-    for index, path in enumerate(FLAGS.input_files.split(",")):
-      data = tf.io.gfile.GFile(path, "rb").read()
-      txn.put(str(index), data)
+    db = lmdb.open(FLAGS.output_file)
+    with db.begin(write=True) as txn:
+        for index, path in enumerate(FLAGS.input_files.split(",")):
+            data = tf.io.gfile.GFile(path, "rb").read()
+            txn.put(str(index), data)
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)

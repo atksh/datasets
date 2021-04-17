@@ -24,22 +24,22 @@ from tensorflow_datasets.object_detection import kitti
 
 
 class KittiTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = kitti.Kitti
-  SPLITS = {
-      "train": 6,
-      "validation": 2,
-      "test": 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "images": "data_object_image_2.zip",
-      "annotations": "data_object_label_2.zip",
-      "devkit": "devkit_object.zip",
-  }
+    DATASET_CLASS = kitti.Kitti
+    SPLITS = {
+        "train": 6,
+        "validation": 2,
+        "test": 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "images": "data_object_image_2.zip",
+        "annotations": "data_object_label_2.zip",
+        "devkit": "devkit_object.zip",
+    }
 
 
 class KittiTestExperimental(KittiTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

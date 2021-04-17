@@ -69,16 +69,17 @@ _ORGINAL_NP_LOAD = np.load
 
 
 def _np_load(file_, mmap_mode=None, allow_pickle=False, **kwargs):
-  if not hasattr(file_, "read"):
-    raise AssertionError(
-        "You MUST pass a `tf.gfile.GFile` or file-like instance to `np.load`.")
-  if allow_pickle:
-    raise AssertionError("Unpicling files is forbidden for security reasons.")
-  return _ORGINAL_NP_LOAD(file_, mmap_mode, allow_pickle, **kwargs)
+    if not hasattr(file_, "read"):
+        raise AssertionError(
+            "You MUST pass a `tf.gfile.GFile` or file-like instance to `np.load`."
+        )
+    if allow_pickle:
+        raise AssertionError("Unpicling files is forbidden for security reasons.")
+    return _ORGINAL_NP_LOAD(file_, mmap_mode, allow_pickle, **kwargs)
 
 
 class DatasetBuilderTestCase(parameterized.TestCase, test_utils.SubTestCase):
-  """Inherit this class to test your DatasetBuilder class.
+    """Inherit this class to test your DatasetBuilder class.
 
   You must set the following class attributes:
 
@@ -124,265 +125,288 @@ class DatasetBuilderTestCase(parameterized.TestCase, test_utils.SubTestCase):
        in OVERLAPPING_SPLITS.
   """
 
-  DATASET_CLASS = None
-  VERSION = None
-  BUILDER_CONFIG_NAMES_TO_TEST = None
-  DL_EXTRACT_RESULT = None
-  DL_DOWNLOAD_RESULT = None
-  EXAMPLE_DIR = None
-  OVERLAPPING_SPLITS = []
-  MOCK_OUT_FORBIDDEN_OS_FUNCTIONS = True
+    DATASET_CLASS = None
+    VERSION = None
+    BUILDER_CONFIG_NAMES_TO_TEST = None
+    DL_EXTRACT_RESULT = None
+    DL_DOWNLOAD_RESULT = None
+    EXAMPLE_DIR = None
+    OVERLAPPING_SPLITS = []
+    MOCK_OUT_FORBIDDEN_OS_FUNCTIONS = True
 
-  @classmethod
-  def setUpClass(cls):
-    tf.compat.v1.enable_eager_execution()
-    super(DatasetBuilderTestCase, cls).setUpClass()
-    name = cls.__name__
-    # Check class has the right attributes
-    if cls.DATASET_CLASS is None or not callable(cls.DATASET_CLASS):
-      raise AssertionError(
-          "Assign your DatasetBuilder class to %s.DATASET_CLASS." % name)
+    @classmethod
+    def setUpClass(cls):
+        tf.compat.v1.enable_eager_execution()
+        super(DatasetBuilderTestCase, cls).setUpClass()
+        name = cls.__name__
+        # Check class has the right attributes
+        if cls.DATASET_CLASS is None or not callable(cls.DATASET_CLASS):
+            raise AssertionError(
+                "Assign your DatasetBuilder class to %s.DATASET_CLASS." % name
+            )
 
-  def setUp(self):
-    super(DatasetBuilderTestCase, self).setUp()
-    self.patchers = []
-    self.builder = self._make_builder()
+    def setUp(self):
+        super(DatasetBuilderTestCase, self).setUp()
+        self.patchers = []
+        self.builder = self._make_builder()
 
-    # Determine the fake_examples directory.
-    self.example_dir = os.path.join(
-        test_utils.fake_examples_dir(), self.builder.name)
-    if self.EXAMPLE_DIR is not None:
-      self.example_dir = self.EXAMPLE_DIR
+        # Determine the fake_examples directory.
+        self.example_dir = os.path.join(
+            test_utils.fake_examples_dir(), self.builder.name
+        )
+        if self.EXAMPLE_DIR is not None:
+            self.example_dir = self.EXAMPLE_DIR
 
-    if not tf.io.gfile.exists(self.example_dir):
-      err_msg = "fake_examples dir %s not found." % self.example_dir
-      raise ValueError(err_msg)
-    if self.MOCK_OUT_FORBIDDEN_OS_FUNCTIONS:
-      self._mock_out_forbidden_os_functions()
+        if not tf.io.gfile.exists(self.example_dir):
+            err_msg = "fake_examples dir %s not found." % self.example_dir
+            raise ValueError(err_msg)
+        if self.MOCK_OUT_FORBIDDEN_OS_FUNCTIONS:
+            self._mock_out_forbidden_os_functions()
 
-  def tearDown(self):
-    super(DatasetBuilderTestCase, self).tearDown()
-    for patcher in self.patchers:
-      patcher.stop()
+    def tearDown(self):
+        super(DatasetBuilderTestCase, self).tearDown()
+        for patcher in self.patchers:
+            patcher.stop()
 
-  def _mock_out_forbidden_os_functions(self):
-    """Raises error if forbidden os functions are called instead of gfile."""
-    err = AssertionError("Do not use `os`, but `tf.io.gfile` module instead.")
-    mock_os = absltest.mock.Mock(os, path=os.path)
-    for fop in FORBIDDEN_OS_FUNCTIONS:
-      getattr(mock_os, fop).side_effect = err
-    os_patcher = absltest.mock.patch(
-        self.DATASET_CLASS.__module__ + ".os", mock_os, create=True)
-    os_patcher.start()
-    self.patchers.append(os_patcher)
+    def _mock_out_forbidden_os_functions(self):
+        """Raises error if forbidden os functions are called instead of gfile."""
+        err = AssertionError("Do not use `os`, but `tf.io.gfile` module instead.")
+        mock_os = absltest.mock.Mock(os, path=os.path)
+        for fop in FORBIDDEN_OS_FUNCTIONS:
+            getattr(mock_os, fop).side_effect = err
+        os_patcher = absltest.mock.patch(
+            self.DATASET_CLASS.__module__ + ".os", mock_os, create=True
+        )
+        os_patcher.start()
+        self.patchers.append(os_patcher)
 
-    mock_builtins = __builtins__.copy()
-    mock_builtins["open"] = absltest.mock.Mock(side_effect=err)
-    open_patcher = absltest.mock.patch(
-        self.DATASET_CLASS.__module__ + ".__builtins__", mock_builtins)
-    open_patcher.start()
-    self.patchers.append(open_patcher)
+        mock_builtins = __builtins__.copy()
+        mock_builtins["open"] = absltest.mock.Mock(side_effect=err)
+        open_patcher = absltest.mock.patch(
+            self.DATASET_CLASS.__module__ + ".__builtins__", mock_builtins
+        )
+        open_patcher.start()
+        self.patchers.append(open_patcher)
 
-    # It's hard to mock open within numpy, so mock np.load.
-    np_load_patcher = absltest.mock.patch("numpy.load", _np_load)
-    np_load_patcher.start()
-    self.patchers.append(np_load_patcher)
+        # It's hard to mock open within numpy, so mock np.load.
+        np_load_patcher = absltest.mock.patch("numpy.load", _np_load)
+        np_load_patcher.start()
+        self.patchers.append(np_load_patcher)
 
-  def test_baseclass(self):
-    self.assertIsInstance(
-        self.builder, dataset_builder.DatasetBuilder,
-        "Dataset class must inherit from `dataset_builder.DatasetBuilder`.")
-    # Since class was instantiated and base class is ABCMeta, then we know
-    # all needed methods were implemented.
+    def test_baseclass(self):
+        self.assertIsInstance(
+            self.builder,
+            dataset_builder.DatasetBuilder,
+            "Dataset class must inherit from `dataset_builder.DatasetBuilder`.",
+        )
+        # Since class was instantiated and base class is ABCMeta, then we know
+        # all needed methods were implemented.
 
-  def test_registered(self):
-    is_registered = self.builder.name in registered.list_builders()
-    exceptions = self.builder.IN_DEVELOPMENT
-    self.assertTrue(is_registered or exceptions,
-                    "Dataset was not registered and is not `IN_DEVELOPMENT`.")
+    def test_registered(self):
+        is_registered = self.builder.name in registered.list_builders()
+        exceptions = self.builder.IN_DEVELOPMENT
+        self.assertTrue(
+            is_registered or exceptions,
+            "Dataset was not registered and is not `IN_DEVELOPMENT`.",
+        )
 
-  def test_info(self):
-    info = self.builder.info
-    self.assertIsInstance(info, dataset_info.DatasetInfo)
-    self.assertEqual(self.builder.name, info.name)
+    def test_info(self):
+        info = self.builder.info
+        self.assertIsInstance(info, dataset_info.DatasetInfo)
+        self.assertEqual(self.builder.name, info.name)
 
-  def _get_dl_extract_result(self, url):
-    del url
-    if self.DL_EXTRACT_RESULT is None:
-      return self.example_dir
-    return utils.map_nested(lambda fname: os.path.join(self.example_dir, fname),
-                            self.DL_EXTRACT_RESULT)
+    def _get_dl_extract_result(self, url):
+        del url
+        if self.DL_EXTRACT_RESULT is None:
+            return self.example_dir
+        return utils.map_nested(
+            lambda fname: os.path.join(self.example_dir, fname), self.DL_EXTRACT_RESULT
+        )
 
-  def _get_dl_download_result(self, url):
-    if self.DL_DOWNLOAD_RESULT is None:
-      # This is only to be backwards compatible with old approach.
-      # In the future it will be replaced with using self.example_dir.
-      return self._get_dl_extract_result(url)
-    return utils.map_nested(lambda fname: os.path.join(self.example_dir, fname),
-                            self.DL_DOWNLOAD_RESULT)
+    def _get_dl_download_result(self, url):
+        if self.DL_DOWNLOAD_RESULT is None:
+            # This is only to be backwards compatible with old approach.
+            # In the future it will be replaced with using self.example_dir.
+            return self._get_dl_extract_result(url)
+        return utils.map_nested(
+            lambda fname: os.path.join(self.example_dir, fname), self.DL_DOWNLOAD_RESULT
+        )
 
-  def _make_builder(self, config=None):
-    return self.DATASET_CLASS(  # pylint: disable=not-callable
-        data_dir=self.tmp_dir,
-        config=config,
-        version=self.VERSION)
+    def _make_builder(self, config=None):
+        return self.DATASET_CLASS(  # pylint: disable=not-callable
+            data_dir=self.tmp_dir, config=config, version=self.VERSION
+        )
 
-  @test_utils.run_in_graph_and_eager_modes()
-  def test_download_and_prepare_as_dataset(self):
-    # If configs specified, ensure they are all valid
-    if self.BUILDER_CONFIG_NAMES_TO_TEST:
-      for config in self.BUILDER_CONFIG_NAMES_TO_TEST:  # pylint: disable=not-an-iterable
-        assert config in self.builder.builder_configs, (
-            "Config %s specified in test does not exist. Available:\n%s" % (
-                config, list(self.builder.builder_configs)))
+    @test_utils.run_in_graph_and_eager_modes()
+    def test_download_and_prepare_as_dataset(self):
+        # If configs specified, ensure they are all valid
+        if self.BUILDER_CONFIG_NAMES_TO_TEST:
+            for (
+                config
+            ) in self.BUILDER_CONFIG_NAMES_TO_TEST:  # pylint: disable=not-an-iterable
+                assert config in self.builder.builder_configs, (
+                    "Config %s specified in test does not exist. Available:\n%s"
+                    % (config, list(self.builder.builder_configs))
+                )
 
-    configs = self.builder.BUILDER_CONFIGS
-    print("Total configs: %d" % len(configs))
-    if configs:
-      for config in configs:
-        # Skip the configs that are not in the list.
-        if (self.BUILDER_CONFIG_NAMES_TO_TEST is not None and
-            (config.name not in self.BUILDER_CONFIG_NAMES_TO_TEST)):  # pylint: disable=unsupported-membership-test
-          print("Skipping config %s" % config.name)
-          continue
-        with self._subTest(config.name):
-          print("Testing config %s" % config.name)
-          builder = self._make_builder(config=config)
-          self._download_and_prepare_as_dataset(builder)
-    else:
-      self._download_and_prepare_as_dataset(self.builder)
+        configs = self.builder.BUILDER_CONFIGS
+        print("Total configs: %d" % len(configs))
+        if configs:
+            for config in configs:
+                # Skip the configs that are not in the list.
+                if self.BUILDER_CONFIG_NAMES_TO_TEST is not None and (
+                    config.name not in self.BUILDER_CONFIG_NAMES_TO_TEST
+                ):  # pylint: disable=unsupported-membership-test
+                    print("Skipping config %s" % config.name)
+                    continue
+                with self._subTest(config.name):
+                    print("Testing config %s" % config.name)
+                    builder = self._make_builder(config=config)
+                    self._download_and_prepare_as_dataset(builder)
+        else:
+            self._download_and_prepare_as_dataset(self.builder)
 
-  def _download_and_prepare_as_dataset(self, builder):
-    # Provide the manual dir only if builder has MANUAL_DOWNLOAD_INSTRUCTIONS
-    # set.
+    def _download_and_prepare_as_dataset(self, builder):
+        # Provide the manual dir only if builder has MANUAL_DOWNLOAD_INSTRUCTIONS
+        # set.
 
-    missing_dir_mock = absltest.mock.PropertyMock(
-        side_effect=Exception("Missing MANUAL_DOWNLOAD_INSTRUCTIONS"))
+        missing_dir_mock = absltest.mock.PropertyMock(
+            side_effect=Exception("Missing MANUAL_DOWNLOAD_INSTRUCTIONS")
+        )
 
-    manual_dir = (
-        self.example_dir
-        if builder.MANUAL_DOWNLOAD_INSTRUCTIONS else missing_dir_mock)
-    with absltest.mock.patch.multiple(
-        "tensorflow_datasets.core.download.DownloadManager",
-        download_and_extract=self._get_dl_extract_result,
-        download=self._get_dl_download_result,
-        download_checksums=lambda *_: None,
-        manual_dir=manual_dir,
-    ):
-      if isinstance(builder, dataset_builder.BeamBasedBuilder):
-        import apache_beam as beam   # pylint: disable=g-import-not-at-top
-        # For Beam datasets, set-up the runner config
-        beam_runner = None
-        beam_options = beam.options.pipeline_options.PipelineOptions()
-      else:
-        beam_runner = None
-        beam_options = None
+        manual_dir = (
+            self.example_dir
+            if builder.MANUAL_DOWNLOAD_INSTRUCTIONS
+            else missing_dir_mock
+        )
+        with absltest.mock.patch.multiple(
+            "tensorflow_datasets.core.download.DownloadManager",
+            download_and_extract=self._get_dl_extract_result,
+            download=self._get_dl_download_result,
+            download_checksums=lambda *_: None,
+            manual_dir=manual_dir,
+        ):
+            if isinstance(builder, dataset_builder.BeamBasedBuilder):
+                import apache_beam as beam  # pylint: disable=g-import-not-at-top
 
-      download_config = download.DownloadConfig(
-          compute_stats=download.ComputeStatsMode.FORCE,
-          beam_runner=beam_runner,
-          beam_options=beam_options,
-      )
-      builder.download_and_prepare(download_config=download_config)
+                # For Beam datasets, set-up the runner config
+                beam_runner = None
+                beam_options = beam.options.pipeline_options.PipelineOptions()
+            else:
+                beam_runner = None
+                beam_options = None
 
-    with self._subTest("as_dataset"):
-      self._assertAsDataset(builder)
+            download_config = download.DownloadConfig(
+                compute_stats=download.ComputeStatsMode.FORCE,
+                beam_runner=beam_runner,
+                beam_options=beam_options,
+            )
+            builder.download_and_prepare(download_config=download_config)
 
-    with self._subTest("num_examples"):
-      self._assertNumSamples(builder)
+        with self._subTest("as_dataset"):
+            self._assertAsDataset(builder)
 
-    with self._subTest("reload"):
-      # When reloading the dataset, metadata should been reloaded too.
+        with self._subTest("num_examples"):
+            self._assertNumSamples(builder)
 
-      builder_reloaded = self._make_builder(config=builder.builder_config)
-      self._assertNumSamples(builder_reloaded)
+        with self._subTest("reload"):
+            # When reloading the dataset, metadata should been reloaded too.
 
-      # After reloading, as_dataset should still be working
-      with self._subTest("as_dataset"):
-        self._assertAsDataset(builder_reloaded)
+            builder_reloaded = self._make_builder(config=builder.builder_config)
+            self._assertNumSamples(builder_reloaded)
 
-  def _assertAsDataset(self, builder):
-    split_to_checksums = {}  # {"split": set(examples_checksums)}
-    for split_name, expected_examples_number in self.SPLITS.items():
-      ds = builder.as_dataset(split=split_name)
-      compare_shapes_and_types(
-          builder.info.features.get_tensor_info(),
-          tf.compat.v1.data.get_output_types(ds),
-          tf.compat.v1.data.get_output_shapes(ds),
-      )
-      examples = list(dataset_utils.as_numpy(
-          builder.as_dataset(split=split_name)))
-      split_to_checksums[split_name] = set(checksum(rec) for rec in examples)
-      if not builder.version.implements(utils.Experiment.S3):
-        self.assertLen(examples, expected_examples_number)
-    for (split1, hashes1), (split2, hashes2) in itertools.combinations(
-        split_to_checksums.items(), 2):
-      if (split1 in self.OVERLAPPING_SPLITS or
-          split2 in self.OVERLAPPING_SPLITS):
-        continue
-      self.assertFalse(
-          hashes1.intersection(hashes2),
-          ("Splits '%s' and '%s' are overlapping. Are you sure you want to "
-           "have the same objects in those splits? If yes, add one one of "
-           "them to OVERLAPPING_SPLITS class attribute.") % (split1, split2))
+            # After reloading, as_dataset should still be working
+            with self._subTest("as_dataset"):
+                self._assertAsDataset(builder_reloaded)
 
-  def _assertNumSamples(self, builder):
-    for split_name, expected_num_examples in self.SPLITS.items():
-      self.assertEqual(
-          builder.info.splits[split_name].num_examples,
-          expected_num_examples,
-      )
-    self.assertEqual(
-        builder.info.splits.total_num_examples,
-        sum(self.SPLITS.values()),
-    )
+    def _assertAsDataset(self, builder):
+        split_to_checksums = {}  # {"split": set(examples_checksums)}
+        for split_name, expected_examples_number in self.SPLITS.items():
+            ds = builder.as_dataset(split=split_name)
+            compare_shapes_and_types(
+                builder.info.features.get_tensor_info(),
+                tf.compat.v1.data.get_output_types(ds),
+                tf.compat.v1.data.get_output_shapes(ds),
+            )
+            examples = list(
+                dataset_utils.as_numpy(builder.as_dataset(split=split_name))
+            )
+            split_to_checksums[split_name] = set(checksum(rec) for rec in examples)
+            if not builder.version.implements(utils.Experiment.S3):
+                self.assertLen(examples, expected_examples_number)
+        for (split1, hashes1), (split2, hashes2) in itertools.combinations(
+            split_to_checksums.items(), 2
+        ):
+            if split1 in self.OVERLAPPING_SPLITS or split2 in self.OVERLAPPING_SPLITS:
+                continue
+            self.assertFalse(
+                hashes1.intersection(hashes2),
+                (
+                    "Splits '%s' and '%s' are overlapping. Are you sure you want to "
+                    "have the same objects in those splits? If yes, add one one of "
+                    "them to OVERLAPPING_SPLITS class attribute."
+                )
+                % (split1, split2),
+            )
+
+    def _assertNumSamples(self, builder):
+        for split_name, expected_num_examples in self.SPLITS.items():
+            self.assertEqual(
+                builder.info.splits[split_name].num_examples, expected_num_examples,
+            )
+        self.assertEqual(
+            builder.info.splits.total_num_examples, sum(self.SPLITS.values()),
+        )
 
 
 def checksum(example):
-  """Computes the md5 for a given example."""
+    """Computes the md5 for a given example."""
 
-  def _bytes_flatten(element):
-    """Recursively flatten an element to its byte representation."""
-    ret = "".encode("utf-8")
-    if isinstance(element, numbers.Number):
-      # In python3, bytes(-3) is not allowed (or large numbers),
-      # so convert to str to avoid problems.
-      element = str(element)
-    if isinstance(element, dict):
-      for k, v in sorted(element.items()):
-        ret += k.encode("utf-8")
-        ret += _bytes_flatten(v)
-    elif isinstance(element, str):
-      if hasattr(element, "decode"):
-        # Python2 considers bytes to be str, but are almost always latin-1
-        # encoded bytes here. Extra step needed to avoid DecodeError.
-        element = element.decode("latin-1")
-      element = element.encode("utf-8")
-      ret += element
-    elif isinstance(element, np.ndarray):
-      ret += element.tobytes()
-    else:
-      ret += bytes(element)
-    return ret
+    def _bytes_flatten(element):
+        """Recursively flatten an element to its byte representation."""
+        ret = "".encode("utf-8")
+        if isinstance(element, numbers.Number):
+            # In python3, bytes(-3) is not allowed (or large numbers),
+            # so convert to str to avoid problems.
+            element = str(element)
+        if isinstance(element, dict):
+            for k, v in sorted(element.items()):
+                ret += k.encode("utf-8")
+                ret += _bytes_flatten(v)
+        elif isinstance(element, str):
+            if hasattr(element, "decode"):
+                # Python2 considers bytes to be str, but are almost always latin-1
+                # encoded bytes here. Extra step needed to avoid DecodeError.
+                element = element.decode("latin-1")
+            element = element.encode("utf-8")
+            ret += element
+        elif isinstance(element, np.ndarray):
+            ret += element.tobytes()
+        else:
+            ret += bytes(element)
+        return ret
 
-  hash_ = hashlib.md5()
-  hash_.update(_bytes_flatten(example))
-  return hash_.hexdigest()
+    hash_ = hashlib.md5()
+    hash_.update(_bytes_flatten(example))
+    return hash_.hexdigest()
 
 
 def compare_shapes_and_types(tensor_info, output_types, output_shapes):
-  """Compare shapes and types between TensorInfo and Dataset types/shapes."""
-  for feature_name, feature_info in tensor_info.items():
-    if isinstance(feature_info, dict):
-      compare_shapes_and_types(feature_info, output_types[feature_name],
-                               output_shapes[feature_name])
-    else:
-      expected_type = feature_info.dtype
-      output_type = output_types[feature_name]
-      if expected_type != output_type:
-        raise TypeError("Feature %s has type %s but expected %s" %
-                        (feature_name, output_type, expected_type))
+    """Compare shapes and types between TensorInfo and Dataset types/shapes."""
+    for feature_name, feature_info in tensor_info.items():
+        if isinstance(feature_info, dict):
+            compare_shapes_and_types(
+                feature_info, output_types[feature_name], output_shapes[feature_name]
+            )
+        else:
+            expected_type = feature_info.dtype
+            output_type = output_types[feature_name]
+            if expected_type != output_type:
+                raise TypeError(
+                    "Feature %s has type %s but expected %s"
+                    % (feature_name, output_type, expected_type)
+                )
 
-      expected_shape = feature_info.shape
-      output_shape = output_shapes[feature_name]
-      tf_utils.assert_shape_match(expected_shape, output_shape)
+            expected_shape = feature_info.shape
+            output_shape = output_shapes[feature_name]
+            tf_utils.assert_shape_match(expected_shape, output_shape)

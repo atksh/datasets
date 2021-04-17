@@ -40,57 +40,58 @@ LFW_CITATION = """\
 
 
 class LFW(tfds.core.GeneratorBasedBuilder):
-  """LFW Class."""
+    """LFW Class."""
 
-  VERSION = tfds.core.Version("0.1.0")
+    VERSION = tfds.core.Version("0.1.0")
 
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=("""Labeled Faces in the Wild:
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=(
+                """Labeled Faces in the Wild:
         A Database for Studying Face Recognition in
-        Unconstrained Environments"""),
-        features=tfds.features.FeaturesDict({
-            "label": tfds.features.Text(),
-            "image": tfds.features.Image(shape=LFW_IMAGE_SHAPE),
-        }),
-        supervised_keys=("label", "image"),
-        homepage="http://vis-www.cs.umass.edu/lfw",
-        citation=LFW_CITATION,
-    )
+        Unconstrained Environments"""
+            ),
+            features=tfds.features.FeaturesDict(
+                {
+                    "label": tfds.features.Text(),
+                    "image": tfds.features.Image(shape=LFW_IMAGE_SHAPE),
+                }
+            ),
+            supervised_keys=("label", "image"),
+            homepage="http://vis-www.cs.umass.edu/lfw",
+            citation=LFW_CITATION,
+        )
 
-  def _split_generators(self, dl_manager):
-    path = dl_manager.download_and_extract(_URL)
-    path = os.path.join(path, "lfw")
+    def _split_generators(self, dl_manager):
+        path = dl_manager.download_and_extract(_URL)
+        path = os.path.join(path, "lfw")
 
-    # There is no train/test split predefined
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=20,
-            gen_kwargs={
-                "data_path": path,
-            }),
-    ]
+        # There is no train/test split predefined
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, num_shards=20, gen_kwargs={"data_path": path,}
+            ),
+        ]
 
-  def _generate_examples(self, data_path):
-    image_list = self.path_maker(data_path)
-    for label, path in image_list:
-      key = "%s/%s" % (label, os.path.basename(path))
-      yield key, {
-          "label": label,
-          "image": path,
-      }
+    def _generate_examples(self, data_path):
+        image_list = self.path_maker(data_path)
+        for label, path in image_list:
+            key = "%s/%s" % (label, os.path.basename(path))
+            yield key, {
+                "label": label,
+                "image": path,
+            }
 
-  def path_maker(self, path):
-    """Returns all images within path as tuples (label, path)."""
-    path_list = []
-    dir_list = tf.io.gfile.listdir(path)
-    for directory in dir_list:
-      img_dir_path = os.path.join(path, directory)
-      if tf.io.gfile.isdir(img_dir_path):
-        img_list = tf.io.gfile.listdir(img_dir_path)
-        for img in img_list:
-          img_path = os.path.join(img_dir_path, img)
-          path_list.append([directory, img_path])
-    return path_list
+    def path_maker(self, path):
+        """Returns all images within path as tuples (label, path)."""
+        path_list = []
+        dir_list = tf.io.gfile.listdir(path)
+        for directory in dir_list:
+            img_dir_path = os.path.join(path, directory)
+            if tf.io.gfile.isdir(img_dir_path):
+                img_list = tf.io.gfile.listdir(img_dir_path)
+                for img in img_list:
+                    img_path = os.path.join(img_dir_path, img)
+                    path_list.append([directory, img_path])
+        return path_list

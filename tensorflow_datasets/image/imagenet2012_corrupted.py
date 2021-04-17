@@ -49,39 +49,39 @@ _CITATION = """\
 }
 """
 
-_LABELS_FNAME = 'image/imagenet2012_labels.txt'
+_LABELS_FNAME = "image/imagenet2012_labels.txt"
 
 # This file contains the validation labels, in the alphabetic order of
 # corresponding image names (and not in the order they have been added to the
 # tar file).
-_VALIDATION_LABELS_FNAME = 'image/imagenet2012_validation_labels.txt'
+_VALIDATION_LABELS_FNAME = "image/imagenet2012_validation_labels.txt"
 
 # TODO(normanmu): implement frost, snow, and motion blur once wand library is
 # upgraded (cl/262186801)
 BENCHMARK_CORRUPTIONS = [
-    'gaussian_noise',
-    'shot_noise',
-    'impulse_noise',
-    'defocus_blur',
-    'frosted_glass_blur',
-    'zoom_blur',
-    'fog',
-    'brightness',
-    'contrast',
-    'elastic',
-    'pixelate',
-    'jpeg_compression',
+    "gaussian_noise",
+    "shot_noise",
+    "impulse_noise",
+    "defocus_blur",
+    "frosted_glass_blur",
+    "zoom_blur",
+    "fog",
+    "brightness",
+    "contrast",
+    "elastic",
+    "pixelate",
+    "jpeg_compression",
 ]
 
-EXTRA_CORRUPTIONS = ['gaussian_blur', 'saturate', 'spatter', 'speckle_noise']
+EXTRA_CORRUPTIONS = ["gaussian_blur", "saturate", "spatter", "speckle_noise"]
 
 
 class Imagenet2012CorruptedConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for Imagenet2012Corrupted."""
+    """BuilderConfig for Imagenet2012Corrupted."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, corruption_type=None, severity=1, **kwargs):
-    """BuilderConfig for Imagenet2012Corrupted.
+    @tfds.core.disallow_positional_args
+    def __init__(self, corruption_type=None, severity=1, **kwargs):
+        """BuilderConfig for Imagenet2012Corrupted.
 
     Args:
       corruption_type: string, must be one of the items in BENCHMARK_CORRUPTIONS
@@ -89,22 +89,25 @@ class Imagenet2012CorruptedConfig(tfds.core.BuilderConfig):
       severity: integer, bewteen 1 and 5.
       **kwargs: keyword arguments forwarded to super.
     """
-    super(Imagenet2012CorruptedConfig, self).__init__(**kwargs)
-    self.corruption_type = corruption_type
-    self.severity = severity
+        super(Imagenet2012CorruptedConfig, self).__init__(**kwargs)
+        self.corruption_type = corruption_type
+        self.severity = severity
 
 
-_VERSION = tfds.core.Version(
-    '0.0.1', experiments={tfds.core.Experiment.S3: False})
+_VERSION = tfds.core.Version("0.0.1", experiments={tfds.core.Experiment.S3: False})
 _SUPPORTED_VERSIONS = [
-    tfds.core.Version('3.0.1', (
-        'New split API (https://tensorflow.org/datasets/splits); fix colorization (all RGB) and '
-        'format (all jpeg); use TAR_STREAM.')),
+    tfds.core.Version(
+        "3.0.1",
+        (
+            "New split API (https://tensorflow.org/datasets/splits); fix colorization (all RGB) and "
+            "format (all jpeg); use TAR_STREAM."
+        ),
+    ),
 ]
 
 
 def _make_builder_configs():
-  """Construct a list of BuilderConfigs.
+    """Construct a list of BuilderConfigs.
 
   Construct a list of 80 Imagenet2012CorruptedConfig objects, corresponding to
   the 12 + 4 corruption types, with each type having 5 severities.
@@ -112,50 +115,54 @@ def _make_builder_configs():
   Returns:
     A list of  Imagenet2012CorruptedConfig objects.
   """
-  config_list = []
-  for each_corruption in BENCHMARK_CORRUPTIONS + EXTRA_CORRUPTIONS:
-    for each_severity in range(1, 6):
-      name_str = each_corruption + '_' + str(each_severity)
-      description_str = 'corruption type = ' + each_corruption + ', severity = '
-      description_str += str(each_severity)
-      config_list.append(
-          Imagenet2012CorruptedConfig(
-              name=name_str,
-              version=_VERSION,
-              supported_versions=_SUPPORTED_VERSIONS,
-              description=description_str,
-              corruption_type=each_corruption,
-              severity=each_severity,
-          ))
-  return config_list
+    config_list = []
+    for each_corruption in BENCHMARK_CORRUPTIONS + EXTRA_CORRUPTIONS:
+        for each_severity in range(1, 6):
+            name_str = each_corruption + "_" + str(each_severity)
+            description_str = "corruption type = " + each_corruption + ", severity = "
+            description_str += str(each_severity)
+            config_list.append(
+                Imagenet2012CorruptedConfig(
+                    name=name_str,
+                    version=_VERSION,
+                    supported_versions=_SUPPORTED_VERSIONS,
+                    description=description_str,
+                    corruption_type=each_corruption,
+                    severity=each_severity,
+                )
+            )
+    return config_list
 
 
 class Imagenet2012Corrupted(Imagenet2012):
-  """Corrupted ImageNet2012 dataset."""
-  BUILDER_CONFIGS = _make_builder_configs()
+    """Corrupted ImageNet2012 dataset."""
 
-  def _info(self):
-    """Basic information of the dataset.
+    BUILDER_CONFIGS = _make_builder_configs()
+
+    def _info(self):
+        """Basic information of the dataset.
 
     Returns:
       tfds.core.DatasetInfo.
     """
-    names_file = tfds.core.get_tfds_path(_LABELS_FNAME)
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            'image': tfds.features.Image(),
-            'label': tfds.features.ClassLabel(names_file=names_file),
-            'file_name': tfds.features.Text(),  # Eg: 'n15075141_54.JPEG'
-        }),
-        supervised_keys=('image', 'label'),
-        homepage='https://openreview.net/forum?id=HJz6tiCqYm',
-        citation=_CITATION,
-    )
+        names_file = tfds.core.get_tfds_path(_LABELS_FNAME)
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(),
+                    "label": tfds.features.ClassLabel(names_file=names_file),
+                    "file_name": tfds.features.Text(),  # Eg: 'n15075141_54.JPEG'
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://openreview.net/forum?id=HJz6tiCqYm",
+            citation=_CITATION,
+        )
 
-  def _generate_examples(self, archive, validation_labels=None):
-    """Generate corrupted imagenet validation data.
+    def _generate_examples(self, archive, validation_labels=None):
+        """Generate corrupted imagenet validation data.
 
     Apply corruptions to the raw images according to self.corruption_type.
 
@@ -167,26 +174,26 @@ class Imagenet2012Corrupted(Imagenet2012):
       dictionary with the file name, an image file objective, and label of each
       imagenet validation data.
     """
-    # Get the current random seeds.
-    numpy_st0 = np.random.get_state()
-    # Set new random seeds.
-    np.random.seed(135)
-    logging.warning('Overwriting cv2 RNG seed.')
-    tfds.core.lazy_imports.cv2.setRNGSeed(357)
+        # Get the current random seeds.
+        numpy_st0 = np.random.get_state()
+        # Set new random seeds.
+        np.random.seed(135)
+        logging.warning("Overwriting cv2 RNG seed.")
+        tfds.core.lazy_imports.cv2.setRNGSeed(357)
 
-    gen_fn = super(Imagenet2012Corrupted, self)._generate_examples
-    for key, example in gen_fn(archive, validation_labels):
-      with tf.Graph().as_default():
-        tf_img = tf.image.decode_jpeg(example['image'].read(), channels=3)
-        image_np = tfds.as_numpy(tf_img)
-      example['image'] = self._get_corrupted_example(image_np)
+        gen_fn = super(Imagenet2012Corrupted, self)._generate_examples
+        for key, example in gen_fn(archive, validation_labels):
+            with tf.Graph().as_default():
+                tf_img = tf.image.decode_jpeg(example["image"].read(), channels=3)
+                image_np = tfds.as_numpy(tf_img)
+            example["image"] = self._get_corrupted_example(image_np)
 
-      yield key, example
-    # Reset the seeds back to their original values.
-    np.random.set_state(numpy_st0)
+            yield key, example
+        # Reset the seeds back to their original values.
+        np.random.set_state(numpy_st0)
 
-  def _get_corrupted_example(self, x):
-    """Return corrupted images.
+    def _get_corrupted_example(self, x):
+        """Return corrupted images.
 
     Args:
       x: numpy array, uncorrupted image.
@@ -194,24 +201,24 @@ class Imagenet2012Corrupted(Imagenet2012):
     Returns:
       numpy array, corrupted images.
     """
-    corruption_type = self.builder_config.corruption_type
-    severity = self.builder_config.severity
+        corruption_type = self.builder_config.corruption_type
+        severity = self.builder_config.severity
 
-    return {
-        'gaussian_noise': corruptions.gaussian_noise,
-        'shot_noise': corruptions.shot_noise,
-        'impulse_noise': corruptions.impulse_noise,
-        'defocus_blur': corruptions.defocus_blur,
-        'frosted_glass_blur': corruptions.frosted_glass_blur,
-        'zoom_blur': corruptions.zoom_blur,
-        'fog': corruptions.fog,
-        'brightness': corruptions.brightness,
-        'contrast': corruptions.contrast,
-        'elastic': corruptions.elastic,
-        'pixelate': corruptions.pixelate,
-        'jpeg_compression': corruptions.jpeg_compression,
-        'gaussian_blur': corruptions.gaussian_blur,
-        'saturate': corruptions.saturate,
-        'spatter': corruptions.spatter,
-        'speckle_noise': corruptions.speckle_noise,
-    }[corruption_type](x, severity)
+        return {
+            "gaussian_noise": corruptions.gaussian_noise,
+            "shot_noise": corruptions.shot_noise,
+            "impulse_noise": corruptions.impulse_noise,
+            "defocus_blur": corruptions.defocus_blur,
+            "frosted_glass_blur": corruptions.frosted_glass_blur,
+            "zoom_blur": corruptions.zoom_blur,
+            "fog": corruptions.fog,
+            "brightness": corruptions.brightness,
+            "contrast": corruptions.contrast,
+            "elastic": corruptions.elastic,
+            "pixelate": corruptions.pixelate,
+            "jpeg_compression": corruptions.jpeg_compression,
+            "gaussian_blur": corruptions.gaussian_blur,
+            "saturate": corruptions.saturate,
+            "spatter": corruptions.spatter,
+            "speckle_noise": corruptions.speckle_noise,
+        }[corruption_type](x, severity)

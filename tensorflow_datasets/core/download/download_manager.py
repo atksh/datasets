@@ -41,24 +41,25 @@ class NonMatchingChecksumError(Exception):
     """The downloaded file doesn't have expected checksum."""
 
     def __init__(self, url, tmp_path):
-        msg = 'Artifact %s, downloaded to %s, has wrong checksum.' % (
-            url, tmp_path)
+        msg = "Artifact %s, downloaded to %s, has wrong checksum." % (url, tmp_path)
         Exception.__init__(self, msg)
 
 
 class DownloadConfig(object):
     """Configuration for `tfds.core.DatasetBuilder.download_and_prepare`."""
 
-    def __init__(self,
-                 extract_dir=None,
-                 manual_dir=None,
-                 download_mode=None,
-                 compute_stats=None,
-                 max_examples_per_split=None,
-                 register_checksums=False,
-                 beam_runner=None,
-                 beam_options=None,
-                 try_download_gcs=True):
+    def __init__(
+        self,
+        extract_dir=None,
+        manual_dir=None,
+        download_mode=None,
+        compute_stats=None,
+        max_examples_per_split=None,
+        register_checksums=False,
+        beam_runner=None,
+        beam_options=None,
+        try_download_gcs=True,
+    ):
         """Constructs a `DownloadConfig`.
 
         Args:
@@ -87,9 +88,11 @@ class DownloadConfig(object):
         self.extract_dir = extract_dir
         self.manual_dir = manual_dir
         self.download_mode = util.GenerateMode(
-            download_mode or util.GenerateMode.REUSE_DATASET_IF_EXISTS)
+            download_mode or util.GenerateMode.REUSE_DATASET_IF_EXISTS
+        )
         self.compute_stats = util.ComputeStatsMode(
-            compute_stats or util.ComputeStatsMode.AUTO)
+            compute_stats or util.ComputeStatsMode.AUTO
+        )
         self.max_examples_per_split = max_examples_per_split
         self.register_checksums = register_checksums
         self.beam_runner = beam_runner
@@ -146,15 +149,17 @@ class DownloadManager(object):
     """
 
     @api_utils.disallow_positional_args
-    def __init__(self,
-                 download_dir,
-                 extract_dir=None,
-                 manual_dir=None,
-                 manual_dir_instructions=None,
-                 dataset_name=None,
-                 force_download=False,
-                 force_extraction=False,
-                 register_checksums=False):
+    def __init__(
+        self,
+        download_dir,
+        extract_dir=None,
+        manual_dir=None,
+        manual_dir_instructions=None,
+        dataset_name=None,
+        force_download=False,
+        force_extraction=False,
+        register_checksums=False,
+    ):
         """Download manager constructor.
 
         Args:
@@ -173,7 +178,8 @@ class DownloadManager(object):
         self._dataset_name = dataset_name
         self._download_dir = os.path.expanduser(download_dir)
         self._extract_dir = os.path.expanduser(
-            extract_dir or os.path.join(download_dir, 'extracted'))
+            extract_dir or os.path.join(download_dir, "extracted")
+        )
         self._manual_dir = manual_dir and os.path.expanduser(manual_dir)
         self._manual_dir_instructions = manual_dir_instructions
         tf.io.gfile.makedirs(self._download_dir)
@@ -194,28 +200,27 @@ class DownloadManager(object):
         return sum(size for size, sha256 in self._recorded_sizes_checksums.values())
 
     def _get_final_dl_path(self, url, sha256):
-        return os.path.join(self._download_dir,
-                            resource_lib.get_dl_fname(url, sha256))
+        return os.path.join(self._download_dir, resource_lib.get_dl_fname(url, sha256))
 
     @util.build_synchronize_decorator()
     def _record_sizes_checksums(self):
         """Store in file when recorded size/checksum of downloaded files."""
-        checksums.store_checksums(self._dataset_name,
-                                  self._recorded_sizes_checksums)
+        checksums.store_checksums(self._dataset_name, self._recorded_sizes_checksums)
 
     def _handle_download_result(self, resource, tmp_dir_path, sha256, dl_size):
         """Store dled file to definitive place, write INFO file, return path."""
         fnames = tf.io.gfile.listdir(tmp_dir_path)
         if len(fnames) > 1:
-            raise AssertionError('More than one file in %s.' % tmp_dir_path)
+            raise AssertionError("More than one file in %s." % tmp_dir_path)
         original_fname = fnames[0]
         tmp_path = os.path.join(tmp_dir_path, original_fname)
         self._recorded_sizes_checksums[resource.url] = (dl_size, sha256)
         if self._register_checksums:
             self._record_sizes_checksums()
         download_path = self._get_final_dl_path(resource.url, sha256)
-        resource_lib.write_info_file(resource, download_path, self._dataset_name,
-                                     original_fname)
+        resource_lib.write_info_file(
+            resource, download_path, self._dataset_name, original_fname
+        )
         # Unconditionally overwrite because either file doesn't exist or
         # FORCE_DOWNLOAD=true
         tf.io.gfile.rename(tmp_path, download_path, overwrite=True)
@@ -241,8 +246,9 @@ class DownloadManager(object):
             expected_sha256 = self._sizes_checksums[url][1]
             download_path = self._get_final_dl_path(url, expected_sha256)
             if not self._force_download and resource.exists_locally(download_path):
-                logging.info('URL %s already downloaded: reusing %s.',
-                             url, download_path)
+                logging.info(
+                    "URL %s already downloaded: reusing %s.", url, download_path
+                )
                 self._recorded_sizes_checksums[url] = self._sizes_checksums[url]
                 return promise.Promise.resolve(download_path)
         # There is a slight difference between downloader and extractor here:
@@ -250,14 +256,17 @@ class DownloadManager(object):
         # manages the temp directory of downloader.
         download_dir_path = os.path.join(
             self._download_dir,
-            '%s.tmp.%s' % (resource_lib.get_dl_dirname(url), uuid.uuid4().hex))
+            "%s.tmp.%s" % (resource_lib.get_dl_dirname(url), uuid.uuid4().hex),
+        )
         tf.io.gfile.makedirs(download_dir_path)
-        logging.info('Downloading %s into %s...', url, download_dir_path)
+        logging.info("Downloading %s into %s...", url, download_dir_path)
 
         def callback(val):
             checksum, dl_size = val
             return self._handle_download_result(
-                resource, download_dir_path, checksum, dl_size)
+                resource, download_dir_path, checksum, dl_size
+            )
+
         return self._downloader.download(url, download_dir_path).then(callback)
 
     @util.build_synchronize_decorator()
@@ -269,14 +278,14 @@ class DownloadManager(object):
         path = resource.path
         extract_method = resource.extract_method
         if extract_method == resource_lib.ExtractMethod.NO_EXTRACT:
-            logging.info(
-                'Skipping extraction for %s (method=NO_EXTRACT).', path)
+            logging.info("Skipping extraction for %s (method=NO_EXTRACT).", path)
             return promise.Promise.resolve(path)
         method_name = resource_lib.ExtractMethod(extract_method).name
-        extract_path = os.path.join(self._extract_dir,
-                                    '%s.%s' % (method_name, os.path.basename(path)))
+        extract_path = os.path.join(
+            self._extract_dir, "%s.%s" % (method_name, os.path.basename(path))
+        )
         if not self._force_extraction and tf.io.gfile.exists(extract_path):
-            logging.info('Reusing extraction of %s at %s.', path, extract_path)
+            logging.info("Reusing extraction of %s at %s.", path, extract_path)
             return promise.Promise.resolve(extract_path)
         return self._extractor.extract(path, extract_method, extract_path)
 
@@ -290,17 +299,18 @@ class DownloadManager(object):
         def callback(path):
             resource.path = path
             return self._extract(resource)
+
         return self._download(resource).then(callback)
 
     def download_kaggle_data(self, competition_name):
         """Download data for a given Kaggle competition."""
         with self._downloader.tqdm():
-            kaggle_downloader = self._downloader.kaggle_downloader(
-                competition_name)
+            kaggle_downloader = self._downloader.kaggle_downloader(competition_name)
             urls = kaggle_downloader.competition_urls
             files = kaggle_downloader.competition_files
-            return _map_promise(self._download,
-                                dict((f, u) for (f, u) in zip(files, urls)))
+            return _map_promise(
+                self._download, dict((f, u) for (f, u) in zip(files, urls))
+            )
 
     def download(self, url_or_urls):
         """Download given url(s).
@@ -380,13 +390,16 @@ class DownloadManager(object):
         """Returns the directory containing the manually extracted data."""
         if not self._manual_dir:
             raise AssertionError(
-                'Manual directory was enabled. '
-                'Did you set MANUAL_DOWNLOAD_INSTRUCTIONS in your dataset?')
+                "Manual directory was enabled. "
+                "Did you set MANUAL_DOWNLOAD_INSTRUCTIONS in your dataset?"
+            )
         if not tf.io.gfile.exists(self._manual_dir):
             raise AssertionError(
-                'Manual directory {} does not exist. Create it and download/extract '
-                'dataset artifacts in there. Additional instructions: {}'.format(
-                    self._manual_dir, self._manual_dir_instructions))
+                "Manual directory {} does not exist. Create it and download/extract "
+                "dataset artifacts in there. Additional instructions: {}".format(
+                    self._manual_dir, self._manual_dir_instructions
+                )
+            )
         return self._manual_dir
 
 
@@ -400,14 +413,15 @@ if sys.version_info[0] > 2:
     def _wait_on_promise(p):
         return p.get()
 
+
 else:
 
     def _wait_on_promise(p):
         while True:
-            result = p.get(
-                sys.maxint)  # pylint: disable=g-deprecated-member-used
+            result = p.get(sys.maxint)  # pylint: disable=g-deprecated-member-used
             if p.is_fulfilled:
                 return result
+
 
 # ============================================================================
 

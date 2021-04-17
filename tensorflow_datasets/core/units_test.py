@@ -23,20 +23,19 @@ from tensorflow_datasets.core import units
 
 
 class UnitsTest(testing.TestCase):
+    def test_none(self):
+        self.assertEqual("?? GiB", units.size_str(None))
 
-  def test_none(self):
-    self.assertEqual("?? GiB", units.size_str(None))
+    def test_normal_sizes(self):
+        self.assertEqual("1.50 PiB", units.size_str(1.5 * units.PiB))
+        self.assertEqual("1.50 TiB", units.size_str(1.5 * units.TiB))
+        self.assertEqual("1.50 GiB", units.size_str(1.5 * units.GiB))
+        self.assertEqual("1.50 MiB", units.size_str(1.5 * units.MiB))
+        self.assertEqual("1.50 KiB", units.size_str(1.5 * units.KiB))
 
-  def test_normal_sizes(self):
-    self.assertEqual("1.50 PiB", units.size_str(1.5 * units.PiB))
-    self.assertEqual("1.50 TiB", units.size_str(1.5 * units.TiB))
-    self.assertEqual("1.50 GiB", units.size_str(1.5 * units.GiB))
-    self.assertEqual("1.50 MiB", units.size_str(1.5 * units.MiB))
-    self.assertEqual("1.50 KiB", units.size_str(1.5 * units.KiB))
-
-  def test_bytes(self):
-    self.assertEqual("150 bytes", units.size_str(150))
+    def test_bytes(self):
+        self.assertEqual("150 bytes", units.size_str(150))
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

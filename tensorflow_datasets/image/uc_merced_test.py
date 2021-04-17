@@ -24,15 +24,15 @@ from tensorflow_datasets.image import uc_merced
 
 
 class UcMercedTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = uc_merced.UcMerced
-  SPLITS = {
-      "train": 5,
-  }
+    DATASET_CLASS = uc_merced.UcMerced
+    SPLITS = {
+        "train": 5,
+    }
 
 
 class UcMercedS3Test(UcMercedTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

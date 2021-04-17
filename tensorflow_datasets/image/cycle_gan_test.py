@@ -24,19 +24,19 @@ from tensorflow_datasets.image import cycle_gan
 
 
 class CycleGANTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cycle_gan.CycleGAN
-  BUILDER_CONFIG_NAMES_TO_TEST = ["horse2zebra"]
-  SPLITS = {
-      "trainA": 2,
-      "testA": 2,
-      "trainB": 2,
-      "testB": 2,
-  }
+    DATASET_CLASS = cycle_gan.CycleGAN
+    BUILDER_CONFIG_NAMES_TO_TEST = ["horse2zebra"]
+    SPLITS = {
+        "trainA": 2,
+        "testA": 2,
+        "trainB": 2,
+        "testB": 2,
+    }
 
 
 class CycleGANS3Test(CycleGANTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

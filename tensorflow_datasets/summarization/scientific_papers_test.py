@@ -24,14 +24,14 @@ from tensorflow_datasets.summarization import scientific_papers
 
 
 class ScientificPapersTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = scientific_papers.ScientificPapers
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-      "validation": 1,  # Number of fake validation example
-      "test": 1,  # Number of fake test example
-  }
-  DL_EXTRACT_RESULT = {"arxiv": "", "pubmed": ""}
+    DATASET_CLASS = scientific_papers.ScientificPapers
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+        "validation": 1,  # Number of fake validation example
+        "test": 1,  # Number of fake test example
+    }
+    DL_EXTRACT_RESULT = {"arxiv": "", "pubmed": ""}
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

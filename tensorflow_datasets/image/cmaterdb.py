@@ -29,10 +29,12 @@ _CMATERDB_IMAGE_SHAPE = (_CMATERDB_IMAGE_SIZE, _CMATERDB_IMAGE_SIZE, 3)
 # GitHub npz mirror of https://code.google.com/archive/p/cmaterdb/
 _CMATERDB_TRAINING_URL = (
     "https://raw.githubusercontent.com/prabhuomkar/CMATERdb/master/"
-    "datasets/{type}-numerals/training-images.npz")
+    "datasets/{type}-numerals/training-images.npz"
+)
 _CMATERDB_TESTING_URL = (
     "https://raw.githubusercontent.com/prabhuomkar/CMATERdb/master/"
-    "datasets/{type}-numerals/testing-images.npz")
+    "datasets/{type}-numerals/testing-images.npz"
+)
 
 _CITATION = """\
 @article{Das:2012:GAB:2161007.2161320,
@@ -90,76 +92,74 @@ CMATERdb is the pattern recognition database repository created at the 'Center f
 
 
 class CmaterdbConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for CMATERdb Config."""
+    """BuilderConfig for CMATERdb Config."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, **kwargs):
-    """BuilderConfig for CMATERdb examples.
+    @tfds.core.disallow_positional_args
+    def __init__(self, **kwargs):
+        """BuilderConfig for CMATERdb examples.
 
     Args:
       **kwargs: keyword arguments forwarded to super.
     """
-    super(CmaterdbConfig, self).__init__(**kwargs)
+        super(CmaterdbConfig, self).__init__(**kwargs)
 
 
 class Cmaterdb(tfds.core.GeneratorBasedBuilder):
-  """CMATERdb dataset."""
+    """CMATERdb dataset."""
 
-  BUILDER_CONFIGS = [
-      CmaterdbConfig(
-          name="bangla",
-          description="CMATERdb Bangla Numerals",
-          version="1.0.0",
-      ),
-      CmaterdbConfig(
-          name="devanagari",
-          description="CMATERdb Devangari Numerals",
-          version="1.0.0",
-      ),
-      CmaterdbConfig(
-          name="telugu",
-          description="CMATERdb Telugu Numerals",
-          version="1.0.0",
-      ),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(shape=_CMATERDB_IMAGE_SHAPE),
-            "label": tfds.features.ClassLabel(num_classes=10),
-        }),
-        supervised_keys=("image", "label"),
-        homepage="https://code.google.com/archive/p/cmaterdb/",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    # Download the CMATERdb dataset by mentioned numeral
-    train_path, test_path = dl_manager.download([
-        _CMATERDB_TRAINING_URL.format(type=self.builder_config.name),
-        _CMATERDB_TESTING_URL.format(type=self.builder_config.name),
-    ])
-
-    # CMATERdb (mirrored) provides TRAIN and TEST splits,
-    # not a VALIDATION split, so we only
-    # write the TRAIN and TEST splits to disk.
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs=dict(data_path=train_path),
+    BUILDER_CONFIGS = [
+        CmaterdbConfig(
+            name="bangla", description="CMATERdb Bangla Numerals", version="1.0.0",
         ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs=dict(data_path=test_path),
+        CmaterdbConfig(
+            name="devanagari",
+            description="CMATERdb Devangari Numerals",
+            version="1.0.0",
+        ),
+        CmaterdbConfig(
+            name="telugu", description="CMATERdb Telugu Numerals", version="1.0.0",
         ),
     ]
 
-  def _generate_examples(self, data_path):
-    """Generate CMATERdb examples as dicts.
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "image": tfds.features.Image(shape=_CMATERDB_IMAGE_SHAPE),
+                    "label": tfds.features.ClassLabel(num_classes=10),
+                }
+            ),
+            supervised_keys=("image", "label"),
+            homepage="https://code.google.com/archive/p/cmaterdb/",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        # Download the CMATERdb dataset by mentioned numeral
+        train_path, test_path = dl_manager.download(
+            [
+                _CMATERDB_TRAINING_URL.format(type=self.builder_config.name),
+                _CMATERDB_TESTING_URL.format(type=self.builder_config.name),
+            ]
+        )
+
+        # CMATERdb (mirrored) provides TRAIN and TEST splits,
+        # not a VALIDATION split, so we only
+        # write the TRAIN and TEST splits to disk.
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, gen_kwargs=dict(data_path=train_path),
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST, gen_kwargs=dict(data_path=test_path),
+            ),
+        ]
+
+    def _generate_examples(self, data_path):
+        """Generate CMATERdb examples as dicts.
 
     Args:
       data_path (str): Path to the data files
@@ -167,12 +167,12 @@ class Cmaterdb(tfds.core.GeneratorBasedBuilder):
     Yields:
       Generator yielding the next examples
     """
-    with tf.io.gfile.GFile(data_path, mode="rb") as f:
-      data = np.load(f)
+        with tf.io.gfile.GFile(data_path, mode="rb") as f:
+            data = np.load(f)
 
-    data = list(zip(data["images"], data["labels"]))
-    for index, (image, label) in enumerate(data):
-      yield index, {
-          "image": image,
-          "label": label,
-      }
+        data = list(zip(data["images"], data["labels"]))
+        for index, (image, label) in enumerate(data):
+            yield index, {
+                "image": image,
+                "label": label,
+            }

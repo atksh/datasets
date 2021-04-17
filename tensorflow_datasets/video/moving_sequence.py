@@ -25,7 +25,7 @@ import tensorflow as tf
 
 
 def _create_moving_sequence(image, pad_lefts, total_padding):
-  """Create a moving image sequence from the given image a left padding values.
+    """Create a moving image sequence from the given image a left padding values.
 
   Args:
     image: [in_h, in_w, n_channels] uint8 array
@@ -37,24 +37,29 @@ def _create_moving_sequence(image, pad_lefts, total_padding):
       out_h = in_h + pad_h, out_w = in_w + out_w
   """
 
-  with tf.name_scope("moving_sequence"):
-    def get_padded_image(args):
-      pad_left, = args
-      pad_right = total_padding - pad_left
-      padding = tf.stack([pad_left, pad_right], axis=-1)
-      z = tf.zeros((1, 2), dtype=pad_left.dtype)
-      padding = tf.concat([padding, z], axis=0)
-      return tf.pad(image, padding)
+    with tf.name_scope("moving_sequence"):
 
-    padded_images = tf.map_fn(
-        get_padded_image, [pad_lefts], dtype=tf.uint8, infer_shape=False,
-        back_prop=False)
+        def get_padded_image(args):
+            (pad_left,) = args
+            pad_right = total_padding - pad_left
+            padding = tf.stack([pad_left, pad_right], axis=-1)
+            z = tf.zeros((1, 2), dtype=pad_left.dtype)
+            padding = tf.concat([padding, z], axis=0)
+            return tf.pad(image, padding)
 
-  return padded_images
+        padded_images = tf.map_fn(
+            get_padded_image,
+            [pad_lefts],
+            dtype=tf.uint8,
+            infer_shape=False,
+            back_prop=False,
+        )
+
+    return padded_images
 
 
 def _get_linear_trajectory(x0, velocity, t):
-  """Construct a linear trajectory from x0.
+    """Construct a linear trajectory from x0.
 
   Args:
     x0: N-D float tensor.
@@ -64,26 +69,27 @@ def _get_linear_trajectory(x0, velocity, t):
   Returns:
     x: [sequence_length, ndims] float tensor.
   """
-  x0 = tf.convert_to_tensor(x0)
-  velocity = tf.convert_to_tensor(velocity)
-  t = tf.convert_to_tensor(t)
-  if x0.shape.ndims != 1:
-    raise ValueError("x0 must be a rank 1 tensor")
-  if velocity.shape.ndims != 1:
-    raise ValueError("velocity must be a rank 1 tensor")
-  if t.shape.ndims != 1:
-    raise ValueError("t must be a rank 1 tensor")
-  x0 = tf.expand_dims(x0, axis=0)
-  velocity = tf.expand_dims(velocity, axis=0)
-  dx = velocity * tf.expand_dims(t, axis=-1)
-  linear_trajectories = x0 + dx
-  assert linear_trajectories.shape.ndims == 2, \
-    "linear_trajectories should be a rank 2 tensor"
-  return linear_trajectories
+    x0 = tf.convert_to_tensor(x0)
+    velocity = tf.convert_to_tensor(velocity)
+    t = tf.convert_to_tensor(t)
+    if x0.shape.ndims != 1:
+        raise ValueError("x0 must be a rank 1 tensor")
+    if velocity.shape.ndims != 1:
+        raise ValueError("velocity must be a rank 1 tensor")
+    if t.shape.ndims != 1:
+        raise ValueError("t must be a rank 1 tensor")
+    x0 = tf.expand_dims(x0, axis=0)
+    velocity = tf.expand_dims(velocity, axis=0)
+    dx = velocity * tf.expand_dims(t, axis=-1)
+    linear_trajectories = x0 + dx
+    assert (
+        linear_trajectories.shape.ndims == 2
+    ), "linear_trajectories should be a rank 2 tensor"
+    return linear_trajectories
 
 
 def _bounce_to_bbox(points):
-  """Bounce potentially unbounded points to [0, 1].
+    """Bounce potentially unbounded points to [0, 1].
 
   Bouncing occurs by exact reflection, i.e. a pre-bound point at 1.1 is moved
   to 0.9, -0.2 -> 0.2. This theoretically can occur multiple times, e.g.
@@ -99,23 +105,24 @@ def _bounce_to_bbox(points):
   Returns:
     tensor with same shape/dtype but values in [0, 1].
   """
-  points = points % 2
-  return tf.math.minimum(2 - points, points)
+    points = points % 2
+    return tf.math.minimum(2 - points, points)
 
 
 def _get_random_unit_vector(ndims=2, dtype=tf.float32):
-  x = tf.random.normal((ndims,), dtype=dtype)
-  return x / tf.linalg.norm(x, axis=-1, keepdims=True)
+    x = tf.random.normal((ndims,), dtype=dtype)
+    return x / tf.linalg.norm(x, axis=-1, keepdims=True)
+
 
 MovingSequence = collections.namedtuple(
-    "_MovingSequence",
-    ["image_sequence", "trajectory", "start_position", "velocity"])
+    "_MovingSequence", ["image_sequence", "trajectory", "start_position", "velocity"]
+)
 
 
 def image_as_moving_sequence(
-    image, sequence_length=20, output_size=(64, 64), velocity=0.1,
-    start_position=None):
-  """Turn simple static images into sequences of the originals bouncing around.
+    image, sequence_length=20, output_size=(64, 64), velocity=0.1, start_position=None
+):
+    """Turn simple static images into sequences of the originals bouncing around.
 
   Adapted from Srivastava et al.
   http://www.cs.toronto.edu/~nitish/unsupervised_video/
@@ -193,43 +200,45 @@ def image_as_moving_sequence(
         `velocity`: 2D float32 normalized velocity. Same as input velocity
           if provided as a 2D tensor, otherwise the random velocity generated.
   """
-  ndims = 2
-  image = tf.convert_to_tensor(image)
-  if image.shape.ndims != 3:
-    raise ValueError("image must be rank 3, got %s" % str(image))
-  output_size = tf.TensorShape(output_size)
-  if len(output_size) != ndims:
-    raise ValueError("output_size must have exactly %d elements, got %s"
-                     % (ndims, output_size))
-  image_shape = tf.shape(image)
-  if start_position is None:
-    start_position = tf.random.uniform((ndims,), dtype=tf.float32)
-  elif start_position.shape != (ndims,):
-    raise ValueError("start_positions must (%d,)" % ndims)
-  velocity = tf.convert_to_tensor(velocity, dtype=tf.float32)
-  if velocity.shape.ndims == 0:
-    velocity = _get_random_unit_vector(ndims, tf.float32) * velocity
-  elif velocity.shape.ndims != 1:
-    raise ValueError("velocity must be rank 0 or rank 1, got %s" % velocity)
-  t = tf.range(sequence_length, dtype=tf.float32)
-  trajectory = _get_linear_trajectory(start_position, velocity, t)
-  trajectory = _bounce_to_bbox(trajectory)
+    ndims = 2
+    image = tf.convert_to_tensor(image)
+    if image.shape.ndims != 3:
+        raise ValueError("image must be rank 3, got %s" % str(image))
+    output_size = tf.TensorShape(output_size)
+    if len(output_size) != ndims:
+        raise ValueError(
+            "output_size must have exactly %d elements, got %s" % (ndims, output_size)
+        )
+    image_shape = tf.shape(image)
+    if start_position is None:
+        start_position = tf.random.uniform((ndims,), dtype=tf.float32)
+    elif start_position.shape != (ndims,):
+        raise ValueError("start_positions must (%d,)" % ndims)
+    velocity = tf.convert_to_tensor(velocity, dtype=tf.float32)
+    if velocity.shape.ndims == 0:
+        velocity = _get_random_unit_vector(ndims, tf.float32) * velocity
+    elif velocity.shape.ndims != 1:
+        raise ValueError("velocity must be rank 0 or rank 1, got %s" % velocity)
+    t = tf.range(sequence_length, dtype=tf.float32)
+    trajectory = _get_linear_trajectory(start_position, velocity, t)
+    trajectory = _bounce_to_bbox(trajectory)
 
-  total_padding = output_size - image_shape[:2]
+    total_padding = output_size - image_shape[:2]
 
-  if not tf.executing_eagerly():
-    cond = tf.compat.v1.assert_greater(total_padding, -1)
-    with tf.control_dependencies([cond]):
-      total_padding = tf.identity(total_padding)
+    if not tf.executing_eagerly():
+        cond = tf.compat.v1.assert_greater(total_padding, -1)
+        with tf.control_dependencies([cond]):
+            total_padding = tf.identity(total_padding)
 
-  sequence_pad_lefts = tf.cast(
-      tf.math.round(trajectory * tf.cast(total_padding, tf.float32)), tf.int32)
+    sequence_pad_lefts = tf.cast(
+        tf.math.round(trajectory * tf.cast(total_padding, tf.float32)), tf.int32
+    )
 
-  sequence = _create_moving_sequence(image, sequence_pad_lefts, total_padding)
-  sequence.set_shape(
-      [sequence_length] + output_size.as_list() + [image.shape[-1]])
-  return MovingSequence(
-      image_sequence=sequence,
-      trajectory=trajectory,
-      start_position=start_position,
-      velocity=velocity)
+    sequence = _create_moving_sequence(image, sequence_pad_lefts, total_padding)
+    sequence.set_shape([sequence_length] + output_size.as_list() + [image.shape[-1]])
+    return MovingSequence(
+        image_sequence=sequence,
+        trajectory=trajectory,
+        start_position=start_position,
+        velocity=velocity,
+    )

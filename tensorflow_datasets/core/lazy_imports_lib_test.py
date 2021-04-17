@@ -27,34 +27,34 @@ from tensorflow_datasets import testing
 
 class LazyImportsTest(testing.TestCase, parameterized.TestCase):
 
-  # The following deps are not in the test list because the datasets that
-  # require them need to have their tests run in isolation:
-  # * crepe (NSynth)
-  # * librosa (NSynth)
-  @parameterized.parameters(
-      "cv2",
-      "langdetect",
-      "matplotlib",
-      "mwparserfromhell",
-      "nltk",
-      "os",
-      "pandas",
-      "pretty_midi",
-      "pydub",
-      "scipy",
-      "skimage",
-      "tldextract",
-  )
-  def test_import(self, module_name):
-    # TODO(rsepassi): Re-enable skimage on Py3 (b/129964829)
-    if module_name == "skimage" and six.PY3:
-      return
-    getattr(tfds.core.lazy_imports, module_name)
+    # The following deps are not in the test list because the datasets that
+    # require them need to have their tests run in isolation:
+    # * crepe (NSynth)
+    # * librosa (NSynth)
+    @parameterized.parameters(
+        "cv2",
+        "langdetect",
+        "matplotlib",
+        "mwparserfromhell",
+        "nltk",
+        "os",
+        "pandas",
+        "pretty_midi",
+        "pydub",
+        "scipy",
+        "skimage",
+        "tldextract",
+    )
+    def test_import(self, module_name):
+        # TODO(rsepassi): Re-enable skimage on Py3 (b/129964829)
+        if module_name == "skimage" and six.PY3:
+            return
+        getattr(tfds.core.lazy_imports, module_name)
 
-  def test_bad_import(self):
-    with self.assertRaisesWithPredicateMatch(ImportError, "extras_require"):
-      _ = tfds.core.lazy_imports.test_foo
+    def test_bad_import(self):
+        with self.assertRaisesWithPredicateMatch(ImportError, "extras_require"):
+            _ = tfds.core.lazy_imports.test_foo
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

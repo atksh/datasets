@@ -23,17 +23,17 @@ from tensorflow_datasets.structured import iris
 
 
 class IrisTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = iris.Iris
+    DATASET_CLASS = iris.Iris
 
-  SPLITS = {
-      "train": 15,
-  }
-  DL_EXTRACT_RESULT = "iris.data"
+    SPLITS = {
+        "train": 15,
+    }
+    DL_EXTRACT_RESULT = "iris.data"
 
 
 class IrisS3Test(IrisTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

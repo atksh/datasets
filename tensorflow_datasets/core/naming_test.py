@@ -26,80 +26,84 @@ from tensorflow_datasets.core import splits
 
 
 class NamingTest(parameterized.TestCase, testing.TestCase):
+    @parameterized.parameters(
+        ("HelloWorld", "hello_world"),
+        ("FooBARBaz", "foo_bar_baz"),
+        ("FooBar123", "foo_bar123"),
+        ("FooBar123Baz", "foo_bar123_baz"),
+        ("FooBar123baz", "foo_bar123baz"),
+    )
+    def test_camelcase_to_snakecase(self, camel, snake):
+        self.assertEqual(snake, naming.camelcase_to_snakecase(camel))
 
-  @parameterized.parameters(
-      ("HelloWorld", "hello_world"),
-      ("FooBARBaz", "foo_bar_baz"),
-      ("FooBar123", "foo_bar123"),
-      ("FooBar123Baz", "foo_bar123_baz"),
-      ("FooBar123baz", "foo_bar123baz"),
-  )
-  def test_camelcase_to_snakecase(self, camel, snake):
-    self.assertEqual(snake, naming.camelcase_to_snakecase(camel))
+    @parameterized.parameters(
+        ("HelloWorld", "hello_world"),
+        ("FooBar123", "foo_bar123"),
+        ("FooBar123Baz", "foo_bar123_baz"),
+        ("FooBar123baz", "foo_bar123baz"),
+    )
+    def test_snake_to_camelcase(self, camel, snake):
+        self.assertEqual(naming.snake_to_camelcase(snake), camel)
 
-  @parameterized.parameters(
-      ("HelloWorld", "hello_world"),
-      ("FooBar123", "foo_bar123"),
-      ("FooBar123Baz", "foo_bar123_baz"),
-      ("FooBar123baz", "foo_bar123baz"),
-  )
-  def test_snake_to_camelcase(self, camel, snake):
-    self.assertEqual(naming.snake_to_camelcase(snake), camel)
+    def test_sharded_filenames(self):
+        prefix = "/tmp/foo"
+        num_shards = 2
+        expected = [
+            "/tmp/foo-00000-of-00002",
+            "/tmp/foo-00001-of-00002",
+        ]
+        self.assertEqual(expected, naming.sharded_filenames(prefix, num_shards))
 
-  def test_sharded_filenames(self):
-    prefix = "/tmp/foo"
-    num_shards = 2
-    expected = [
-        "/tmp/foo-00000-of-00002",
-        "/tmp/foo-00001-of-00002",
-    ]
-    self.assertEqual(expected, naming.sharded_filenames(prefix, num_shards))
+    @parameterized.parameters(
+        ("foo", "foo-train"), ("Foo", "foo-train"), ("FooBar", "foo_bar-train"),
+    )
+    def test_filename_prefix_for_split(self, prefix, expected):
+        split = splits.Split.TRAIN
+        self.assertEqual(expected, naming.filename_prefix_for_split(prefix, split))
 
-  @parameterized.parameters(
-      ("foo", "foo-train"),
-      ("Foo", "foo-train"),
-      ("FooBar", "foo_bar-train"),
-  )
-  def test_filename_prefix_for_split(self, prefix, expected):
-    split = splits.Split.TRAIN
-    self.assertEqual(expected, naming.filename_prefix_for_split(prefix, split))
+    def test_filepaths_for_dataset_split(self):
+        self.assertEqual(
+            ["/tmp/bar/foo-train-00000-of-00002", "/tmp/bar/foo-train-00001-of-00002",],
+            naming.filepaths_for_dataset_split(
+                dataset_name="foo",
+                split=splits.Split.TRAIN,
+                num_shards=2,
+                data_dir="/tmp/bar/",
+            ),
+        )
 
-  def test_filepaths_for_dataset_split(self):
-    self.assertEqual([
-        "/tmp/bar/foo-train-00000-of-00002",
-        "/tmp/bar/foo-train-00001-of-00002",
-    ],
-                     naming.filepaths_for_dataset_split(
-                         dataset_name="foo",
-                         split=splits.Split.TRAIN,
-                         num_shards=2,
-                         data_dir="/tmp/bar/"))
+    def test_filepaths_for_dataset_split_with_suffix(self):
+        self.assertEqual(
+            [
+                "/tmp/bar/foo-train.bar-00000-of-00002",
+                "/tmp/bar/foo-train.bar-00001-of-00002",
+            ],
+            naming.filepaths_for_dataset_split(
+                dataset_name="foo",
+                split=splits.Split.TRAIN,
+                num_shards=2,
+                data_dir="/tmp/bar/",
+                filetype_suffix="bar",
+            ),
+        )
 
-  def test_filepaths_for_dataset_split_with_suffix(self):
-    self.assertEqual([
-        "/tmp/bar/foo-train.bar-00000-of-00002",
-        "/tmp/bar/foo-train.bar-00001-of-00002",
-    ],
-                     naming.filepaths_for_dataset_split(
-                         dataset_name="foo",
-                         split=splits.Split.TRAIN,
-                         num_shards=2,
-                         data_dir="/tmp/bar/",
-                         filetype_suffix="bar"))
-
-  def test_filepattern_for_dataset_split(self):
-    self.assertEqual("/tmp/bar/foo-test*",
-                     naming.filepattern_for_dataset_split(
-                         dataset_name="foo",
-                         split=splits.Split.TEST,
-                         data_dir="/tmp/bar/"))
-    self.assertEqual("/tmp/bar/foo-test.bar*",
-                     naming.filepattern_for_dataset_split(
-                         dataset_name="foo",
-                         split=splits.Split.TEST,
-                         filetype_suffix="bar",
-                         data_dir="/tmp/bar/"))
+    def test_filepattern_for_dataset_split(self):
+        self.assertEqual(
+            "/tmp/bar/foo-test*",
+            naming.filepattern_for_dataset_split(
+                dataset_name="foo", split=splits.Split.TEST, data_dir="/tmp/bar/"
+            ),
+        )
+        self.assertEqual(
+            "/tmp/bar/foo-test.bar*",
+            naming.filepattern_for_dataset_split(
+                dataset_name="foo",
+                split=splits.Split.TEST,
+                filetype_suffix="bar",
+                data_dir="/tmp/bar/",
+            ),
+        )
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

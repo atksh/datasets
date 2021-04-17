@@ -25,16 +25,17 @@ from tensorflow_datasets.translate import para_crawl
 
 class ParacrawlTest(tfds_test.DatasetBuilderTestCase):
 
-  DATASET_CLASS = para_crawl.ParaCrawl
-  BUILDER_CONFIG_NAMES_TO_TEST = ["enhu_plain_text"]
-  SPLITS = {
-      "train": 5,
-  }
-  DL_EXTRACT_RESULT = {"data_file": "en-hu.bicleaner07.txt"}
+    DATASET_CLASS = para_crawl.ParaCrawl
+    BUILDER_CONFIG_NAMES_TO_TEST = ["enhu_plain_text"]
+    SPLITS = {
+        "train": 5,
+    }
+    DL_EXTRACT_RESULT = {"data_file": "en-hu.bicleaner07.txt"}
 
 
 class ParacrawlS3Test(ParacrawlTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

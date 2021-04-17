@@ -26,58 +26,61 @@ from tqdm import auto as tqdm_lib
 
 
 class EmptyTqdm(object):
-  """Dummy tqdm which doesn't do anything."""
+    """Dummy tqdm which doesn't do anything."""
 
-  def __init__(self, *args, **kwargs):   # pylint: disable=unused-argument
-    self._iterator = args[0] if args else None
+    def __init__(self, *args, **kwargs):  # pylint: disable=unused-argument
+        self._iterator = args[0] if args else None
 
-  def __iter__(self):
-    return iter(self._iterator)
+    def __iter__(self):
+        return iter(self._iterator)
 
-  def __getattr__(self, _):
-    """Return empty function."""
-    def empty_fn(*args, **kwargs):   # pylint: disable=unused-argument
-      return
-    return empty_fn
+    def __getattr__(self, _):
+        """Return empty function."""
 
-  def __enter__(self):
-    return self
+        def empty_fn(*args, **kwargs):  # pylint: disable=unused-argument
+            return
 
-  def __exit__(self, type_, value, traceback):
-    return
+        return empty_fn
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type_, value, traceback):
+        return
+
 
 _active = True
 
 
 def tqdm(*args, **kwargs):
-  if _active:
-    return tqdm_lib.tqdm(*args, **kwargs)
-  else:
-    return EmptyTqdm(*args, **kwargs)
+    if _active:
+        return tqdm_lib.tqdm(*args, **kwargs)
+    else:
+        return EmptyTqdm(*args, **kwargs)
 
 
 def async_tqdm(*args, **kwargs):
-  if _active:
-    return _async_tqdm(*args, **kwargs)
-  else:
-    return EmptyTqdm(*args, **kwargs)
+    if _active:
+        return _async_tqdm(*args, **kwargs)
+    else:
+        return EmptyTqdm(*args, **kwargs)
 
 
 def disable_progress_bar():
-  """Disabled Tqdm progress bar.
+    """Disabled Tqdm progress bar.
 
   Usage:
 
   tfds.disable_progress_bar()
   """
-  # Replace tqdm
-  global _active
-  _active = False
+    # Replace tqdm
+    global _active
+    _active = False
 
 
 @contextlib.contextmanager
 def _async_tqdm(*args, **kwargs):
-  """Wrapper around Tqdm which can be updated in threads.
+    """Wrapper around Tqdm which can be updated in threads.
 
   Usage:
 
@@ -95,39 +98,40 @@ def _async_tqdm(*args, **kwargs):
   Yields:
     pbar: Async pbar which can be shared between threads.
   """
-  with tqdm_lib.tqdm(*args, **kwargs) as pbar:
-    pbar = _TqdmPbarAsync(pbar)
-    yield pbar
-    pbar.clear()  # pop pbar from the active list of pbar
-    print()  # Avoid the next log to overlapp with the bar
+    with tqdm_lib.tqdm(*args, **kwargs) as pbar:
+        pbar = _TqdmPbarAsync(pbar)
+        yield pbar
+        pbar.clear()  # pop pbar from the active list of pbar
+        print()  # Avoid the next log to overlapp with the bar
 
 
 class _TqdmPbarAsync(object):
-  """Wrapper around Tqdm pbar which be shared between thread."""
-  _tqdm_bars = []
+    """Wrapper around Tqdm pbar which be shared between thread."""
 
-  def __init__(self, pbar):
-    self._lock = tqdm_lib.tqdm.get_lock()
-    self._pbar = pbar
-    self._tqdm_bars.append(pbar)
+    _tqdm_bars = []
 
-  def update_total(self, n=1):
-    """Increment total pbar value."""
-    with self._lock:
-      self._pbar.total += n
-      self.refresh()
+    def __init__(self, pbar):
+        self._lock = tqdm_lib.tqdm.get_lock()
+        self._pbar = pbar
+        self._tqdm_bars.append(pbar)
 
-  def update(self, n=1):
-    """Increment current value."""
-    with self._lock:
-      self._pbar.update(n)
-      self.refresh()
+    def update_total(self, n=1):
+        """Increment total pbar value."""
+        with self._lock:
+            self._pbar.total += n
+            self.refresh()
 
-  def refresh(self):
-    """Refresh all."""
-    for pbar in self._tqdm_bars:
-      pbar.refresh()
+    def update(self, n=1):
+        """Increment current value."""
+        with self._lock:
+            self._pbar.update(n)
+            self.refresh()
 
-  def clear(self):
-    """Remove the tqdm pbar from the update."""
-    self._tqdm_bars.pop()
+    def refresh(self):
+        """Refresh all."""
+        for pbar in self._tqdm_bars:
+            pbar.refresh()
+
+    def clear(self):
+        """Remove the tqdm pbar from the update."""
+        self._tqdm_bars.pop()

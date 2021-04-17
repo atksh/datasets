@@ -30,29 +30,29 @@ from tensorflow_datasets.scripts import document_datasets
 
 
 class BuildDocsTest(absltest.TestCase):
+    def setUp(self):
+        super(BuildDocsTest, self).setUp()
+        self.workdir = tempfile.mkdtemp()
+        if os.path.exists(self.workdir):
+            shutil.rmtree(self.workdir)
+        os.makedirs(self.workdir)
 
-  def setUp(self):
-    super(BuildDocsTest, self).setUp()
-    self.workdir = tempfile.mkdtemp()
-    if os.path.exists(self.workdir):
-      shutil.rmtree(self.workdir)
-    os.makedirs(self.workdir)
+    def test_api_gen(self):
+        build_docs.build_api_docs(
+            output_dir=self.workdir,
+            code_url_prefix="",
+            search_hints=True,
+            site_path="datasets/api_docs/python",
+        )
 
-  def test_api_gen(self):
-    build_docs.build_api_docs(
-        output_dir=self.workdir,
-        code_url_prefix="",
-        search_hints=True,
-        site_path="datasets/api_docs/python")
+        # Check that the "defined in" section is working
+        with open(os.path.join(self.workdir, "tfds.md")) as f:
+            content = f.read()
+        self.assertIn("__init__.py", content)
 
-    # Check that the "defined in" section is working
-    with open(os.path.join(self.workdir, "tfds.md")) as f:
-      content = f.read()
-    self.assertIn("__init__.py", content)
-
-  def test_document_datasets(self):
-    document_datasets.dataset_docs_str(datasets=["mnist", "cifar10"])
+    def test_document_datasets(self):
+        document_datasets.dataset_docs_str(datasets=["mnist", "cifar10"])
 
 
 if __name__ == "__main__":
-  absltest.main()
+    absltest.main()

@@ -55,92 +55,96 @@ _DOCUMENT = "article"
 _SUMMARY = "abstract"
 
 _URLS = {
-    "arxiv":
-        "https://drive.google.com/uc?export=download&id=1K2kDBTNXS2ikx9xKmi2Fy0Wsc5u_Lls0",
-    "pubmed":
-        "https://drive.google.com/uc?export=download&id=1Sa3kip8IE0J1SkMivlgOwq1jBgOnzeny",
+    "arxiv": "https://drive.google.com/uc?export=download&id=1K2kDBTNXS2ikx9xKmi2Fy0Wsc5u_Lls0",
+    "pubmed": "https://drive.google.com/uc?export=download&id=1Sa3kip8IE0J1SkMivlgOwq1jBgOnzeny",
 }
 
 
 class ScientificPapersConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for Scientific Papers."""
+    """BuilderConfig for Scientific Papers."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, filename=None, **kwargs):
-    """BuilderConfig for Wikihow.
+    @tfds.core.disallow_positional_args
+    def __init__(self, filename=None, **kwargs):
+        """BuilderConfig for Wikihow.
 
     Args:
       filename: filename of different configs for the dataset.
       **kwargs: keyword arguments forwarded to super.
     """
-    # 1.1.0 remove sentence breaker <S> and </S> in summary.
-    super(ScientificPapersConfig, self).__init__(
-        version=tfds.core.Version("1.1.0"), **kwargs)
-    self.filename = filename
+        # 1.1.0 remove sentence breaker <S> and </S> in summary.
+        super(ScientificPapersConfig, self).__init__(
+            version=tfds.core.Version("1.1.0"), **kwargs
+        )
+        self.filename = filename
 
 
 class ScientificPapers(tfds.core.GeneratorBasedBuilder):
-  """Scientific Papers."""
+    """Scientific Papers."""
 
-  BUILDER_CONFIGS = [
-      ScientificPapersConfig(
-          name="arxiv", description="Documents from ArXiv repository."),
-      ScientificPapersConfig(
-          name="pubmed", description="Documents from PubMed repository.")
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            _DOCUMENT: tfds.features.Text(),
-            _SUMMARY: tfds.features.Text(),
-            "section_names": tfds.features.Text(),
-        }),
-        supervised_keys=(_DOCUMENT, _SUMMARY),
-        homepage="https://github.com/armancohan/long-summarization",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    dl_paths = dl_manager.download_and_extract(_URLS)
-    path = os.path.join(dl_paths[self.builder_config.name],
-                        self.builder_config.name + "-release")
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={"path": os.path.join(path, "train.txt")},
+    BUILDER_CONFIGS = [
+        ScientificPapersConfig(
+            name="arxiv", description="Documents from ArXiv repository."
         ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={"path": os.path.join(path, "val.txt")},
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={"path": os.path.join(path, "test.txt")},
+        ScientificPapersConfig(
+            name="pubmed", description="Documents from PubMed repository."
         ),
     ]
 
-  def _generate_examples(self, path=None):
-    """Yields examples."""
-    with tf.io.gfile.GFile(path) as f:
-      for line in f:
-        # Possible keys are:
-        # "article_id": str
-        # "article_text": list[str] article (list of paragraphs).
-        # "abstract_text": list[str], abstract (list of paragraphs).
-        # "section_names": list[str], list of section names.
-        # "sections": list[list[str]], list of sections (list of paragraphs)
-        d = json.loads(line)
-        summary = "\n".join(d["abstract_text"])
-        # In original paper, <S> and </S> are not used in vocab during training
-        # or during decoding.
-        # https://github.com/armancohan/long-summarization/blob/master/data.py#L27
-        summary = summary.replace("<S>", "").replace("</S>", "")
-        yield d["article_id"], {
-            _DOCUMENT: "\n".join(d["article_text"]),
-            _SUMMARY: summary,
-            "section_names": "\n".join(d["section_names"])
-        }
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    _DOCUMENT: tfds.features.Text(),
+                    _SUMMARY: tfds.features.Text(),
+                    "section_names": tfds.features.Text(),
+                }
+            ),
+            supervised_keys=(_DOCUMENT, _SUMMARY),
+            homepage="https://github.com/armancohan/long-summarization",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        dl_paths = dl_manager.download_and_extract(_URLS)
+        path = os.path.join(
+            dl_paths[self.builder_config.name], self.builder_config.name + "-release"
+        )
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                gen_kwargs={"path": os.path.join(path, "train.txt")},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                gen_kwargs={"path": os.path.join(path, "val.txt")},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                gen_kwargs={"path": os.path.join(path, "test.txt")},
+            ),
+        ]
+
+    def _generate_examples(self, path=None):
+        """Yields examples."""
+        with tf.io.gfile.GFile(path) as f:
+            for line in f:
+                # Possible keys are:
+                # "article_id": str
+                # "article_text": list[str] article (list of paragraphs).
+                # "abstract_text": list[str], abstract (list of paragraphs).
+                # "section_names": list[str], list of section names.
+                # "sections": list[list[str]], list of sections (list of paragraphs)
+                d = json.loads(line)
+                summary = "\n".join(d["abstract_text"])
+                # In original paper, <S> and </S> are not used in vocab during training
+                # or during decoding.
+                # https://github.com/armancohan/long-summarization/blob/master/data.py#L27
+                summary = summary.replace("<S>", "").replace("</S>", "")
+                yield d["article_id"], {
+                    _DOCUMENT: "\n".join(d["article_text"]),
+                    _SUMMARY: summary,
+                    "section_names": "\n".join(d["section_names"]),
+                }

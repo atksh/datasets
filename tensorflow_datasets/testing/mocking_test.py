@@ -28,59 +28,62 @@ from tensorflow_datasets.testing import test_case
 from tensorflow_datasets.testing import test_utils
 
 # Import for registration
-from tensorflow_datasets.image import imagenet  # pylint: disable=unused-import,g-bad-import-order
-from tensorflow_datasets.text import lm1b  # pylint: disable=unused-import,g-bad-import-order
-from tensorflow_datasets.image import mnist  # pylint: disable=unused-import,g-bad-import-order
+from tensorflow_datasets.image import (
+    imagenet,
+)  # pylint: disable=unused-import,g-bad-import-order
+from tensorflow_datasets.text import (
+    lm1b,
+)  # pylint: disable=unused-import,g-bad-import-order
+from tensorflow_datasets.image import (
+    mnist,
+)  # pylint: disable=unused-import,g-bad-import-order
 
 tf.compat.v1.enable_eager_execution()
 
 
 class MockingTest(test_case.TestCase):
+    def test_mocking_imagenet(self):
+        with mocking.mock_data():
+            ds = registered.load("imagenet2012", split="train")
+            for ex in ds.take(10):
+                self.assertEqual(sorted(ex.keys()), ["file_name", "image", "label"])
+                ex["image"].shape.assert_is_compatible_with((None, None, 3))
 
-  def test_mocking_imagenet(self):
-    with mocking.mock_data():
-      ds = registered.load('imagenet2012', split='train')
-      for ex in ds.take(10):
-        self.assertEqual(
-            sorted(ex.keys()), ['file_name', 'image', 'label'])
-        ex['image'].shape.assert_is_compatible_with((None, None, 3))
+    def test_mocking_lm1b(self):
+        with mocking.mock_data():
+            ds = registered.load("lm1b/bytes", split="train")
+            for ex in ds.take(10):
+                self.assertEqual(ex["text"].dtype, tf.int64)
+                ex["text"].shape.assert_is_compatible_with((None,))
 
-  def test_mocking_lm1b(self):
-    with mocking.mock_data():
-      ds = registered.load('lm1b/bytes', split='train')
-      for ex in ds.take(10):
-        self.assertEqual(ex['text'].dtype, tf.int64)
-        ex['text'].shape.assert_is_compatible_with((None,))
+    def test_custom_as_dataset(self):
+        def _as_dataset(self, *args, **kwargs):  # pylint: disable=unused-argument
+            return tf.data.Dataset.from_generator(
+                lambda: (
+                    {"text": t,}  # pylint: disable=g-long-lambda
+                    for t in ["some sentence", "some other sentence"]
+                ),
+                output_types=self.info.features.dtype,
+                output_shapes=self.info.features.shape,
+            )
 
-  def test_custom_as_dataset(self):
-    def _as_dataset(self, *args, **kwargs):  # pylint: disable=unused-argument
-      return tf.data.Dataset.from_generator(
-          lambda: ({  # pylint: disable=g-long-lambda
-              'text': t,
-          } for t in ['some sentence', 'some other sentence']),
-          output_types=self.info.features.dtype,
-          output_shapes=self.info.features.shape,
-      )
+        with mocking.mock_data(as_dataset_fn=_as_dataset):
+            ds = registered.load("lm1b", split="train")
+            out = [ex["text"] for ex in dataset_utils.as_numpy(ds)]
+            self.assertEqual(out, [b"some sentence", b"some other sentence"])
 
-    with mocking.mock_data(as_dataset_fn=_as_dataset):
-      ds = registered.load('lm1b', split='train')
-      out = [ex['text'] for ex in dataset_utils.as_numpy(ds)]
-      self.assertEqual(out, [b'some sentence', b'some other sentence'])
-
-  def test_max_values(self):
-    with mocking.mock_data(num_examples=50):
-      ds = registered.load('mnist', split='train')
-      for ex in ds.take(50):
-        self.assertLessEqual(tf.math.reduce_max(ex['label']).numpy(), 10)
-      self.assertEqual(  # Test determinism
-          [ex['label'].numpy() for ex in ds.take(5)],
-          [1, 9, 2, 5, 3],
-      )
-      self.assertEqual(  # Iterating twice should yield the same samples
-          [ex['label'].numpy() for ex in ds.take(5)],
-          [1, 9, 2, 5, 3],
-      )
+    def test_max_values(self):
+        with mocking.mock_data(num_examples=50):
+            ds = registered.load("mnist", split="train")
+            for ex in ds.take(50):
+                self.assertLessEqual(tf.math.reduce_max(ex["label"]).numpy(), 10)
+            self.assertEqual(  # Test determinism
+                [ex["label"].numpy() for ex in ds.take(5)], [1, 9, 2, 5, 3],
+            )
+            self.assertEqual(  # Iterating twice should yield the same samples
+                [ex["label"].numpy() for ex in ds.take(5)], [1, 9, 2, 5, 3],
+            )
 
 
-if __name__ == '__main__':
-  test_utils.test_main()
+if __name__ == "__main__":
+    test_utils.test_main()

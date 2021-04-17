@@ -31,17 +31,18 @@ import tensorflow as tf
 from tensorflow_datasets.core.utils import py_utils
 from tensorflow_datasets.testing import test_utils
 
-flags.DEFINE_string("tfds_dir", py_utils.tfds_dir(),
-                    "Path to tensorflow_datasets directory")
+flags.DEFINE_string(
+    "tfds_dir", py_utils.tfds_dir(), "Path to tensorflow_datasets directory"
+)
 FLAGS = flags.FLAGS
 
 
 def examples_dir():
-  return os.path.join(FLAGS.tfds_dir, "testing", "test_data", "fake_examples")
+    return os.path.join(FLAGS.tfds_dir, "testing", "test_data", "fake_examples")
 
 
 def mnist_dir(name):
-  return os.path.join(examples_dir(), name)
+    return os.path.join(examples_dir(), name)
 
 
 _TRAIN_DATA_FILENAME = "binarized_mnist_train.amat"
@@ -50,22 +51,23 @@ _TEST_DATA_FILENAME = "binarized_mnist_test.amat"
 
 
 def make_images(num_images):
-  return (np.random.randint(256, size=(28 * 28 * num_images), dtype=np.uint8)
-          .reshape((num_images, -1)))
+    return np.random.randint(256, size=(28 * 28 * num_images), dtype=np.uint8).reshape(
+        (num_images, -1)
+    )
 
 
 def write_image_file(filename, num_images):
-  with tf.io.gfile.GFile(filename, "wb") as f:
-    np.savetxt(f, make_images(num_images), delimiter=" ")
+    with tf.io.gfile.GFile(filename, "wb") as f:
+        np.savetxt(f, make_images(num_images), delimiter=" ")
 
 
 def main(_):
-  output_dir = mnist_dir("binarized_mnist")
-  test_utils.remake_dir(output_dir)
-  write_image_file(os.path.join(output_dir, _TRAIN_DATA_FILENAME), 10)
-  write_image_file(os.path.join(output_dir, _VALID_DATA_FILENAME), 2)
-  write_image_file(os.path.join(output_dir, _TEST_DATA_FILENAME), 2)
+    output_dir = mnist_dir("binarized_mnist")
+    test_utils.remake_dir(output_dir)
+    write_image_file(os.path.join(output_dir, _TRAIN_DATA_FILENAME), 10)
+    write_image_file(os.path.join(output_dir, _VALID_DATA_FILENAME), 2)
+    write_image_file(os.path.join(output_dir, _TEST_DATA_FILENAME), 2)
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)

@@ -23,33 +23,32 @@ import tensorflow_datasets.testing as tfds_test
 
 class CaltechBirdsTest(tfds_test.DatasetBuilderTestCase):
 
-  DATASET_CLASS = caltech_birds.CaltechBirds2010
+    DATASET_CLASS = caltech_birds.CaltechBirds2010
 
-  SPLITS = {  # No. of train and test samples
-      'train': 9,
-      'test': 6,
-  }
+    SPLITS = {  # No. of train and test samples
+        "train": 9,
+        "test": 6,
+    }
 
-  DL_EXTRACT_RESULT = ['Lists.tgz', 'Annotations.tgz', 'Images.tar.gz']
+    DL_EXTRACT_RESULT = ["Lists.tgz", "Annotations.tgz", "Images.tar.gz"]
 
 
 class CaltechBirds2011Test(tfds_test.DatasetBuilderTestCase):
 
-  DATASET_CLASS = caltech_birds.CaltechBirds2011
+    DATASET_CLASS = caltech_birds.CaltechBirds2011
 
-  SPLITS = {  # No. of train and test samples
-      'train': 6,
-      'test': 4,
-  }
+    SPLITS = {  # No. of train and test samples
+        "train": 6,
+        "test": 4,
+    }
 
-  DL_EXTRACT_RESULT = [
-      'extracted/TAR_GZ.CUB_200_2011.tar.gz', 'extracted/segmentations.tgz'
-  ]
+    DL_EXTRACT_RESULT = [
+        "extracted/TAR_GZ.CUB_200_2011.tar.gz",
+        "extracted/segmentations.tgz",
+    ]
 
-  DL_DOWNLOAD_RESULT = [
-      'CUB_200_2011.tar.gz'
-  ]
+    DL_DOWNLOAD_RESULT = ["CUB_200_2011.tar.gz"]
 
 
-if __name__ == '__main__':
-  tfds_test.test_main()
+if __name__ == "__main__":
+    tfds_test.test_main()

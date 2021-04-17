@@ -24,18 +24,18 @@ from tensorflow_datasets.summarization import wikihow
 
 
 class WikihowTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = wikihow.Wikihow
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-      "validation": 1,  # Number of fake train example
-      "test": 1,  # Number of fake train example
-  }
-  DL_EXTRACT_RESULT = {
-      "train": "all_train.txt",
-      "test": "all_test.txt",
-      "validation": "all_validation.txt"
-  }
+    DATASET_CLASS = wikihow.Wikihow
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+        "validation": 1,  # Number of fake train example
+        "test": 1,  # Number of fake train example
+    }
+    DL_EXTRACT_RESULT = {
+        "train": "all_train.txt",
+        "test": "all_test.txt",
+        "validation": "all_validation.txt",
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

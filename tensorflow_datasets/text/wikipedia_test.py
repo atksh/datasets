@@ -23,20 +23,19 @@ from tensorflow_datasets import testing
 from tensorflow_datasets.text import wikipedia
 
 
-
 class WikipediaTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = wikipedia.Wikipedia
-  BUILDER_CONFIG_NAMES_TO_TEST = ["20190301.en"]
+    DATASET_CLASS = wikipedia.Wikipedia
+    BUILDER_CONFIG_NAMES_TO_TEST = ["20190301.en"]
 
-  DL_EXTRACT_RESULT = {
-      "info": "dumpstatus.json",
-      "xml": ["enwiki_fake.xml", "enwiki_fake.xml"]
-  }
+    DL_EXTRACT_RESULT = {
+        "info": "dumpstatus.json",
+        "xml": ["enwiki_fake.xml", "enwiki_fake.xml"],
+    }
 
-  SPLITS = {
-      "train": 4,
-  }
+    SPLITS = {
+        "train": 4,
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

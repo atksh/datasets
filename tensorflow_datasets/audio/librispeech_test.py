@@ -25,44 +25,44 @@ import tensorflow_datasets.public_api as tfds
 
 
 class LibrispeechTest100(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = librispeech.Librispeech
-  BUILDER_CONFIG_NAMES_TO_TEST = ["clean100_plain_text", "clean100_bytes"]
-  SPLITS = {
-      "train": 2,
-      "validation": 2,
-      "test": 2,
-  }
+    DATASET_CLASS = librispeech.Librispeech
+    BUILDER_CONFIG_NAMES_TO_TEST = ["clean100_plain_text", "clean100_bytes"]
+    SPLITS = {
+        "train": 2,
+        "validation": 2,
+        "test": 2,
+    }
 
-  DL_EXTRACT_RESULT = {
-      tfds.Split.TRAIN: ["train-clean-100"],
-      tfds.Split.TEST: ["test-clean"],
-      tfds.Split.VALIDATION: ["dev-clean"],
-  }
+    DL_EXTRACT_RESULT = {
+        tfds.Split.TRAIN: ["train-clean-100"],
+        tfds.Split.TEST: ["test-clean"],
+        tfds.Split.VALIDATION: ["dev-clean"],
+    }
 
 
 class LibrispeechTest100S3(LibrispeechTest100):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class LibrispeechTest360(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = librispeech.Librispeech
-  BUILDER_CONFIG_NAMES_TO_TEST = ["clean360_plain_text"]
-  SPLITS = {
-      "train": 4,
-      "validation": 2,
-      "test": 2,
-  }
+    DATASET_CLASS = librispeech.Librispeech
+    BUILDER_CONFIG_NAMES_TO_TEST = ["clean360_plain_text"]
+    SPLITS = {
+        "train": 4,
+        "validation": 2,
+        "test": 2,
+    }
 
-  DL_EXTRACT_RESULT = {
-      tfds.Split.TRAIN: ["train-clean-100", "train-clean-360"],
-      tfds.Split.TEST: ["test-clean"],
-      tfds.Split.VALIDATION: ["dev-clean"],
-  }
+    DL_EXTRACT_RESULT = {
+        tfds.Split.TRAIN: ["train-clean-100", "train-clean-360"],
+        tfds.Split.TEST: ["test-clean"],
+        tfds.Split.VALIDATION: ["dev-clean"],
+    }
 
 
 class LibrispeechTest360S3(LibrispeechTest360):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

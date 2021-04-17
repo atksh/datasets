@@ -23,25 +23,25 @@ from tensorflow_datasets.image import celeba
 
 
 class CelebATest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = celeba.CelebA
+    DATASET_CLASS = celeba.CelebA
 
-  SPLITS = {
-      "train": 3,
-      "validation": 2,
-      "test": 1,
-  }
+    SPLITS = {
+        "train": 3,
+        "validation": 2,
+        "test": 1,
+    }
 
-  DL_EXTRACT_RESULT = {
-      "img_align_celeba": "",  # Code looks into 'img_align_celeba' subdir.
-      "list_eval_partition": "list_eval_partition.txt",
-      "list_attr_celeba": "list_attr_celeba.txt",
-      "landmarks_celeba": "list_landmarks_align_celeba.txt",
-  }
+    DL_EXTRACT_RESULT = {
+        "img_align_celeba": "",  # Code looks into 'img_align_celeba' subdir.
+        "list_eval_partition": "list_eval_partition.txt",
+        "list_attr_celeba": "list_attr_celeba.txt",
+        "landmarks_celeba": "list_landmarks_align_celeba.txt",
+    }
 
 
 class CelebAS3Test(CelebATest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

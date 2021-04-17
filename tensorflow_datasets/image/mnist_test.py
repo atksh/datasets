@@ -30,62 +30,64 @@ mnist._TEST_EXAMPLES = 2  # pylint: disable=protected-access
 
 
 class MNISTTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = mnist.MNIST
-  SPLITS = {
-      "train": 10,
-      "test": 2,
-  }
-  DL_EXTRACT_RESULT = {
-      "train_data": "train-image",
-      "train_labels": "train-label",
-      "test_data": "test-image",
-      "test_labels": "test-label",
-  }
+    DATASET_CLASS = mnist.MNIST
+    SPLITS = {
+        "train": 10,
+        "test": 2,
+    }
+    DL_EXTRACT_RESULT = {
+        "train_data": "train-image",
+        "train_labels": "train-label",
+        "test_data": "test-image",
+        "test_labels": "test-label",
+    }
 
 
 class MNISTTestS3(MNISTTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class FashionMNISTTest(MNISTTest):
-  DATASET_CLASS = mnist.FashionMNIST
+    DATASET_CLASS = mnist.FashionMNIST
 
 
 class FashionMNISTTestS3(FashionMNISTTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class KMNISTTest(MNISTTest):
-  DATASET_CLASS = mnist.KMNIST
+    DATASET_CLASS = mnist.KMNIST
 
 
 class KMNISTTestS3(KMNISTTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
-mnist.EMNIST.BUILDER_CONFIGS.extend([
-    mnist.EMNISTConfig(
-        name="test",
-        class_number=200,
-        train_examples=10,
-        test_examples=2,
-        description="EMNIST test data config.",
-    ),
-])
+mnist.EMNIST.BUILDER_CONFIGS.extend(
+    [
+        mnist.EMNISTConfig(
+            name="test",
+            class_number=200,
+            train_examples=10,
+            test_examples=2,
+            description="EMNIST test data config.",
+        ),
+    ]
+)
 
 
 class EMNISTTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = mnist.EMNIST
-  SPLITS = {
-      "train": 10,
-      "test": 2,
-  }
-  BUILDER_CONFIG_NAMES_TO_TEST = ["test"]
+    DATASET_CLASS = mnist.EMNIST
+    SPLITS = {
+        "train": 10,
+        "test": 2,
+    }
+    BUILDER_CONFIG_NAMES_TO_TEST = ["test"]
 
 
 class EMNISTTestS3(EMNISTTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

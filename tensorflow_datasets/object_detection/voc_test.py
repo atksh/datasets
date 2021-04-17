@@ -24,22 +24,22 @@ from tensorflow_datasets.object_detection import voc
 
 
 class Voc2007Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = voc.Voc
-  BUILDER_CONFIG_NAMES_TO_TEST = ['2007']
-  SPLITS = {
-      'train': 1,
-      'validation': 2,
-      'test': 3,
-  }
-  DL_EXTRACT_RESULT = {
-      'trainval': '',
-      'test': '',
-  }
+    DATASET_CLASS = voc.Voc
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2007"]
+    SPLITS = {
+        "train": 1,
+        "validation": 2,
+        "test": 3,
+    }
+    DL_EXTRACT_RESULT = {
+        "trainval": "",
+        "test": "",
+    }
 
 
 class Voc2012Test(Voc2007Test):
-  BUILDER_CONFIG_NAMES_TO_TEST = ['2012']
+    BUILDER_CONFIG_NAMES_TO_TEST = ["2012"]
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

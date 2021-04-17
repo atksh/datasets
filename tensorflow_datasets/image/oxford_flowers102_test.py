@@ -24,24 +24,23 @@ from tensorflow_datasets.image import oxford_flowers102
 
 
 class OxfordFlowers102Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = oxford_flowers102.OxfordFlowers102
-  SPLITS = {
-      "train": 3,
-      "test": 3,
-      "validation": 4,
-  }
+    DATASET_CLASS = oxford_flowers102.OxfordFlowers102
+    SPLITS = {
+        "train": 3,
+        "test": 3,
+        "validation": 4,
+    }
 
-  DL_EXTRACT_RESULT = {
-      "images": "images",
-      "labels": "imagelabels.mat",
-      "setid": "setid.mat",
-  }
+    DL_EXTRACT_RESULT = {
+        "images": "images",
+        "labels": "imagelabels.mat",
+        "setid": "setid.mat",
+    }
 
 
 class OxfordFlowers102S3Test(OxfordFlowers102Test):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
-
+    testing.test_main()

@@ -24,24 +24,24 @@ from tensorflow_datasets.summarization import big_patent
 
 
 class BigPatentTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = big_patent.BigPatent
-  BUILDER_CONFIG_NAMES_TO_TEST = ["all"]
-  SPLITS = {
-      "train": 9,  # Number of fake train example
-      "validation": 9,  # Number of fake val example
-      "test": 9,  # Number of fake test example
-  }
+    DATASET_CLASS = big_patent.BigPatent
+    BUILDER_CONFIG_NAMES_TO_TEST = ["all"]
+    SPLITS = {
+        "train": 9,  # Number of fake train example
+        "validation": 9,  # Number of fake val example
+        "test": 9,  # Number of fake test example
+    }
 
 
 class BigPatentATest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = big_patent.BigPatent
-  BUILDER_CONFIG_NAMES_TO_TEST = ["a", "y"]
-  SPLITS = {
-      "train": 1,  # Number of fake train example
-      "validation": 1,  # Number of fake val example
-      "test": 1,  # Number of fake test example
-  }
+    DATASET_CLASS = big_patent.BigPatent
+    BUILDER_CONFIG_NAMES_TO_TEST = ["a", "y"]
+    SPLITS = {
+        "train": 1,  # Number of fake train example
+        "validation": 1,  # Number of fake val example
+        "test": 1,  # Number of fake test example
+    }
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

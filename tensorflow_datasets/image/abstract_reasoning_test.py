@@ -19,21 +19,21 @@ import tensorflow_datasets.testing as tfds_test
 
 
 class AbstractReasoningTest(tfds_test.DatasetBuilderTestCase):
-  DATASET_CLASS = abstract_reasoning.AbstractReasoning
-  SPLITS = {"train": 5, "validation": 5, "test": 5}
-  DL_EXTRACT_RESULT = [
-      "neutral.tar.gz",
-      "interpolation.tar.gz",
-      "extrapolation.tar.gz",
-      "attr.rel.pairs.tar.gz",
-      "attr.rels.tar.gz",
-      "attrs.pairs.tar.gz",
-      "attrs.shape.color.tar.gz",
-      "attrs.line.type.tar.gz",
-  ]
-  # The configs only differ in the data contained in the files.
-  BUILDER_CONFIG_NAMES_TO_TEST = ["neutral"]
+    DATASET_CLASS = abstract_reasoning.AbstractReasoning
+    SPLITS = {"train": 5, "validation": 5, "test": 5}
+    DL_EXTRACT_RESULT = [
+        "neutral.tar.gz",
+        "interpolation.tar.gz",
+        "extrapolation.tar.gz",
+        "attr.rel.pairs.tar.gz",
+        "attr.rels.tar.gz",
+        "attrs.pairs.tar.gz",
+        "attrs.shape.color.tar.gz",
+        "attrs.line.type.tar.gz",
+    ]
+    # The configs only differ in the data contained in the files.
+    BUILDER_CONFIG_NAMES_TO_TEST = ["neutral"]
 
 
 if __name__ == "__main__":
-  tfds_test.test_main()
+    tfds_test.test_main()

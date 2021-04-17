@@ -53,7 +53,9 @@ There are two features:
 
 """
 
-_URL = "https://drive.google.com/uc?export=download&id=1J3mucMFTWrgAYa3LuBZoLRR3CzzYD3fa"
+_URL = (
+    "https://drive.google.com/uc?export=download&id=1J3mucMFTWrgAYa3LuBZoLRR3CzzYD3fa"
+)
 
 _DOCUMENT = "description"
 _SUMMARY = "abstract"
@@ -67,91 +69,94 @@ _CPC_DESCRIPTION = {
     "f": "Mechanical Engineering; Lightning; Heating; Weapons; Blasting",
     "g": "Physics",
     "h": "Electricity",
-    "y": "General tagging of new or cross-sectional technology"
+    "y": "General tagging of new or cross-sectional technology",
 }
 
 
 class BigPatentConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for BigPatent."""
+    """BuilderConfig for BigPatent."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, cpc_codes=None, **kwargs):
-    """BuilderConfig for Wikihow.
+    @tfds.core.disallow_positional_args
+    def __init__(self, cpc_codes=None, **kwargs):
+        """BuilderConfig for Wikihow.
 
     Args:
       cpc_codes: str, cpc_codes
       **kwargs: keyword arguments forwarded to super.
     """
-    super(BigPatentConfig, self).__init__(
-        version=tfds.core.Version("1.0.0"), **kwargs)
-    self.cpc_codes = cpc_codes
+        super(BigPatentConfig, self).__init__(
+            version=tfds.core.Version("1.0.0"), **kwargs
+        )
+        self.cpc_codes = cpc_codes
 
 
 class BigPatent(tfds.core.GeneratorBasedBuilder):
-  """BigPatent datasets."""
+    """BigPatent datasets."""
 
-  BUILDER_CONFIGS = [
-      BigPatentConfig(
-          cpc_codes=list(_CPC_DESCRIPTION),
-          name="all",
-          description="Patents under all categories."),
-  ] + [
-      BigPatentConfig(  # pylint:disable=g-complex-comprehension
-          cpc_codes=[k],
-          name=k,
-          description=("Patents under Cooperative Patent Classification (CPC)"
-                       "{0}: {1}".format(k, v)),
-      ) for k, v in sorted(_CPC_DESCRIPTION.items())
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            _DOCUMENT: tfds.features.Text(),
-            _SUMMARY: tfds.features.Text()
-        }),
-        supervised_keys=(_DOCUMENT, _SUMMARY),
-        homepage="https://evasharma.github.io/bigpatent/",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-    dl_path = dl_manager.download_and_extract(_URL)
-    split_types = ["train", "val", "test"]
-    extract_paths = dl_manager.extract({
-        k: os.path.join(dl_path, "bigPatentData", k + ".tar.gz")
-        for k in split_types
-    })
-    extract_paths = {k: os.path.join(extract_paths[k], k) for k in split_types}
-
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            gen_kwargs={"path": extract_paths["train"]},
+    BUILDER_CONFIGS = [
+        BigPatentConfig(
+            cpc_codes=list(_CPC_DESCRIPTION),
+            name="all",
+            description="Patents under all categories.",
         ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            gen_kwargs={"path": extract_paths["val"]},
-        ),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            gen_kwargs={"path": extract_paths["test"]},
-        ),
+    ] + [
+        BigPatentConfig(  # pylint:disable=g-complex-comprehension
+            cpc_codes=[k],
+            name=k,
+            description=(
+                "Patents under Cooperative Patent Classification (CPC)"
+                "{0}: {1}".format(k, v)
+            ),
+        )
+        for k, v in sorted(_CPC_DESCRIPTION.items())
     ]
 
-  def _generate_examples(self, path=None):
-    """Yields examples."""
-    for cpc_code in self.builder_config.cpc_codes:
-      filenames = tf.io.gfile.glob(os.path.join(path, cpc_code, "*"))
-      for filename in filenames:
-        with tf.io.gfile.GFile(filename, "rb") as fin:
-          fin = gzip.GzipFile(fileobj=fin)
-          for row in fin:
-            json_obj = json.loads(row)
-            yield json_obj["publication_number"], {
-                _DOCUMENT: json_obj[_DOCUMENT],
-                _SUMMARY: json_obj[_SUMMARY]
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {_DOCUMENT: tfds.features.Text(), _SUMMARY: tfds.features.Text()}
+            ),
+            supervised_keys=(_DOCUMENT, _SUMMARY),
+            homepage="https://evasharma.github.io/bigpatent/",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+        dl_path = dl_manager.download_and_extract(_URL)
+        split_types = ["train", "val", "test"]
+        extract_paths = dl_manager.extract(
+            {
+                k: os.path.join(dl_path, "bigPatentData", k + ".tar.gz")
+                for k in split_types
             }
+        )
+        extract_paths = {k: os.path.join(extract_paths[k], k) for k in split_types}
+
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN, gen_kwargs={"path": extract_paths["train"]},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION, gen_kwargs={"path": extract_paths["val"]},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST, gen_kwargs={"path": extract_paths["test"]},
+            ),
+        ]
+
+    def _generate_examples(self, path=None):
+        """Yields examples."""
+        for cpc_code in self.builder_config.cpc_codes:
+            filenames = tf.io.gfile.glob(os.path.join(path, cpc_code, "*"))
+            for filename in filenames:
+                with tf.io.gfile.GFile(filename, "rb") as fin:
+                    fin = gzip.GzipFile(fileobj=fin)
+                    for row in fin:
+                        json_obj = json.loads(row)
+                        yield json_obj["publication_number"], {
+                            _DOCUMENT: json_obj[_DOCUMENT],
+                            _SUMMARY: json_obj[_SUMMARY],
+                        }

@@ -24,21 +24,22 @@ from tensorflow_datasets.text import squad
 
 
 class SquadTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = squad.Squad
+    DATASET_CLASS = squad.Squad
 
-  DL_EXTRACT_RESULT = {
-      "train": "train-v1.1.json",
-      "dev": "dev-v1.1.json",
-  }
+    DL_EXTRACT_RESULT = {
+        "train": "train-v1.1.json",
+        "dev": "dev-v1.1.json",
+    }
 
-  SPLITS = {
-      "train": 3,
-      "validation": 2,
-  }
+    SPLITS = {
+        "train": 3,
+        "validation": 2,
+    }
 
 
 class SquadS3Test(SquadTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

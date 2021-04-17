@@ -28,26 +28,26 @@ num_classes = len(colorectal_histology._CLASS_NAMES)  # pylint: disable=protecte
 
 
 class ColorectalHistologyTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = colorectal_histology.ColorectalHistology
-  SPLITS = {
-      "train": 2 * num_classes,
-  }
+    DATASET_CLASS = colorectal_histology.ColorectalHistology
+    SPLITS = {
+        "train": 2 * num_classes,
+    }
 
 
 class ColorectalHistologyS3Test(ColorectalHistologyTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 class ColorectalHistologyLargeTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = colorectal_histology.ColorectalHistologyLarge
-  SPLITS = {
-      "test": 1,
-  }
+    DATASET_CLASS = colorectal_histology.ColorectalHistologyLarge
+    SPLITS = {
+        "test": 1,
+    }
 
 
 class ColorectalHistologyLargeS3Test(ColorectalHistologyLargeTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

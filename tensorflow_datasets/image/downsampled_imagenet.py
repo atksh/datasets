@@ -52,84 +52,81 @@ _DATA_OPTIONS = ["32x32", "64x64"]
 
 
 class DownsampledImagenetConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for Downsampled Imagenet."""
+    """BuilderConfig for Downsampled Imagenet."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, data=None, **kwargs):
-    """Constructs a DownsampledImagenetConfig.
+    @tfds.core.disallow_positional_args
+    def __init__(self, data=None, **kwargs):
+        """Constructs a DownsampledImagenetConfig.
 
     Args:
       data: `str`, one of `_DATA_OPTIONS`.
       **kwargs: keyword arguments forwarded to super.
     """
-    if data not in _DATA_OPTIONS:
-      raise ValueError("data must be one of %s" % _DATA_OPTIONS)
+        if data not in _DATA_OPTIONS:
+            raise ValueError("data must be one of %s" % _DATA_OPTIONS)
 
-    super(DownsampledImagenetConfig, self).__init__(**kwargs)
-    self.data = data
+        super(DownsampledImagenetConfig, self).__init__(**kwargs)
+        self.data = data
 
 
 class DownsampledImagenet(tfds.core.GeneratorBasedBuilder):
-  """Downsampled Imagenet dataset."""
+    """Downsampled Imagenet dataset."""
 
-  BUILDER_CONFIGS = [
-      DownsampledImagenetConfig(  # pylint: disable=g-complex-comprehension
-          name=config_name,
-          description=(
-              "A dataset consisting of Train and Validation images of " +
-              config_name + " resolution."),
-          version=tfds.core.Version(
-              "1.0.0", experiments={tfds.core.Experiment.S3: False}),
-          supported_versions=[
-              tfds.core.Version(
-                  "2.0.0",
-                  "New split API (https://tensorflow.org/datasets/splits)"),
-          ],
-          data=config_name,
-      ) for config_name in _DATA_OPTIONS
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "image": tfds.features.Image(),
-        }),
-        supervised_keys=None,
-        homepage="http://image-net.org/small/download.php",
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    """Returns SplitGenerators."""
-
-    train_url = _DL_URL + "train_" + self.builder_config.name + ".tar"
-    valid_url = _DL_URL + "valid_" + self.builder_config.name + ".tar"
-
-    train_path, valid_path = dl_manager.download([
-        train_url,
-        valid_url,
-    ])
-
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=10,
-            gen_kwargs={
-                "archive": dl_manager.iter_archive(train_path),
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=1,
-            gen_kwargs={
-                "archive": dl_manager.iter_archive(valid_path),
-            }),
+    BUILDER_CONFIGS = [
+        DownsampledImagenetConfig(  # pylint: disable=g-complex-comprehension
+            name=config_name,
+            description=(
+                "A dataset consisting of Train and Validation images of "
+                + config_name
+                + " resolution."
+            ),
+            version=tfds.core.Version(
+                "1.0.0", experiments={tfds.core.Experiment.S3: False}
+            ),
+            supported_versions=[
+                tfds.core.Version(
+                    "2.0.0", "New split API (https://tensorflow.org/datasets/splits)"
+                ),
+            ],
+            data=config_name,
+        )
+        for config_name in _DATA_OPTIONS
     ]
 
-  def _generate_examples(self, archive):
-    for fname, fobj in archive:
-      record = {
-          "image": fobj,
-      }
-      yield fname, record
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict({"image": tfds.features.Image(),}),
+            supervised_keys=None,
+            homepage="http://image-net.org/small/download.php",
+            citation=_CITATION,
+        )
+
+    def _split_generators(self, dl_manager):
+        """Returns SplitGenerators."""
+
+        train_url = _DL_URL + "train_" + self.builder_config.name + ".tar"
+        valid_url = _DL_URL + "valid_" + self.builder_config.name + ".tar"
+
+        train_path, valid_path = dl_manager.download([train_url, valid_url,])
+
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=10,
+                gen_kwargs={"archive": dl_manager.iter_archive(train_path),},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=1,
+                gen_kwargs={"archive": dl_manager.iter_archive(valid_path),},
+            ),
+        ]
+
+    def _generate_examples(self, archive):
+        for fname, fobj in archive:
+            record = {
+                "image": fobj,
+            }
+            yield fname, record

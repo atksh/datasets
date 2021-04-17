@@ -24,12 +24,11 @@ import tensorflow_datasets.public_api as tfds
 
 
 class ImportTestingTest(tf.test.TestCase):
+    def test_testing_imported(self):
 
-  def test_testing_imported(self):
-
-    # pylint: disable=unreachable
-    self.assertIsNotNone(tfds.testing)
+        # pylint: disable=unreachable
+        self.assertIsNotNone(tfds.testing)
 
 
-if __name__ == '__main__':
-  tf.test.main()
+if __name__ == "__main__":
+    tf.test.main()

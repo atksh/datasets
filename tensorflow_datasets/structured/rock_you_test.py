@@ -24,14 +24,14 @@ from tensorflow_datasets.structured import rock_you
 
 
 class RockYouTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = rock_you.RockYou
+    DATASET_CLASS = rock_you.RockYou
 
-  SPLITS = {
-      "train": 11,
-  }
+    SPLITS = {
+        "train": 11,
+    }
 
-  DL_EXTRACT_RESULT = "rockyou.txt"
+    DL_EXTRACT_RESULT = "rockyou.txt"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

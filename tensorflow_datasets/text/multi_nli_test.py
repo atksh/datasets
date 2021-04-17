@@ -24,17 +24,18 @@ from tensorflow_datasets.text import multi_nli
 
 
 class MultiNLITest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = multi_nli.MultiNLI
+    DATASET_CLASS = multi_nli.MultiNLI
 
-  SPLITS = {
-      "train": 3,
-      "validation_matched": 2,
-      "validation_mismatched": 1,
-  }
+    SPLITS = {
+        "train": 3,
+        "validation_matched": 2,
+        "validation_mismatched": 1,
+    }
 
 
 class MultiNLIS3Test(MultiNLITest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
+
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()

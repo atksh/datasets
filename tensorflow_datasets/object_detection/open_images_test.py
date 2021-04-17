@@ -23,32 +23,31 @@ from tensorflow_datasets.object_detection import open_images
 
 
 class OpenImagesV42012Test(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = open_images.OpenImagesV4
-  SPLITS = {  # Expected number of examples on each split.
-      'train': 512,
-      'test': 36,
-      'validation': 12,
-  }
-  DL_EXTRACT_RESULT = {
-      'train_images': ['s3-tar_train_sha1_%s.tar' % i
-                       for i in '0123456789abcdef'],
-      'test_images': 's3-tar_test_sha2.tar',
-      'validation_images': 's3-tar_validation_sha3.tar',
-      'train_human_labels': 'train-human-labels.csv',
-      'train_machine_labels': 'train-machine-labels.csv',
-      'test_human_labels': 'test-human-labels.csv',
-      'test_machine_labels': 'test-machine-labels.csv',
-      'validation_human_labels': 'validation-human-labels.csv',
-      'validation_machine_labels': 'validation-machine-labels.csv',
-      'train-annotations-bbox': 'train-annotations-bbox.csv',
-      'test-annotations-bbox': 'test-annotations-bbox.csv',
-      'validation-annotations-bbox': 'validation-annotations-bbox.csv',
-  }
+    DATASET_CLASS = open_images.OpenImagesV4
+    SPLITS = {  # Expected number of examples on each split.
+        "train": 512,
+        "test": 36,
+        "validation": 12,
+    }
+    DL_EXTRACT_RESULT = {
+        "train_images": ["s3-tar_train_sha1_%s.tar" % i for i in "0123456789abcdef"],
+        "test_images": "s3-tar_test_sha2.tar",
+        "validation_images": "s3-tar_validation_sha3.tar",
+        "train_human_labels": "train-human-labels.csv",
+        "train_machine_labels": "train-machine-labels.csv",
+        "test_human_labels": "test-human-labels.csv",
+        "test_machine_labels": "test-machine-labels.csv",
+        "validation_human_labels": "validation-human-labels.csv",
+        "validation_machine_labels": "validation-machine-labels.csv",
+        "train-annotations-bbox": "train-annotations-bbox.csv",
+        "test-annotations-bbox": "test-annotations-bbox.csv",
+        "validation-annotations-bbox": "validation-annotations-bbox.csv",
+    }
 
 
 class OpenImagesV42012S3Test(OpenImagesV42012Test):
-  VERSION = 'experimental_latest'
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

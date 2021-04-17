@@ -33,7 +33,7 @@ from tensorflow_datasets.core import features as features_lib
 
 @contextlib.contextmanager
 def mock_data(num_examples=1, as_dataset_fn=None, data_dir=None):
-  """Mock tfds to generate random data.
+    """Mock tfds to generate random data.
 
   This function requires the true metadata files (dataset_info.json, label.txt,
   vocabulary files) to be stored in `data_dir/dataset_name/version`, as they
@@ -91,98 +91,106 @@ def mock_data(num_examples=1, as_dataset_fn=None, data_dir=None):
     None
   """
 
-  def mock_download_and_prepare(self, *args, **kwargs):
-    del args
-    del kwargs
-    if not tf.io.gfile.exists(self._data_dir):  # pylint: disable=protected-access
-      raise ValueError(
-          'TFDS has been mocked, but metadata files were not found in {}. '
-          'You should copy the real metadata files, so that the dataset '
-          'can be loaded properly, or set the data_dir kwarg of'
-          'tfds.testing.mock_tfds(data_dir=...).'
-          ''.format(self._data_dir)  # pylint: disable=protected-access
-      )
+    def mock_download_and_prepare(self, *args, **kwargs):
+        del args
+        del kwargs
+        if not tf.io.gfile.exists(self._data_dir):  # pylint: disable=protected-access
+            raise ValueError(
+                "TFDS has been mocked, but metadata files were not found in {}. "
+                "You should copy the real metadata files, so that the dataset "
+                "can be loaded properly, or set the data_dir kwarg of"
+                "tfds.testing.mock_tfds(data_dir=...)."
+                "".format(self._data_dir)  # pylint: disable=protected-access
+            )
 
-  def mock_as_dataset(self, *args, **kwargs):
-    """Function which overwrite builder._as_dataset."""
-    del args
-    del kwargs
-    ds = tf.data.Dataset.from_generator(
-        # `from_generator` takes a callable with signature () -> iterable
-        # Recreating a new generator each time ensure that all pipelines are
-        # using the same examples
-        lambda: RandomFakeGenerator(builder=self, num_examples=num_examples),
-        output_types=self.info.features.dtype,
-        output_shapes=self.info.features.shape,
+    def mock_as_dataset(self, *args, **kwargs):
+        """Function which overwrite builder._as_dataset."""
+        del args
+        del kwargs
+        ds = tf.data.Dataset.from_generator(
+            # `from_generator` takes a callable with signature () -> iterable
+            # Recreating a new generator each time ensure that all pipelines are
+            # using the same examples
+            lambda: RandomFakeGenerator(builder=self, num_examples=num_examples),
+            output_types=self.info.features.dtype,
+            output_shapes=self.info.features.shape,
+        )
+        return ds
+
+    if not as_dataset_fn:
+        as_dataset_fn = mock_as_dataset
+
+    if not data_dir:
+        data_dir = os.path.join(os.path.dirname(__file__), "metadata")
+
+    download_and_prepare_path = (
+        "tensorflow_datasets.core.dataset_builder.DatasetBuilder.download_and_prepare"
     )
-    return ds
+    as_dataset_path = (
+        "tensorflow_datasets.core.dataset_builder.FileAdapterBuilder._as_dataset"
+    )
+    data_dir_path = "tensorflow_datasets.core.constants.DATA_DIR"
 
-  if not as_dataset_fn:
-    as_dataset_fn = mock_as_dataset
-
-  if not data_dir:
-    data_dir = os.path.join(os.path.dirname(__file__), 'metadata')
-
-  download_and_prepare_path = 'tensorflow_datasets.core.dataset_builder.DatasetBuilder.download_and_prepare'
-  as_dataset_path = 'tensorflow_datasets.core.dataset_builder.FileAdapterBuilder._as_dataset'
-  data_dir_path = 'tensorflow_datasets.core.constants.DATA_DIR'
-
-  with absltest.mock.patch(as_dataset_path, as_dataset_fn), \
-       absltest.mock.patch(
-           download_and_prepare_path, mock_download_and_prepare), \
-       absltest.mock.patch(data_dir_path, data_dir):
-    yield
+    with absltest.mock.patch(as_dataset_path, as_dataset_fn), absltest.mock.patch(
+        download_and_prepare_path, mock_download_and_prepare
+    ), absltest.mock.patch(data_dir_path, data_dir):
+        yield
 
 
 class RandomFakeGenerator(object):
-  """Generator of fake examples randomly and deterministically generated."""
+    """Generator of fake examples randomly and deterministically generated."""
 
-  def __init__(self, builder, num_examples, seed=0):
-    self._rgn = np.random.RandomState(seed)  # Could use the split name as seed
-    self._builder = builder
-    self._num_examples = num_examples
+    def __init__(self, builder, num_examples, seed=0):
+        self._rgn = np.random.RandomState(seed)  # Could use the split name as seed
+        self._builder = builder
+        self._num_examples = num_examples
 
-  def _generate_random_array(self, feature, tensor_info):
-    """Generates a random tensor for a single feature."""
-    # TODO(tfds): Could improve the fake generatiion:
-    # * Use the feature statistics (min, max)
-    # * For Sequence features
-    # * For Text
-    shape = [  # Fill dynamic shape with random values
-        self._rgn.randint(5, 50) if s is None else s
-        for s in tensor_info.shape
-    ]
-    if isinstance(feature, features_lib.ClassLabel):
-      max_value = feature.num_classes
-    elif isinstance(feature, features_lib.Text) and feature.vocab_size:
-      max_value = feature.vocab_size
-    else:
-      max_value = 255
+    def _generate_random_array(self, feature, tensor_info):
+        """Generates a random tensor for a single feature."""
+        # TODO(tfds): Could improve the fake generatiion:
+        # * Use the feature statistics (min, max)
+        # * For Sequence features
+        # * For Text
+        shape = [  # Fill dynamic shape with random values
+            self._rgn.randint(5, 50) if s is None else s for s in tensor_info.shape
+        ]
+        if isinstance(feature, features_lib.ClassLabel):
+            max_value = feature.num_classes
+        elif isinstance(feature, features_lib.Text) and feature.vocab_size:
+            max_value = feature.vocab_size
+        else:
+            max_value = 255
 
-    # Generate some random values, depending on the dtype
-    if tensor_info.dtype.is_integer:
-      return self._rgn.randint(0, max_value, shape)
-    elif tensor_info.dtype.is_floating:
-      return self._rgn.random_sample(shape)
-    elif tensor_info.dtype == tf.string:
-      return ''.join(
-          random.choice(' abcdefghij') for _ in range(random.randint(10, 20)))
-    else:
-      raise ValueError('Fake generation not supported for {}'.format(
-          tensor_info.dtype))
+        # Generate some random values, depending on the dtype
+        if tensor_info.dtype.is_integer:
+            return self._rgn.randint(0, max_value, shape)
+        elif tensor_info.dtype.is_floating:
+            return self._rgn.random_sample(shape)
+        elif tensor_info.dtype == tf.string:
+            return "".join(
+                random.choice(" abcdefghij") for _ in range(random.randint(10, 20))
+            )
+        else:
+            raise ValueError(
+                "Fake generation not supported for {}".format(tensor_info.dtype)
+            )
 
-  def _generate_example(self):
-    """Generate the next example."""
-    root_feature = self._builder.info.features
-    flat_features = root_feature._flatten(root_feature)  # pylint: disable=protected-access
-    flat_tensor_info = root_feature._flatten(root_feature.get_tensor_info())  # pylint: disable=protected-access
-    flat_np = [
-        self._generate_random_array(feature, tensor_info)
-        for feature, tensor_info in zip(flat_features, flat_tensor_info)
-    ]
-    return root_feature._nest(flat_np)  # pylint: disable=protected-access
+    def _generate_example(self):
+        """Generate the next example."""
+        root_feature = self._builder.info.features
+        flat_features = root_feature._flatten(
+            root_feature
+        )  # pylint: disable=protected-access
+        flat_tensor_info = root_feature._flatten(
+            root_feature.get_tensor_info()
+        )  # pylint: disable=protected-access
+        flat_np = [
+            self._generate_random_array(feature, tensor_info)
+            for feature, tensor_info in zip(flat_features, flat_tensor_info)
+        ]
+        return root_feature._nest(flat_np)  # pylint: disable=protected-access
 
-  def __iter__(self):
-    """Yields all fake examples."""
-    for _ in range(self._num_examples):
-      yield self._generate_example()
+    def __iter__(self):
+        """Yields all fake examples."""
+        for _ in range(self._num_examples):
+            yield self._generate_example()

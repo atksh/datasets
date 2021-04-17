@@ -23,62 +23,63 @@ from tensorflow_datasets.image import cbis_ddsm
 
 
 class CuratedBreastImagingDDSMOriginalCalcTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cbis_ddsm.CuratedBreastImagingDDSM
-  BUILDER_CONFIG_NAMES_TO_TEST = ['original-calc']
-  SPLITS = {
-      'train': 3,  # Abnormalities: 7
-      'test': 2,   # Abnormalities: 4
-  }
-  DL_EXTRACT_RESULT = {
-      'test': 'calc_case_description_test_set.csv',
-      'train': 'calc_case_description_train_set.csv',
-  }
+    DATASET_CLASS = cbis_ddsm.CuratedBreastImagingDDSM
+    BUILDER_CONFIG_NAMES_TO_TEST = ["original-calc"]
+    SPLITS = {
+        "train": 3,  # Abnormalities: 7
+        "test": 2,  # Abnormalities: 4
+    }
+    DL_EXTRACT_RESULT = {
+        "test": "calc_case_description_test_set.csv",
+        "train": "calc_case_description_train_set.csv",
+    }
 
 
 class CuratedBreastImagingDDSMOriginalCalcS3Test(
-    CuratedBreastImagingDDSMOriginalCalcTest):
-  VERSION = 'experimental_latest'
+    CuratedBreastImagingDDSMOriginalCalcTest
+):
+    VERSION = "experimental_latest"
 
 
 class CuratedBreastImagingDDSMOriginalMassTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cbis_ddsm.CuratedBreastImagingDDSM
-  BUILDER_CONFIG_NAMES_TO_TEST = ['original-mass']
-  SPLITS = {
-      'train': 3,  # Abnormalities: 10
-      'test': 2,   # Abnormalities: 4
-  }
-  DL_EXTRACT_RESULT = {
-      'test': 'mass_case_description_test_set.csv',
-      'train': 'mass_case_description_train_set.csv',
-  }
+    DATASET_CLASS = cbis_ddsm.CuratedBreastImagingDDSM
+    BUILDER_CONFIG_NAMES_TO_TEST = ["original-mass"]
+    SPLITS = {
+        "train": 3,  # Abnormalities: 10
+        "test": 2,  # Abnormalities: 4
+    }
+    DL_EXTRACT_RESULT = {
+        "test": "mass_case_description_test_set.csv",
+        "train": "mass_case_description_train_set.csv",
+    }
 
 
 class CuratedBreastImagingDDSMOriginalMassS3Test(
-    CuratedBreastImagingDDSMOriginalMassTest):
-  VERSION = 'experimental_latest'
+    CuratedBreastImagingDDSMOriginalMassTest
+):
+    VERSION = "experimental_latest"
 
 
 class CuratedBreastImagingDDSMPatchesTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = cbis_ddsm.CuratedBreastImagingDDSM
-  BUILDER_CONFIG_NAMES_TO_TEST = ['patches']
-  SPLITS = {
-      # Total patches = [(10 + 4 + 7 + 4) + (3 + 2 + 3 + 2)] * 10
-      'train': 280,
-      'validation': 40,
-      'test': 30,
-  }
-  DL_EXTRACT_RESULT = {
-      'calc-test': 'calc_case_description_test_set.csv',
-      'calc-train': 'calc_case_description_train_set.csv',
-      'mass-test': 'mass_case_description_test_set.csv',
-      'mass-train': 'mass_case_description_train_set.csv',
-  }
+    DATASET_CLASS = cbis_ddsm.CuratedBreastImagingDDSM
+    BUILDER_CONFIG_NAMES_TO_TEST = ["patches"]
+    SPLITS = {
+        # Total patches = [(10 + 4 + 7 + 4) + (3 + 2 + 3 + 2)] * 10
+        "train": 280,
+        "validation": 40,
+        "test": 30,
+    }
+    DL_EXTRACT_RESULT = {
+        "calc-test": "calc_case_description_test_set.csv",
+        "calc-train": "calc_case_description_train_set.csv",
+        "mass-test": "mass_case_description_test_set.csv",
+        "mass-train": "mass_case_description_train_set.csv",
+    }
 
 
-class CuratedBreastImagingDDSMPatchesS3Test(
-    CuratedBreastImagingDDSMPatchesTest):
-  VERSION = 'experimental_latest'
+class CuratedBreastImagingDDSMPatchesS3Test(CuratedBreastImagingDDSMPatchesTest):
+    VERSION = "experimental_latest"
 
 
-if __name__ == '__main__':
-  testing.test_main()
+if __name__ == "__main__":
+    testing.test_main()

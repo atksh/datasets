@@ -59,7 +59,7 @@ motivate further progress in this direction.}
 }
 """
 
-_URL = ("https://github.com/deepmind/abstract-reasoning-matrices")
+_URL = "https://github.com/deepmind/abstract-reasoning-matrices"
 
 _DESCRIPTION = """\
 Procedurally Generated Matrices (PGM) data from the paper Measuring Abstract \
@@ -128,11 +128,11 @@ with $o$=line and $a$=type."""
 
 
 class AbstractReasoningConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for AbstractReasoning."""
+    """BuilderConfig for AbstractReasoning."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self, split_type="neutral", **kwargs):
-    """BuilderConfig for AbstractReasoning.
+    @tfds.core.disallow_positional_args
+    def __init__(self, split_type="neutral", **kwargs):
+        """BuilderConfig for AbstractReasoning.
 
     Args:
       split_type: String with split_type to use. Should be one of ["neutral",
@@ -140,159 +140,155 @@ class AbstractReasoningConfig(tfds.core.BuilderConfig):
         "attrs.pairs", "attrs.shape.color", "attrs.line.type",].
       **kwargs: keyword arguments forwarded to super.
     """
-    super(AbstractReasoningConfig, self).__init__(
-        version=tfds.core.Version("0.0.2",
-                                  experiments={tfds.core.Experiment.S3: False}),
-        **kwargs)
-    self.split_type = split_type
+        super(AbstractReasoningConfig, self).__init__(
+            version=tfds.core.Version(
+                "0.0.2", experiments={tfds.core.Experiment.S3: False}
+            ),
+            **kwargs
+        )
+        self.split_type = split_type
 
 
 class AbstractReasoning(tfds.core.BeamBasedBuilder):
-  """Abstract reasoning dataset."""
-  MANUAL_DOWNLOAD_INSTRUCTIONS = """\
+    """Abstract reasoning dataset."""
+
+    MANUAL_DOWNLOAD_INSTRUCTIONS = """\
   Data can be downloaded from
   https://console.cloud.google.com/storage/browser/ravens-matrices
   Please put all the tar.gz files in manual_dir.
   """
 
-  BUILDER_CONFIGS = [
-      AbstractReasoningConfig(
-          name="neutral",
-          description=_DESCRIPTION_NEUTRAL,
-      ),
-      AbstractReasoningConfig(
-          name="interpolation",
-          description=_DESCRIPTION_INTERPOLATION,
-          split_type="interpolation",
-      ),
-      AbstractReasoningConfig(
-          name="extrapolation",
-          description=_DESCRIPTION_EXTRAPOLATION,
-          split_type="extrapolation",
-      ),
-      AbstractReasoningConfig(
-          name="attr.rel.pairs",
-          description=_DESCRIPTION_ATTR_REL_PAIRS,
-          split_type="attr.rel.pairs",
-      ),
-      AbstractReasoningConfig(
-          name="attr.rels",
-          description=_DESCRIPTION_ATTR_RELS,
-          split_type="attr.rels",
-      ),
-      AbstractReasoningConfig(
-          name="attrs.pairs",
-          description=_DESCRIPTION_ATTR_PAIRS,
-          split_type="attrs.pairs",
-      ),
-      AbstractReasoningConfig(
-          name="attrs.shape.color",
-          description=_DESCRIPTION_ATTR_SHAPE_COLOR,
-          split_type="attrs.shape.color",
-      ),
-      AbstractReasoningConfig(
-          name="attrs.line.type",
-          description=_DESCRIPTION_ATTR_LINE_TYPE,
-          split_type="attrs.line.type",
-      ),
-  ]
-
-  def _info(self):
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.FeaturesDict({
-            "context": tfds.features.Video(shape=(8, 160, 160, 1)),
-            "answers": tfds.features.Video(shape=(8, 160, 160, 1)),
-            "target":
-                tfds.features.ClassLabel(num_classes=8),
-            "meta_target":
-                tfds.features.Tensor(shape=[12], dtype=tf.int64),
-            "relation_structure_encoded":
-                tfds.features.Tensor(shape=[4, 12], dtype=tf.int64),
-            "filename":
-                tfds.features.Text(),
-        }),
-        homepage=_URL,
-        citation=_CITATION,
-    )
-
-  def _split_generators(self, dl_manager):
-    path = dl_manager.manual_dir
-    return [
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
-            num_shards=50,
-            gen_kwargs={
-                "folder": path,
-                "split": "train",
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
-            num_shards=2,
-            gen_kwargs={
-                "folder": path,
-                "split": "val",
-            }),
-        tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
-            num_shards=10,
-            gen_kwargs={
-                "folder": path,
-                "split": "test",
-            }),
+    BUILDER_CONFIGS = [
+        AbstractReasoningConfig(name="neutral", description=_DESCRIPTION_NEUTRAL,),
+        AbstractReasoningConfig(
+            name="interpolation",
+            description=_DESCRIPTION_INTERPOLATION,
+            split_type="interpolation",
+        ),
+        AbstractReasoningConfig(
+            name="extrapolation",
+            description=_DESCRIPTION_EXTRAPOLATION,
+            split_type="extrapolation",
+        ),
+        AbstractReasoningConfig(
+            name="attr.rel.pairs",
+            description=_DESCRIPTION_ATTR_REL_PAIRS,
+            split_type="attr.rel.pairs",
+        ),
+        AbstractReasoningConfig(
+            name="attr.rels",
+            description=_DESCRIPTION_ATTR_RELS,
+            split_type="attr.rels",
+        ),
+        AbstractReasoningConfig(
+            name="attrs.pairs",
+            description=_DESCRIPTION_ATTR_PAIRS,
+            split_type="attrs.pairs",
+        ),
+        AbstractReasoningConfig(
+            name="attrs.shape.color",
+            description=_DESCRIPTION_ATTR_SHAPE_COLOR,
+            split_type="attrs.shape.color",
+        ),
+        AbstractReasoningConfig(
+            name="attrs.line.type",
+            description=_DESCRIPTION_ATTR_LINE_TYPE,
+            split_type="attrs.line.type",
+        ),
     ]
 
-  def _build_pcollection(self, pipeline, folder, split):
-    """Generate examples as dicts."""
-    beam = tfds.core.lazy_imports.apache_beam
+    def _info(self):
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.FeaturesDict(
+                {
+                    "context": tfds.features.Video(shape=(8, 160, 160, 1)),
+                    "answers": tfds.features.Video(shape=(8, 160, 160, 1)),
+                    "target": tfds.features.ClassLabel(num_classes=8),
+                    "meta_target": tfds.features.Tensor(shape=[12], dtype=tf.int64),
+                    "relation_structure_encoded": tfds.features.Tensor(
+                        shape=[4, 12], dtype=tf.int64
+                    ),
+                    "filename": tfds.features.Text(),
+                }
+            ),
+            homepage=_URL,
+            citation=_CITATION,
+        )
 
-    split_type = self.builder_config.split_type
-    filename = os.path.join(folder, "{}.tar.gz".format(split_type))
+    def _split_generators(self, dl_manager):
+        path = dl_manager.manual_dir
+        return [
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TRAIN,
+                num_shards=50,
+                gen_kwargs={"folder": path, "split": "train",},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.VALIDATION,
+                num_shards=2,
+                gen_kwargs={"folder": path, "split": "val",},
+            ),
+            tfds.core.SplitGenerator(
+                name=tfds.Split.TEST,
+                num_shards=10,
+                gen_kwargs={"folder": path, "split": "test",},
+            ),
+        ]
 
+    def _build_pcollection(self, pipeline, folder, split):
+        """Generate examples as dicts."""
+        beam = tfds.core.lazy_imports.apache_beam
 
-    def _extract_data(inputs):
-      """Extracts files from the tar archives."""
-      filename, split = inputs
-      for name, fobj in tfds.download.iter_archive(
-          filename, tfds.download.ExtractMethod.TAR_STREAM):
-        split_name = name.split("_")
-        if len(split_name) > 2 and split_name[2] == split:
-          yield [name, fobj.read()]
+        split_type = self.builder_config.split_type
+        filename = os.path.join(folder, "{}.tar.gz".format(split_type))
 
-    def _process_example(inputs):
-      filename, data_string = inputs
-      buf = six.BytesIO(data_string)
-      buf.seek(0)
-      data = np.load(buf)
-      # Extract the images and convert to uint8. The reshape is required, see
-      # https://github.com/deepmind/abstract-reasoning-matrices.
-      all_images = np.uint8(data["image"].reshape(16, 160, 160, 1))
-      return {
-          "relation_structure_encoded": data["relation_structure_encoded"],
-          "target": data["target"],
-          "meta_target": data["meta_target"],
-          "context": all_images[:8],
-          "answers": all_images[8:],
-          "filename": filename,
-      }
+        def _extract_data(inputs):
+            """Extracts files from the tar archives."""
+            filename, split = inputs
+            for name, fobj in tfds.download.iter_archive(
+                filename, tfds.download.ExtractMethod.TAR_STREAM
+            ):
+                split_name = name.split("_")
+                if len(split_name) > 2 and split_name[2] == split:
+                    yield [name, fobj.read()]
 
-    # Beam might fuse together the _extract_data and _process_example which
-    # defeats the purpose of parallel processing. As a result, we reshard by
-    # doing a GroupByKey on random keys, and then flattening again.
-    def _add_random_keys(inputs):
-      key = str(random.randrange(10**10))
-      return key, inputs
+        def _process_example(inputs):
+            filename, data_string = inputs
+            buf = six.BytesIO(data_string)
+            buf.seek(0)
+            data = np.load(buf)
+            # Extract the images and convert to uint8. The reshape is required, see
+            # https://github.com/deepmind/abstract-reasoning-matrices.
+            all_images = np.uint8(data["image"].reshape(16, 160, 160, 1))
+            return {
+                "relation_structure_encoded": data["relation_structure_encoded"],
+                "target": data["target"],
+                "meta_target": data["meta_target"],
+                "context": all_images[:8],
+                "answers": all_images[8:],
+                "filename": filename,
+            }
 
-    def _remove_keys(inputs):
-      _, rows = inputs
-      for row in rows:
-        yield row
+        # Beam might fuse together the _extract_data and _process_example which
+        # defeats the purpose of parallel processing. As a result, we reshard by
+        # doing a GroupByKey on random keys, and then flattening again.
+        def _add_random_keys(inputs):
+            key = str(random.randrange(10 ** 10))
+            return key, inputs
 
-    return (pipeline
+        def _remove_keys(inputs):
+            _, rows = inputs
+            for row in rows:
+                yield row
+
+        return (
+            pipeline
             | beam.Create([(filename, split)])
             | beam.FlatMap(_extract_data)
             | beam.Map(_add_random_keys)
             | beam.GroupByKey()
             | beam.FlatMap(_remove_keys)
-            | beam.Map(_process_example))
+            | beam.Map(_process_example)
+        )

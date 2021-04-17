@@ -23,22 +23,22 @@ from tensorflow_datasets.image import svhn
 
 
 class SvhnTest(testing.DatasetBuilderTestCase):
-  DATASET_CLASS = svhn.SvhnCropped
-  SPLITS = {  # Number of examples.
-      "train": 3,
-      "test": 2,
-      "extra": 1,
-  }
-  DL_EXTRACT_RESULT = {
-      "train": "train_32x32.mat",
-      "test": "test_32x32.mat",
-      "extra": "extra_32x32.mat",
-  }
+    DATASET_CLASS = svhn.SvhnCropped
+    SPLITS = {  # Number of examples.
+        "train": 3,
+        "test": 2,
+        "extra": 1,
+    }
+    DL_EXTRACT_RESULT = {
+        "train": "train_32x32.mat",
+        "test": "test_32x32.mat",
+        "extra": "extra_32x32.mat",
+    }
 
 
 class SvhnS3Test(SvhnTest):
-  VERSION = "experimental_latest"
+    VERSION = "experimental_latest"
 
 
 if __name__ == "__main__":
-  testing.test_main()
+    testing.test_main()
