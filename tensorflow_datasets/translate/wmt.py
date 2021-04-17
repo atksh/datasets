@@ -60,63 +60,65 @@ CWMT_SUBSET_NAMES = [
 
 
 class SubDataset(object):
-  """Class to keep track of information on a sub-dataset of WMT."""
+    """Class to keep track of information on a sub-dataset of WMT."""
 
-  def __init__(self, name, target, sources, url, path, manual_dl_files=None):
-    """Sub-dataset of WMT.
+    def __init__(self, name, target, sources, url, path, manual_dl_files=None):
+        """Sub-dataset of WMT.
 
-    Args:
-      name: `string`, a unique dataset identifier.
-      target: `string`, the target language code.
-      sources: `set<string>`, the set of source language codes.
-      url: `string` or `(string, string)`, URL(s) or URL template(s) specifying
-        where to download the raw data from. If two strings are provided, the
-        first is used for the source language and the second for the target.
-        Template strings can either contain '{src}' placeholders that will be
-        filled in with the source language code, '{0}' and '{1}' placeholders
-        that will be filled in with the source and target language codes in
-        alphabetical order, or all 3.
-      path: `string` or `(string, string)`, path(s) or path template(s)
-        specifing the path to the raw data relative to the root of the
-        downloaded archive. If two strings are provided, the dataset is assumed
-        to be made up of parallel text files, the first being the source and the
-        second the target. If one string is provided, both languages are assumed
-        to be stored within the same file and the extension is used to determine
-        how to parse it. Template strings should be formatted the same as in
-        `url`.
-      manual_dl_files: `<list>(string)` (optional), the list of files that must
-        be manually downloaded to the data directory.
-    """
-    self._paths = (path,) if isinstance(path, six.string_types) else path
-    self._urls = (url,) if isinstance(url, six.string_types) else url
-    self._manual_dl_files = manual_dl_files if manual_dl_files else []
-    self.name = name
-    self.target = target
-    self.sources = set(sources)
+        Args:
+          name: `string`, a unique dataset identifier.
+          target: `string`, the target language code.
+          sources: `set<string>`, the set of source language codes.
+          url: `string` or `(string, string)`, URL(s) or URL template(s) specifying
+            where to download the raw data from. If two strings are provided, the
+            first is used for the source language and the second for the target.
+            Template strings can either contain '{src}' placeholders that will be
+            filled in with the source language code, '{0}' and '{1}' placeholders
+            that will be filled in with the source and target language codes in
+            alphabetical order, or all 3.
+          path: `string` or `(string, string)`, path(s) or path template(s)
+            specifing the path to the raw data relative to the root of the
+            downloaded archive. If two strings are provided, the dataset is assumed
+            to be made up of parallel text files, the first being the source and the
+            second the target. If one string is provided, both languages are assumed
+            to be stored within the same file and the extension is used to determine
+            how to parse it. Template strings should be formatted the same as in
+            `url`.
+          manual_dl_files: `<list>(string)` (optional), the list of files that must
+            be manually downloaded to the data directory.
+        """
+        self._paths = (path,) if isinstance(path, six.string_types) else path
+        self._urls = (url,) if isinstance(url, six.string_types) else url
+        self._manual_dl_files = manual_dl_files if manual_dl_files else []
+        self.name = name
+        self.target = target
+        self.sources = set(sources)
 
-  def _inject_language(self, src, strings):
-    """Injects languages into (potentially) template strings."""
-    if src not in self.sources:
-      raise ValueError("Invalid source for '{0}': {1}".format(self.name, src))
-    def _format_string(s):
-      if "{0}" in s and "{1}" and "{src}" in s:
-        return s.format(*sorted([src, self.target]), src=src)
-      elif "{0}" in s and "{1}" in s:
-        return s.format(*sorted([src, self.target]))
-      elif "{src}" in s:
-        return s.format(src=src)
-      else:
-        return s
-    return [_format_string(s) for s in strings]
+    def _inject_language(self, src, strings):
+        """Injects languages into (potentially) template strings."""
+        if src not in self.sources:
+            raise ValueError(
+                "Invalid source for '{0}': {1}".format(self.name, src))
 
-  def get_url(self, src):
-    return self._inject_language(src, self._urls)
+        def _format_string(s):
+            if "{0}" in s and "{1}" and "{src}" in s:
+                return s.format(*sorted([src, self.target]), src=src)
+            elif "{0}" in s and "{1}" in s:
+                return s.format(*sorted([src, self.target]))
+            elif "{src}" in s:
+                return s.format(src=src)
+            else:
+                return s
+        return [_format_string(s) for s in strings]
 
-  def get_manual_dl_files(self, src):
-    return self._inject_language(src, self._manual_dl_files)
+    def get_url(self, src):
+        return self._inject_language(src, self._urls)
 
-  def get_path(self, src):
-    return self._inject_language(src, self._paths)
+    def get_manual_dl_files(self, src):
+        return self._inject_language(src, self._manual_dl_files)
+
+    def get_path(self, src):
+        return self._inject_language(src, self._paths)
 
 
 # Subsets used in the training sets for various years of WMT.
@@ -140,7 +142,8 @@ _TRAIN_SUBSETS = [
         target="en",
         sources={"cs"},
         url="http://ufal.mff.cuni.cz/czeng/czeng10",
-        manual_dl_files=["data-plaintext-format.%d.tar" % i for i in range(10)],
+        manual_dl_files=["data-plaintext-format.%d.tar" %
+                         i for i in range(10)],
         # Each tar contains multiple files, which we process specially in
         # _parse_czeng.
         path=("data.plaintext-format/??train.gz",) * 10),
@@ -156,7 +159,8 @@ _TRAIN_SUBSETS = [
         target="en",
         sources={"cs"},
         url="http://ufal.mff.cuni.cz/czeng",
-        manual_dl_files=["data-plaintext-format.%d.tar" % i for i in range(10)],
+        manual_dl_files=["data-plaintext-format.%d.tar" %
+                         i for i in range(10)],
         # Each tar contains multiple files, which we process specially in
         # _parse_czeng.
         path=("data.plaintext-format/??train.gz",) * 10),
@@ -167,7 +171,8 @@ _TRAIN_SUBSETS = [
         target="en",
         sources={"cs"},
         url="http://ufal.mff.cuni.cz/czeng",
-        manual_dl_files=["data-plaintext-format.%d.tar" % i for i in range(10)],
+        manual_dl_files=["data-plaintext-format.%d.tar" %
+                         i for i in range(10)],
         # Each tar contains multiple files, which we process specially in
         # _parse_czeng.
         path=("data.plaintext-format/??train.gz",) * 10),
@@ -573,406 +578,407 @@ _CZENG17_FILTER = SubDataset(
 
 
 class WmtConfig(tfds.core.BuilderConfig):
-  """BuilderConfig for WMT."""
+    """BuilderConfig for WMT."""
 
-  @tfds.core.disallow_positional_args
-  def __init__(self,
-               url=None,
-               citation=None,
-               description=None,
-               language_pair=(None, None),
-               text_encoder_config=None,
-               subsets=None,
-               **kwargs):
-    """BuilderConfig for WMT.
+    @tfds.core.disallow_positional_args
+    def __init__(self,
+                 url=None,
+                 citation=None,
+                 description=None,
+                 language_pair=(None, None),
+                 text_encoder_config=None,
+                 subsets=None,
+                 **kwargs):
+        """BuilderConfig for WMT.
 
-    Args:
-      url: The reference URL for the dataset.
-      citation: The paper citation for the dataset.
-      description: The description of the dataset.
-      language_pair: pair of languages that will be used for translation. Should
-                 contain 2 letter coded strings. For example: ("en", "de").
-      text_encoder_config: `tfds.features.text.TextEncoderConfig` (optional),
-        configuration for the `tfds.features.text.TextEncoder` used for the
-        `tfds.features.text.Translation` features.
-      subsets: Dict[split, list[str]]. List of the subset to use for each of the
-        split. Note that WMT subclasses overwrite this parameter.
-      **kwargs: keyword arguments forwarded to super.
-    """
-    name = "%s-%s" % (language_pair[0], language_pair[1])
-    if text_encoder_config:
-      name += "." + text_encoder_config.name
-    if "name" in kwargs:  # Add name suffix for custom configs
-      name += "." + kwargs.pop("name")
+        Args:
+          url: The reference URL for the dataset.
+          citation: The paper citation for the dataset.
+          description: The description of the dataset.
+          language_pair: pair of languages that will be used for translation. Should
+                     contain 2 letter coded strings. For example: ("en", "de").
+          text_encoder_config: `tfds.features.text.TextEncoderConfig` (optional),
+            configuration for the `tfds.features.text.TextEncoder` used for the
+            `tfds.features.text.Translation` features.
+          subsets: Dict[split, list[str]]. List of the subset to use for each of the
+            split. Note that WMT subclasses overwrite this parameter.
+          **kwargs: keyword arguments forwarded to super.
+        """
+        name = "%s-%s" % (language_pair[0], language_pair[1])
+        if text_encoder_config:
+            name += "." + text_encoder_config.name
+        if "name" in kwargs:  # Add name suffix for custom configs
+            name += "." + kwargs.pop("name")
 
-    super(WmtConfig, self).__init__(
-        name=name, description=description, **kwargs)
+        super(WmtConfig, self).__init__(
+            name=name, description=description, **kwargs)
 
-    self.url = url or "http://www.statmt.org"
-    self.citation = citation
-    self.language_pair = language_pair
-    self.text_encoder_config = text_encoder_config
-    self.subsets = subsets
+        self.url = url or "http://www.statmt.org"
+        self.citation = citation
+        self.language_pair = language_pair
+        self.text_encoder_config = text_encoder_config
+        self.subsets = subsets
 
 
 class WmtTranslate(tfds.core.GeneratorBasedBuilder):
-  """WMT translation dataset."""
+    """WMT translation dataset."""
 
-  MANUAL_DOWNLOAD_INSTRUCTIONS = """\
+    MANUAL_DOWNLOAD_INSTRUCTIONS = """\
   Some of the wmt configs here, require a manual download.
   Please look into wmt.py to see the exact path (and file name) that has to
   be downloaded.
   """
 
-  def __init__(self, *args, **kwargs):
-    if type(self) == WmtTranslate and "config" not in kwargs:   # pylint: disable=unidiomatic-typecheck
-      raise ValueError(
-          "The raw `wmt_translate` can only be instantiated with the config "
-          "kwargs. You may want to use one of the `wmtYY_translate` "
-          "implementation instead to get the WMT dataset for a specific year."
-      )
-    super(WmtTranslate, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        if type(self) == WmtTranslate and "config" not in kwargs:   # pylint: disable=unidiomatic-typecheck
+            raise ValueError(
+                "The raw `wmt_translate` can only be instantiated with the config "
+                "kwargs. You may want to use one of the `wmtYY_translate` "
+                "implementation instead to get the WMT dataset for a specific year."
+            )
+        super(WmtTranslate, self).__init__(*args, **kwargs)
 
-  @property
-  def _subsets(self):
-    """Subsets that make up each split of the dataset."""
-    return self.builder_config.subsets
+    @property
+    def _subsets(self):
+        """Subsets that make up each split of the dataset."""
+        return self.builder_config.subsets
 
-  @property
-  def subsets(self):
-    """Subsets that make up each split of the dataset for the language pair."""
-    source, target = self.builder_config.language_pair
-    filtered_subsets = {}
-    for split, ss_names in self._subsets.items():
-      filtered_subsets[split] = []
-      for ss_name in ss_names:
-        ds = DATASET_MAP[ss_name]
-        if ds.target != target or source not in ds.sources:
-          logging.info(
-              "Skipping sub-dataset that does not include language pair: %s",
-              ss_name)
-        else:
-          filtered_subsets[split].append(ss_name)
-    logging.info("Using sub-datasets: %s", filtered_subsets)
-    return filtered_subsets
+    @property
+    def subsets(self):
+        """Subsets that make up each split of the dataset for the language pair."""
+        source, target = self.builder_config.language_pair
+        filtered_subsets = {}
+        for split, ss_names in self._subsets.items():
+            filtered_subsets[split] = []
+            for ss_name in ss_names:
+                ds = DATASET_MAP[ss_name]
+                if ds.target != target or source not in ds.sources:
+                    logging.info(
+                        "Skipping sub-dataset that does not include language pair: %s",
+                        ss_name)
+                else:
+                    filtered_subsets[split].append(ss_name)
+        logging.info("Using sub-datasets: %s", filtered_subsets)
+        return filtered_subsets
 
-  def _info(self):
-    src, target = self.builder_config.language_pair
-    return tfds.core.DatasetInfo(
-        builder=self,
-        description=_DESCRIPTION,
-        features=tfds.features.Translation(
-            languages=self.builder_config.language_pair,
-            encoder_config=self.builder_config.text_encoder_config),
-        supervised_keys=(src, target),
-        homepage=self.builder_config.url,
-        citation=self.builder_config.citation,
-    )
+    def _info(self):
+        src, target = self.builder_config.language_pair
+        return tfds.core.DatasetInfo(
+            builder=self,
+            description=_DESCRIPTION,
+            features=tfds.features.Translation(
+                languages=self.builder_config.language_pair,
+                encoder_config=self.builder_config.text_encoder_config),
+            supervised_keys=(src, target),
+            homepage=self.builder_config.url,
+            citation=self.builder_config.citation,
+        )
 
-  def _vocab_text_gen(self, split_subsets, extraction_map, language):
-    for _, ex in self._generate_examples(split_subsets, extraction_map):
-      yield ex[language]
+    def _vocab_text_gen(self, split_subsets, extraction_map, language):
+        for _, ex in self._generate_examples(split_subsets, extraction_map):
+            yield ex[language]
 
-  def _split_generators(self, dl_manager):
-    source, _ = self.builder_config.language_pair
+    def _split_generators(self, dl_manager):
+        source, _ = self.builder_config.language_pair
 
-    def _check_manual_files(ds):
-      """Verifies the manual files are downloaded for the given sub-dataset."""
-      manual_dl_files = ds.get_manual_dl_files(source)
-      manual_paths = []
-      for fname in manual_dl_files:
-        manual_path = os.path.join(dl_manager.manual_dir, fname)
-        if not tf.io.gfile.exists(manual_path):
-          raise AssertionError(
-              "For {0}, you must manually download the following file(s) "
-              "from {1} and place them in {2}: {3}".format(
-                  ds.name, ds.get_url(source), dl_manager.manual_dir,
-                  ", ".join(manual_dl_files)))
-        manual_paths.append(manual_path)
-      return manual_paths
+        def _check_manual_files(ds):
+            """Verifies the manual files are downloaded for the given sub-dataset."""
+            manual_dl_files = ds.get_manual_dl_files(source)
+            manual_paths = []
+            for fname in manual_dl_files:
+                manual_path = os.path.join(dl_manager.manual_dir, fname)
+                if not tf.io.gfile.exists(manual_path):
+                    raise AssertionError(
+                        "For {0}, you must manually download the following file(s) "
+                        "from {1} and place them in {2}: {3}".format(
+                            ds.name, ds.get_url(source), dl_manager.manual_dir,
+                            ", ".join(manual_dl_files)))
+                manual_paths.append(manual_path)
+            return manual_paths
 
-    manual_paths = {}
-    urls_to_download = {}
-    for ss_name in itertools.chain.from_iterable(self.subsets.values()):
-      if ss_name == "czeng_17":
-        # CzEng1.7 is CzEng1.6 with some blocks filtered out. We must download
-        # the filtering script so we can parse out which blocks need to be
-        # removed.
-        urls_to_download[_CZENG17_FILTER.name] = _CZENG17_FILTER.get_url(source)
-      ds = DATASET_MAP[ss_name]
-      if ds.get_manual_dl_files(source):
-        manual_paths[ss_name] = _check_manual_files(ds)
-      else:
-        urls_to_download[ss_name] = ds.get_url(source)
+        manual_paths = {}
+        urls_to_download = {}
+        for ss_name in itertools.chain.from_iterable(self.subsets.values()):
+            if ss_name == "czeng_17":
+                # CzEng1.7 is CzEng1.6 with some blocks filtered out. We must download
+                # the filtering script so we can parse out which blocks need to be
+                # removed.
+                urls_to_download[_CZENG17_FILTER.name] = _CZENG17_FILTER.get_url(
+                    source)
+            ds = DATASET_MAP[ss_name]
+            if ds.get_manual_dl_files(source):
+                manual_paths[ss_name] = _check_manual_files(ds)
+            else:
+                urls_to_download[ss_name] = ds.get_url(source)
 
-    # Download and extract files from URLs.
-    downloaded_files = dl_manager.download_and_extract(urls_to_download)
-    # Extract manually downloaded files.
-    manual_files = dl_manager.extract(manual_paths)
+        # Download and extract files from URLs.
+        downloaded_files = dl_manager.download_and_extract(urls_to_download)
+        # Extract manually downloaded files.
+        manual_files = dl_manager.extract(manual_paths)
 
-    extraction_map = dict(downloaded_files, **manual_files)
+        extraction_map = dict(downloaded_files, **manual_files)
 
-    # Generate vocabulary from training data if SubwordTextEncoder configured.
-    for language in self.builder_config.language_pair:
-      self.info.features[language].maybe_build_from_corpus(
-          self._vocab_text_gen(
-              self.subsets[tfds.Split.TRAIN], extraction_map, language))
+        # Generate vocabulary from training data if SubwordTextEncoder configured.
+        for language in self.builder_config.language_pair:
+            self.info.features[language].maybe_build_from_corpus(
+                self._vocab_text_gen(
+                    self.subsets[tfds.Split.TRAIN], extraction_map, language))
 
-    return [
-        tfds.core.SplitGenerator(  # pylint:disable=g-complex-comprehension
-            name=split,
-            num_shards=10 if split == tfds.Split.TRAIN else 1,
-            gen_kwargs={"split_subsets": split_subsets,
-                        "extraction_map": extraction_map})
-        for split, split_subsets in self.subsets.items()
-    ]
+        return [
+            tfds.core.SplitGenerator(  # pylint:disable=g-complex-comprehension
+                name=split,
+                num_shards=10 if split == tfds.Split.TRAIN else 1,
+                gen_kwargs={"split_subsets": split_subsets,
+                            "extraction_map": extraction_map})
+            for split, split_subsets in self.subsets.items()
+        ]
 
-  def _generate_examples(self, split_subsets, extraction_map):
-    """Returns the examples in the raw (text) form."""
-    source, _ = self.builder_config.language_pair
+    def _generate_examples(self, split_subsets, extraction_map):
+        """Returns the examples in the raw (text) form."""
+        source, _ = self.builder_config.language_pair
 
-    def _get_local_paths(ds, extract_dirs):
-      rel_paths = ds.get_path(source)
-      if len(extract_dirs) == 1:
-        extract_dirs = extract_dirs * len(rel_paths)
-      return [os.path.join(ex_dir, rel_path) if rel_path else ex_dir
-              for ex_dir, rel_path in zip(extract_dirs, rel_paths)]
+        def _get_local_paths(ds, extract_dirs):
+            rel_paths = ds.get_path(source)
+            if len(extract_dirs) == 1:
+                extract_dirs = extract_dirs * len(rel_paths)
+            return [os.path.join(ex_dir, rel_path) if rel_path else ex_dir
+                    for ex_dir, rel_path in zip(extract_dirs, rel_paths)]
 
-    for ss_name in split_subsets:
-      logging.info("Generating examples from: %s", ss_name)
-      ds = DATASET_MAP[ss_name]
-      extract_dirs = extraction_map[ss_name]
-      files = _get_local_paths(ds, extract_dirs)
-      if ss_name.startswith("czeng"):
-        if ss_name.endswith("16pre"):
-          sub_generator = functools.partial(
-              _parse_tsv, language_pair=("en", "cs"))
-        elif ss_name.endswith("17"):
-          filter_path = _get_local_paths(
-              _CZENG17_FILTER, extraction_map[_CZENG17_FILTER.name])[0]
-          sub_generator = functools.partial(
-              _parse_czeng, filter_path=filter_path)
-        else:
-          sub_generator = _parse_czeng
-      elif ss_name == "hindencorp_01":
-        sub_generator = _parse_hindencorp
-      elif len(files) == 2:
-        if ss_name.endswith("_frde"):
-          sub_generator = _parse_frde_bitext
-        else:
-          sub_generator = _parse_parallel_sentences
-      elif len(files) == 1:
-        fname = files[0]
-        # Note: Due to formatting used by `download_manager`, the file
-        # extension may not be at the end of the file path.
-        if ".tsv" in fname:
-          sub_generator = _parse_tsv
-        elif ss_name.startswith("newscommentary_v14"):
-          sub_generator = functools.partial(
-              _parse_tsv, language_pair=self.builder_config.language_pair)
-        elif "tmx" in fname:
-          sub_generator = _parse_tmx
-        elif ss_name.startswith("wikiheadlines"):
-          sub_generator = _parse_wikiheadlines
-        else:
-          raise ValueError("Unsupported file format: %s" % fname)
-      else:
-        raise ValueError("Invalid number of files: %d" % len(files))
+        for ss_name in split_subsets:
+            logging.info("Generating examples from: %s", ss_name)
+            ds = DATASET_MAP[ss_name]
+            extract_dirs = extraction_map[ss_name]
+            files = _get_local_paths(ds, extract_dirs)
+            if ss_name.startswith("czeng"):
+                if ss_name.endswith("16pre"):
+                    sub_generator = functools.partial(
+                        _parse_tsv, language_pair=("en", "cs"))
+                elif ss_name.endswith("17"):
+                    filter_path = _get_local_paths(
+                        _CZENG17_FILTER, extraction_map[_CZENG17_FILTER.name])[0]
+                    sub_generator = functools.partial(
+                        _parse_czeng, filter_path=filter_path)
+                else:
+                    sub_generator = _parse_czeng
+            elif ss_name == "hindencorp_01":
+                sub_generator = _parse_hindencorp
+            elif len(files) == 2:
+                if ss_name.endswith("_frde"):
+                    sub_generator = _parse_frde_bitext
+                else:
+                    sub_generator = _parse_parallel_sentences
+            elif len(files) == 1:
+                fname = files[0]
+                # Note: Due to formatting used by `download_manager`, the file
+                # extension may not be at the end of the file path.
+                if ".tsv" in fname:
+                    sub_generator = _parse_tsv
+                elif ss_name.startswith("newscommentary_v14"):
+                    sub_generator = functools.partial(
+                        _parse_tsv, language_pair=self.builder_config.language_pair)
+                elif "tmx" in fname:
+                    sub_generator = _parse_tmx
+                elif ss_name.startswith("wikiheadlines"):
+                    sub_generator = _parse_wikiheadlines
+                else:
+                    raise ValueError("Unsupported file format: %s" % fname)
+            else:
+                raise ValueError("Invalid number of files: %d" % len(files))
 
-      for sub_key, ex in sub_generator(*files):
-        if not all(ex.values()):
-          continue
-        # TODO(adarob): Add subset feature.
-        # ex["subset"] = subset
-        key = "{}/{}".format(ss_name, sub_key)
-        yield key, ex
+            for sub_key, ex in sub_generator(*files):
+                if not all(ex.values()):
+                    continue
+                # TODO(adarob): Add subset feature.
+                # ex["subset"] = subset
+                key = "{}/{}".format(ss_name, sub_key)
+                yield key, ex
 
 
 def _parse_parallel_sentences(f1, f2):
-  """Returns examples from parallel SGML or text files, which may be gzipped."""
-  def _parse_text(path):
-    """Returns the sentences from a single text file, which may be gzipped."""
-    split_path = path.split(".")
+    """Returns examples from parallel SGML or text files, which may be gzipped."""
+    def _parse_text(path):
+        """Returns the sentences from a single text file, which may be gzipped."""
+        split_path = path.split(".")
 
-    if split_path[-1] == "gz":
-      lang = split_path[-2]
-      with tf.io.gfile.GFile(path, "rb") as f, gzip.GzipFile(fileobj=f) as g:
-        return g.read().decode("utf-8").split("\n"), lang
+        if split_path[-1] == "gz":
+            lang = split_path[-2]
+            with tf.io.gfile.GFile(path, "rb") as f, gzip.GzipFile(fileobj=f) as g:
+                return g.read().decode("utf-8").split("\n"), lang
 
-    if split_path[-1] == "txt":
-      # CWMT
-      lang = split_path[-2].split("_")[-1]
-      lang = "zh" if lang in ("ch", "cn") else lang
-    else:
-      lang = split_path[-1]
-    with tf.io.gfile.GFile(path) as f:
-      return f.read().split("\n"), lang
+        if split_path[-1] == "txt":
+            # CWMT
+            lang = split_path[-2].split("_")[-1]
+            lang = "zh" if lang in ("ch", "cn") else lang
+        else:
+            lang = split_path[-1]
+        with tf.io.gfile.GFile(path) as f:
+            return f.read().split("\n"), lang
 
-  def _parse_sgm(path):
-    """Returns sentences from a single SGML file."""
-    lang = path.split(".")[-2]
-    sentences = []
-    # Note: We can't use the XML parser since some of the files are badly
-    # formatted.
-    seg_re = re.compile(r"<seg id=\"\d+\">(.*)</seg>")
-    with tf.io.gfile.GFile(path) as f:
-      for line in f:
-        seg_match = re.match(seg_re, line)
-        if seg_match:
-          assert len(seg_match.groups()) == 1
-          sentences.append(seg_match.groups()[0])
-    return sentences, lang
+    def _parse_sgm(path):
+        """Returns sentences from a single SGML file."""
+        lang = path.split(".")[-2]
+        sentences = []
+        # Note: We can't use the XML parser since some of the files are badly
+        # formatted.
+        seg_re = re.compile(r"<seg id=\"\d+\">(.*)</seg>")
+        with tf.io.gfile.GFile(path) as f:
+            for line in f:
+                seg_match = re.match(seg_re, line)
+                if seg_match:
+                    assert len(seg_match.groups()) == 1
+                    sentences.append(seg_match.groups()[0])
+        return sentences, lang
 
-  parse_file = _parse_sgm if f1.endswith(".sgm") else _parse_text
+    parse_file = _parse_sgm if f1.endswith(".sgm") else _parse_text
 
-  # Some datasets (e.g., CWMT) contain multiple parallel files specified with
-  # a wildcard. We sort both sets to align them and parse them one by one.
-  f1_files = tf.io.gfile.glob(f1)
-  f2_files = tf.io.gfile.glob(f2)
+    # Some datasets (e.g., CWMT) contain multiple parallel files specified with
+    # a wildcard. We sort both sets to align them and parse them one by one.
+    f1_files = tf.io.gfile.glob(f1)
+    f2_files = tf.io.gfile.glob(f2)
 
-  assert f1_files and f2_files, "No matching files found: %s, %s." % (f1, f2)
-  assert len(f1_files) == len(f2_files), (
-      "Number of files do not match: %d vs %d for %s vs %s." % (
-          len(f1_files), len(f2_files), f1, f2))
+    assert f1_files and f2_files, "No matching files found: %s, %s." % (f1, f2)
+    assert len(f1_files) == len(f2_files), (
+        "Number of files do not match: %d vs %d for %s vs %s." % (
+            len(f1_files), len(f2_files), f1, f2))
 
-  for f_id, (f1_i, f2_i) in enumerate(zip(sorted(f1_files), sorted(f2_files))):
-    l1_sentences, l1 = parse_file(f1_i)
-    l2_sentences, l2 = parse_file(f2_i)
+    for f_id, (f1_i, f2_i) in enumerate(zip(sorted(f1_files), sorted(f2_files))):
+        l1_sentences, l1 = parse_file(f1_i)
+        l2_sentences, l2 = parse_file(f2_i)
 
-    assert len(l1_sentences) == len(l2_sentences), (
-        "Sizes do not match: %d vs %d for %s vs %s." % (
-            len(l1_sentences), len(l2_sentences), f1_i, f2_i))
+        assert len(l1_sentences) == len(l2_sentences), (
+            "Sizes do not match: %d vs %d for %s vs %s." % (
+                len(l1_sentences), len(l2_sentences), f1_i, f2_i))
 
-    for line_id, (s1, s2) in enumerate(zip(l1_sentences, l2_sentences)):
-      key = "{}/{}".format(f_id, line_id)
-      yield key, {
-          l1: s1,
-          l2: s2
-      }
+        for line_id, (s1, s2) in enumerate(zip(l1_sentences, l2_sentences)):
+            key = "{}/{}".format(f_id, line_id)
+            yield key, {
+                l1: s1,
+                l2: s2
+            }
 
 
 def _parse_frde_bitext(fr_path, de_path):
-  with tf.io.gfile.GFile(fr_path) as f:
-    fr_sentences = f.read().split("\n")
-  with tf.io.gfile.GFile(de_path) as f:
-    de_sentences = f.read().split("\n")
-  assert len(fr_sentences) == len(de_sentences), (
-      "Sizes do not match: %d vs %d for %s vs %s." % (
-          len(fr_sentences), len(de_sentences), fr_path, de_path))
-  for line_id, (s1, s2) in enumerate(zip(fr_sentences, de_sentences)):
-    yield line_id, {
-        "fr": s1,
-        "de": s2
-    }
+    with tf.io.gfile.GFile(fr_path) as f:
+        fr_sentences = f.read().split("\n")
+    with tf.io.gfile.GFile(de_path) as f:
+        de_sentences = f.read().split("\n")
+    assert len(fr_sentences) == len(de_sentences), (
+        "Sizes do not match: %d vs %d for %s vs %s." % (
+            len(fr_sentences), len(de_sentences), fr_path, de_path))
+    for line_id, (s1, s2) in enumerate(zip(fr_sentences, de_sentences)):
+        yield line_id, {
+            "fr": s1,
+            "de": s2
+        }
 
 
 def _parse_tmx(path):
-  """Generates examples from TMX file."""
-  def _get_tuv_lang(tuv):
-    for k, v in tuv.items():
-      if k.endswith("}lang"):
-        return v
-    raise AssertionError("Language not found in `tuv` attributes.")
+    """Generates examples from TMX file."""
+    def _get_tuv_lang(tuv):
+        for k, v in tuv.items():
+            if k.endswith("}lang"):
+                return v
+        raise AssertionError("Language not found in `tuv` attributes.")
 
-  def _get_tuv_seg(tuv):
-    segs = tuv.findall("seg")
-    assert len(segs) == 1, "Invalid number of segments: %d" % len(segs)
-    return segs[0].text
+    def _get_tuv_seg(tuv):
+        segs = tuv.findall("seg")
+        assert len(segs) == 1, "Invalid number of segments: %d" % len(segs)
+        return segs[0].text
 
-  with tf.io.gfile.GFile(path, "rb") as f:
-    if six.PY3:
-      # Workaround due to: https://github.com/tensorflow/tensorflow/issues/33563
-      utf_f = codecs.getreader("utf-8")(f)
-    else:
-      utf_f = f
-    for line_id, (_, elem) in enumerate(ElementTree.iterparse(utf_f)):
-      if elem.tag == "tu":
-        yield line_id, {
-            _get_tuv_lang(tuv):
-                _get_tuv_seg(tuv) for tuv in elem.iterfind("tuv")
-        }
-        elem.clear()
+    with tf.io.gfile.GFile(path, "rb") as f:
+        if six.PY3:
+            # Workaround due to: https://github.com/tensorflow/tensorflow/issues/33563
+            utf_f = codecs.getreader("utf-8")(f)
+        else:
+            utf_f = f
+        for line_id, (_, elem) in enumerate(ElementTree.iterparse(utf_f)):
+            if elem.tag == "tu":
+                yield line_id, {
+                    _get_tuv_lang(tuv):
+                        _get_tuv_seg(tuv) for tuv in elem.iterfind("tuv")
+                }
+                elem.clear()
 
 
 def _parse_tsv(path, language_pair=None):
-  """Generates examples from TSV file."""
-  if language_pair is None:
-    lang_match = re.match(r".*\.([a-z][a-z])-([a-z][a-z])\.tsv", path)
-    assert lang_match is not None, "Invalid TSV filename: %s" % path
-    l1, l2 = lang_match.groups()
-  else:
-    l1, l2 = language_pair
-  with tf.io.gfile.GFile(path) as f:
-    for j, line in enumerate(f):
-      cols = line.split("\t")
-      if len(cols) != 2:
-        logging.warning(
-            "Skipping line %d in TSV (%s) with %d != 2 columns.",
-            j, path, len(cols))
-        continue
-      s1, s2 = cols
-      yield j, {
-          l1: s1.strip(),
-          l2: s2.strip()
-      }
+    """Generates examples from TSV file."""
+    if language_pair is None:
+        lang_match = re.match(r".*\.([a-z][a-z])-([a-z][a-z])\.tsv", path)
+        assert lang_match is not None, "Invalid TSV filename: %s" % path
+        l1, l2 = lang_match.groups()
+    else:
+        l1, l2 = language_pair
+    with tf.io.gfile.GFile(path) as f:
+        for j, line in enumerate(f):
+            cols = line.split("\t")
+            if len(cols) != 2:
+                logging.warning(
+                    "Skipping line %d in TSV (%s) with %d != 2 columns.",
+                    j, path, len(cols))
+                continue
+            s1, s2 = cols
+            yield j, {
+                l1: s1.strip(),
+                l2: s2.strip()
+            }
 
 
 def _parse_wikiheadlines(path):
-  """Generates examples from Wikiheadlines dataset file."""
-  lang_match = re.match(r".*\.([a-z][a-z])-([a-z][a-z])$", path)
-  assert lang_match is not None, "Invalid Wikiheadlines filename: %s" % path
-  l1, l2 = lang_match.groups()
-  with tf.io.gfile.GFile(path) as f:
-    for line_id, line in enumerate(f):
-      s1, s2 = line.split("|||")
-      yield line_id, {
-          l1: s1.strip(),
-          l2: s2.strip()
-      }
+    """Generates examples from Wikiheadlines dataset file."""
+    lang_match = re.match(r".*\.([a-z][a-z])-([a-z][a-z])$", path)
+    assert lang_match is not None, "Invalid Wikiheadlines filename: %s" % path
+    l1, l2 = lang_match.groups()
+    with tf.io.gfile.GFile(path) as f:
+        for line_id, line in enumerate(f):
+            s1, s2 = line.split("|||")
+            yield line_id, {
+                l1: s1.strip(),
+                l2: s2.strip()
+            }
 
 
 def _parse_czeng(*paths, **kwargs):
-  """Generates examples from CzEng v1.6, with optional filtering for v1.7."""
-  filter_path = kwargs.get("filter_path", None)
-  if filter_path:
-    re_block = re.compile(r"^[^-]+-b(\d+)-\d\d[tde]")
-    with tf.io.gfile.GFile(filter_path) as f:
-      bad_blocks = {
-          blk for blk in re.search(
-              r"qw{([\s\d]*)}", f.read()).groups()[0].split()
-      }
-    logging.info(
-        "Loaded %d bad blocks to filter from CzEng v1.6 to make v1.7.",
-        len(bad_blocks))
+    """Generates examples from CzEng v1.6, with optional filtering for v1.7."""
+    filter_path = kwargs.get("filter_path", None)
+    if filter_path:
+        re_block = re.compile(r"^[^-]+-b(\d+)-\d\d[tde]")
+        with tf.io.gfile.GFile(filter_path) as f:
+            bad_blocks = {
+                blk for blk in re.search(
+                    r"qw{([\s\d]*)}", f.read()).groups()[0].split()
+            }
+        logging.info(
+            "Loaded %d bad blocks to filter from CzEng v1.6 to make v1.7.",
+            len(bad_blocks))
 
-  for path in paths:
-    for gz_path in tf.io.gfile.glob(path):
-      with tf.io.gfile.GFile(gz_path, "rb") as g, gzip.GzipFile(fileobj=g) as f:
-        filename = os.path.basename(gz_path)
-        for line_id, line in enumerate(f):
-          line = line.decode("utf-8")  # required for py3
-          if not line.strip():
-            continue
-          id_, unused_score, cs, en = line.split("\t")
-          if filter_path:
-            block_match = re.match(re_block, id_)
-            if block_match and block_match.groups()[0] in bad_blocks:
-              continue
-          sub_key = "{}/{}".format(filename, line_id)
-          yield sub_key, {
-              "cs": cs.strip(),
-              "en": en.strip(),
-          }
+    for path in paths:
+        for gz_path in tf.io.gfile.glob(path):
+            with tf.io.gfile.GFile(gz_path, "rb") as g, gzip.GzipFile(fileobj=g) as f:
+                filename = os.path.basename(gz_path)
+                for line_id, line in enumerate(f):
+                    line = line.decode("utf-8")  # required for py3
+                    if not line.strip():
+                        continue
+                    id_, unused_score, cs, en = line.split("\t")
+                    if filter_path:
+                        block_match = re.match(re_block, id_)
+                        if block_match and block_match.groups()[0] in bad_blocks:
+                            continue
+                    sub_key = "{}/{}".format(filename, line_id)
+                    yield sub_key, {
+                        "cs": cs.strip(),
+                        "en": en.strip(),
+                    }
 
 
 def _parse_hindencorp(path):
-  with tf.io.gfile.GFile(path) as f:
-    for line_id, line in enumerate(f):
-      split_line = line.split("\t")
-      if len(split_line) != 5:
-        logging.warning("Skipping invalid HindEnCorp line: %s", line)
-        continue
-      yield line_id, {
-          "en": split_line[3].strip(),
-          "hi": split_line[4].strip()
-      }
+    with tf.io.gfile.GFile(path) as f:
+        for line_id, line in enumerate(f):
+            split_line = line.split("\t")
+            if len(split_line) != 5:
+                logging.warning("Skipping invalid HindEnCorp line: %s", line)
+                continue
+            yield line_id, {
+                "en": split_line[3].strip(),
+                "hi": split_line[4].strip()
+            }
